@@ -25,6 +25,7 @@
 
 #include <iostream>
 #include <algorithm>
+#include <ctgmath>
 #include <functional>
 #include <numeric>
 
@@ -80,27 +81,45 @@ State StateSpace::IndexToState(Init init, Index idx) {
   return state;
 }
 
-IndexList StateSpace::Neighbors(Init init, Index idx) {
+StateList StateSpace::Neighbors(Init init, Index idx) {
+  // Based on incoming states rather than outgoing states.
   auto ndeme = init.size();
   auto deme = 0;
-  State new_state, state = IndexToState(init, idx);
-  new_state.resize(state.size());
-  IndexList neighbors;
-  for (Index src = 0; src < state.size(); ++src) {
-    if (state[src] != 0) {
-      deme = src / ndeme;
-      for (Index tar = ndeme * deme; tar < ndeme * (deme + 1); ++tar) {
-        if (src != tar) {
-          copy(state.begin(), state.end(), new_state.begin());
-          new_state[src] -= 1;
-          new_state[tar] += 1;
-          neighbors.push_back(StateToIndex(init, new_state));
-        }
+  State state = IndexToState(init, idx);
+  State new_state(state.size());
+  StateList neighbors;
+  for (Index tar = 0; tar < state.size(); ++tar) {
+    deme = tar / ndeme;
+    for (Index src = ndeme * deme; src < ndeme * (deme + 1); ++src) {
+      if (state[src] > 0 && src != tar) {
+        copy(state.begin(), state.end(), new_state.begin());
+        new_state[src] -= 1;
+        new_state[tar] += 1;
+        neighbors.push_back(new_state);
       }
     }
   }
-  sort(neighbors.begin(), neighbors.end());
   return neighbors;
+}
+
+Init StateSpace::StateToInit(State state) {
+  auto ndeme = static_cast<Index>(sqrt(state.size()));
+  Init init(ndeme);
+  for (Index d = 0; d < ndeme; ++d) {
+    for (Index a = 0; a < ndeme; ++a) {
+      init[d] += state[d + a * ndeme];
+    }
+  }
+  return init;
+}
+
+State StateSpace::InitToState(Init init) {
+  auto ndeme = init.size();
+  State state(ndeme * ndeme);
+  for (Index d = 0; d < ndeme; ++d) {
+    state[d * (1 + ndeme)] = init[d];
+  }
+  return state;
 }
 
 namespace {

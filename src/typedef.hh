@@ -39,6 +39,7 @@ typedef vector<Index> Init;
 typedef vector<Index> State;
 typedef vector<Index> IndexList;
 typedef vector<double> ValueList;
+typedef vector<State> StateList;
 
 };
 

@@ -51,7 +51,10 @@ int main() {
   // 0, 3}) << endl;
 
   for (auto s: StateSpace::Neighbors({1,2,3}, 8)) {
-    cout << s << " ";
+    for (auto t: s) {
+      cout << t << " ";
+    }
+    cout << endl;
   }
   cout << endl;
 

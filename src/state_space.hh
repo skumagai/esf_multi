@@ -36,7 +36,9 @@ class StateSpace {
  public:
   static Index StateToIndex(Init, State);
   static State IndexToState(Init, Index);
-  static IndexList Neighbors(Init, Index);
+  static StateList Neighbors(Init, Index);
+  static Init StateToInit(State);
+  static State InitToState(Init);
 };
 
 }
