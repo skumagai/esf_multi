@@ -63,13 +63,11 @@ Index StateSpace::StateToIndex(Init init, State state) {
 
 State StateSpace::IndexToState(Init init, Index idx) {
   auto ndeme = init.size();
-  IndexList dim;
-  dim.resize(ndeme);
+  IndexList dim(ndeme);
   transform(init.begin(), init.end() - 1, dim.begin(),
             [ndeme](Index i) {return Binomial(i + ndeme - 1, i);});
   *(dim.end() - 1) = 1;
-  IndexList dim2;
-  dim2.resize(ndeme);
+  IndexList dim2(ndeme);
   dim2[0] = 1;
   partial_sum(dim.begin(), dim.end() - 1, dim2.begin() + 1, multiplies<Index>());
   State state;
@@ -131,8 +129,7 @@ State GenerateState(Index idx, Index ndeme, Index ngene) {
 
   IndexList offsets = {0};
   auto range = irange<Index>(0, ngene);
-  IndexList tmp;
-  tmp.resize(ngene);
+  IndexList tmp(ngene);
   transform(range.begin(),
             range.end(),
             tmp.begin(),
@@ -163,8 +160,7 @@ Index GenerateIndex(State::iterator begin, State::iterator end) {
   size -= 1;
   auto total = accumulate(begin, end, 0);
   auto range = irange<Index>(0, *begin);
-  State tmp;
-  tmp.resize(range.size());
+  State tmp(range.size());
   transform(range.begin(),
             range.end(),
             tmp.begin(),
