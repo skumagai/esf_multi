@@ -1,6 +1,6 @@
 // -*- mode: c++; coding: utf-8; -*-
 
-// typedef.hh - typedefs
+// matrix.hh - csc matrices
 
 // Copyright (C) 2013 Seiji Kumagai
 
@@ -23,23 +23,34 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-#ifndef TYPEDEF_HH
-#define TYPEDEF_HH
+#ifndef ESF_MULTI_MATRIX_HH
+#define ESF_MULTI_MATRIX_HH
 
-#include <cstddef>
-#include <vector>
+#include "util.hh"
+#include "state_space.hh"
 
 namespace esf {
 
-using std::vector;
-using std::size_t;
+class CSCMatrix {
+ public:
 
-typedef size_t Index;
-typedef vector<Index> Init;
-typedef vector<Index> State;
-typedef vector<Index> IndexList;
-typedef vector<double> ValueList;
+ private:
+  ValueList data;
+  IndexList row_idx;
+  IndexList col_ptr;
+};
+
+class TransientStatesSubMatrix: CSCMatrix {
+  ;
+};
+
+
+class AbsorbingStatesSubMatrix: CSCMatrix {
+  ;
+};
+
 
 };
 
-#endif // TYPEDEF_HH
+
+#endif // ESF_MULTI_MATRIX_HH
