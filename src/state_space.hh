@@ -32,13 +32,12 @@
 
 namespace esf {
 
-class StateSpace {
- public:
-  static Index StateToIndex(Init, State);
-  static State IndexToState(Init, Index);
-  static StateList Neighbors(Init, Index);
-  static Init StateToInit(State);
-  static State InitToState(Init);
+namespace StateSpace {
+Index StateToIndex(Init, State);
+State IndexToState(Init, Index);
+StateList Neighbors(Init, Index);
+Init StateToInit(State);
+State InitToState(Init);
 };
 
 }
