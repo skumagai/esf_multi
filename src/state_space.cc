@@ -80,20 +80,22 @@ State StateSpace::IndexToState(Init init, Index idx) {
 }
 
 StateList StateSpace::Neighbors(Init init, Index idx) {
-  // Based on incoming states rather than outgoing states.
+  // List of nodes accessible from idx by a single emigration.
   auto ndeme = init.size();
   auto deme = 0;
   State state = IndexToState(init, idx);
   State new_state(state.size());
   StateList neighbors;
-  for (Index tar = 0; tar < state.size(); ++tar) {
-    deme = tar / ndeme;
-    for (Index src = ndeme * deme; src < ndeme * (deme + 1); ++src) {
-      if (state[src] > 0 && src != tar) {
-        copy(state.begin(), state.end(), new_state.begin());
-        new_state[src] -= 1;
-        new_state[tar] += 1;
-        neighbors.push_back(new_state);
+  for (Index src = 0; src < state.size(); ++src) {
+    if (state[src] != 0) {
+      deme = src / ndeme;
+      for (Index tar = ndeme * deme; tar < ndeme * (deme + 1); ++tar) {
+        if (src != tar) {
+          copy(state.begin(), state.end(), new_state.begin());
+          new_state[src] -= 1;
+          new_state[tar] += 1;
+          neighbors.push_back(new_state);
+        }
       }
     }
   }
