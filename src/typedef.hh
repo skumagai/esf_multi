@@ -23,8 +23,8 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-#ifndef TYPEDEF_HH
-#define TYPEDEF_HH
+#ifndef ESF_MULTI_TYPEDEF_HH
+#define ESF_MULTI_TYPEDEF_HH
 
 #include <cstddef>
 #include <vector>
@@ -35,12 +35,14 @@ using std::vector;
 using std::size_t;
 
 typedef size_t Index;
+typedef double Value;
 typedef vector<Index> Init;
 typedef vector<Index> State;
 typedef vector<Index> IndexList;
-typedef vector<double> ValueList;
+typedef vector<Value> ValueList;
+typedef vector<Value*> ValuePtrList;
 typedef vector<State> StateList;
 
 };
 
-#endif // TYPEDEF_HH
+#endif // ESF_MULTI_TYPEDEF_HH

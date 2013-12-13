@@ -23,11 +23,27 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <functional>
+#include <numeric>
+
 #include "typedef.hh"
+
 
 namespace esf {
 
-Index Binomial(Index n, Index k) {
+
+using std::multiplies;
+using std::partial_sum;
+
+
+namespace {
+
+IndexList mult_factors(IndexList);
+
+};
+
+
+Index binomial(Index n, Index k) {
   // compute in double then cast back to long
   Index value = 1;
 
@@ -42,5 +58,46 @@ Index Binomial(Index n, Index k) {
 
   return value;
 };
+
+
+Index index_n_to_1(IndexList dim, IndexList idx) {
+  auto nsize = dim.size();
+  auto accum = mult_factors(dim);
+
+  Index val = 0;
+  for (Index i = 0; i < nsize; ++i) {
+    val += idx[i] * accum[i];
+  }
+
+  return val;
+};
+
+
+IndexList index_1_to_n(IndexList dim, Index idx) {
+  auto nsize = dim.size();
+  auto accum = mult_factors(dim);
+
+  IndexList vals(nsize);
+  for (Index i = 0; i < nsize; ++i) {
+    vals[i] = (idx / accum[i]) % dim[i];
+  }
+
+  return vals;
+};
+
+
+namespace {
+
+
+IndexList mult_factors(IndexList dim) {
+  IndexList accum(dim.size());
+  accum[0] = 1;
+  partial_sum(dim.begin(), dim.end() - 1, accum.begin() + 1, multiplies<Index>());
+  return accum;
+};
+
+
+};
+
 
 };

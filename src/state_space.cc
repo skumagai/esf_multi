@@ -23,7 +23,6 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-#include <iostream>
 #include <algorithm>
 #include <ctgmath>
 #include <functional>
@@ -34,7 +33,9 @@
 #include "state_space.hh"
 #include "util.hh"
 
+
 namespace esf {
+
 
 using std::accumulate;
 using std::copy;
@@ -44,131 +45,191 @@ using std::sort;
 using std::transform;
 using boost::irange;
 
+
 namespace {
-State GenerateState(Index idx, Index ndeme, Index ngene);
-Index GenerateIndex(State::iterator begin, State::iterator end);
+
+State generate_state(Index, Index, Index);
+
+Index generate_index(State&, Index, Index, Index);
+
 };
 
 
-Index StateSpace::StateToIndex(Init init, State state) {
+Index StateSpace::state_to_index(Init init, State state) {
   auto ndeme = init.size();
-  Index sum = 0, mult = 1;
-  State::iterator begin = state.begin();
-  for (Index i = 0; i < ndeme; ++i, begin += ndeme) {
-    sum += mult * GenerateIndex(begin, begin + ndeme);
-    mult *= Binomial(i + ndeme, i + 1);
-  }
-  return sum;
+  auto range = irange<Index>(0, ndeme * ndeme, ndeme);
+  IndexList accum(ndeme);
+
+  transform(range.begin(), range.end(), accum.begin(),
+            [ndeme, &state](Index i)
+            {
+              return generate_index(state, ndeme, i, i + ndeme);
+            });
+
+  return index_n_to_1(state_dim(init), accum);
 }
 
-State StateSpace::IndexToState(Init init, Index idx) {
+
+State StateSpace::index_to_state(Init init, Index idx) {
   auto ndeme = init.size();
-  IndexList dim(ndeme);
-  transform(init.begin(), init.end() - 1, dim.begin(),
-            [ndeme](Index i) {return Binomial(i + ndeme - 1, i);});
-  *(dim.end() - 1) = 1;
-  IndexList dim2(ndeme);
-  dim2[0] = 1;
-  partial_sum(dim.begin(), dim.end() - 1, dim2.begin() + 1, multiplies<Index>());
+
+  auto idx_list = index_1_to_n(state_dim(init), idx);
+
   State state;
   State substate;
   for (Index i = 0; i < ndeme; ++i) {
-    substate = GenerateState((idx / dim2[i]) % dim[i], ndeme, init[i]);
+    substate = generate_state(idx_list[i], ndeme, init[i]);
     state.insert(state.end(), substate.begin(), substate.end());
   };
+
   return state;
 }
 
-StateList StateSpace::Neighbors(Init init, Index idx) {
+
+StateList StateSpace::neighbors(Init init, Index idx) {
   // List of nodes accessible from idx by a single emigration.
   auto ndeme = init.size();
   auto deme = 0;
-  State state = IndexToState(init, idx);
+
+  State state = index_to_state(init, idx);
   State new_state(state.size());
+
   StateList neighbors;
   for (Index src = 0; src < state.size(); ++src) {
     if (state[src] != 0) {
       deme = src / ndeme;
+
       for (Index tar = ndeme * deme; tar < ndeme * (deme + 1); ++tar) {
         if (src != tar) {
           copy(state.begin(), state.end(), new_state.begin());
           new_state[src] -= 1;
           new_state[tar] += 1;
+
           neighbors.push_back(new_state);
         }
       }
     }
   }
+
   return neighbors;
 }
 
-Init StateSpace::StateToInit(State state) {
+
+Init StateSpace::state_to_init(State state) {
   auto ndeme = static_cast<Index>(sqrt(state.size()));
   Init init(ndeme);
+
   for (Index d = 0; d < ndeme; ++d) {
     for (Index a = 0; a < ndeme; ++a) {
       init[d] += state[d + a * ndeme];
     }
   }
+
   return init;
 }
 
-State StateSpace::InitToState(Init init) {
+
+State StateSpace::init_to_state(Init init) {
   auto ndeme = init.size();
+
   State state(ndeme * ndeme);
   for (Index d = 0; d < ndeme; ++d) {
     state[d * (1 + ndeme)] = init[d];
   }
+
   return state;
 }
 
+
+IndexList StateSpace::state_dim(Init init) {
+  auto ndeme = init.size();
+  IndexList dim(ndeme);
+
+  transform(init.begin(), init.end(), dim.begin(),
+            [ndeme](Index i)
+            {
+              return binomial(i + ndeme - 1, i);
+            });
+
+  return dim;
+}
+
+
+Index StateSpace::total_state(Init init) {
+  auto dim = state_dim(init);
+  return accumulate(dim.begin(), dim.end(), 1, multiplies<Index>());
+};
+
+
 namespace {
 
-State GenerateState(Index idx, Index ndeme, Index ngene) {
+
+State generate_state(Index idx, Index ndeme, Index ngene) {
   if (ndeme == 1) {
     return {ngene};
   }
 
   IndexList offsets = {0};
-  auto range = irange<Index>(0, ngene);
   IndexList tmp(ngene);
-  transform(range.begin(),
-            range.end(),
-            tmp.begin(),
-            [ndeme, ngene](Index i) {return Binomial(ngene - i + ndeme - 2, ngene - i);});
+
+  auto range = irange<Index>(0, ngene);
+
+
+  transform(range.begin(), range.end(), tmp.begin(),
+            [ndeme, ngene](Index i)
+            {
+              return binomial(ngene - i + ndeme - 2, ngene - i);
+            });
+
   offsets.insert(offsets.end(), tmp.begin(), tmp.end());
+
   IndexList::iterator oiter = offsets.begin(), end = offsets.end();
+
   Index offset = 0;
   while (oiter < end && idx >= *oiter) {
     idx -= *oiter;
     offset += 1;
     oiter += 1;
   }
+
   if (offset > 0) {
     offset -= 1;
   }
 
   State state = {offset};
-  auto rec = GenerateState(idx, ndeme - 1, ngene - offset);
+  auto rec = generate_state(idx, ndeme - 1, ngene - offset);
   state.insert(state.end(), rec.begin(), rec.end());
   return state;
 }
 
-Index GenerateIndex(State::iterator begin, State::iterator end) {
-  auto size = end - begin;
+
+Index generate_index(State& state, Index size, Index b, Index e) {
   if (size == 1) {
     return 0;
   }
+
   size -= 1;
+
+  auto it = state.begin();
+  auto begin = it + b;
+  auto end = it + e;
+
   auto total = accumulate(begin, end, 0);
   auto range = irange<Index>(0, *begin);
+
   State tmp(range.size());
   transform(range.begin(),
             range.end(),
             tmp.begin(),
-            [total, size](Index i) {return Binomial(total - i + size - 1, total - i);});
-  return accumulate(tmp.begin(), tmp.end(), 0) + GenerateIndex(begin + 1, end);
+            [total, size](Index i)
+            {
+              return binomial(total - i + size - 1, total - i);
+            });
+
+  return accumulate(tmp.begin(), tmp.end(), 0) +
+      generate_index(state, size, b + 1, e);
 }
+
 
 };
 

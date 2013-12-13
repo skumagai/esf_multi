@@ -23,8 +23,8 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-#ifndef STATE_SPACE_HH
-#define STATE_SPACE_HH
+#ifndef ESF_MULTI_STATE_SPACE_HH
+#define ESF_MULTI_STATE_SPACE_HH
 
 #include <vector>
 
@@ -33,13 +33,23 @@
 namespace esf {
 
 namespace StateSpace {
-Index StateToIndex(Init, State);
-State IndexToState(Init, Index);
-StateList Neighbors(Init, Index);
-Init StateToInit(State);
-State InitToState(Init);
+
+Index state_to_index(Init, State);
+
+State index_to_state(Init, Index);
+
+StateList neighbors(Init, Index);
+
+Init state_to_init(State);
+
+State init_to_state(Init);
+
+IndexList state_dim(Init);
+
+Index total_state(Init);
+
 };
 
 }
 
-#endif // STATE_SPACE_HH
+#endif // ESF_MULTI_STATE_SPACE_HH

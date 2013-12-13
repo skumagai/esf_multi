@@ -23,15 +23,17 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-#ifndef UTIL_HH
-#define UTIL_HH
+#ifndef ESF_MULTI_UTIL_HH
+#define ESF_MULTI_UTIL_HH
 
 #include "typedef.hh"
 
 namespace esf {
 
-Index Binomial(Index, Index);
+Index binomial(Index, Index);
+Index index_n_to_1(IndexList, IndexList);
+IndexList index_1_to_n(IndexList, Index);
 
 };
 
-#endif // UTIL_HH
+#endif // ESF_MULTI_UTIL_HH
