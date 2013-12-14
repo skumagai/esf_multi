@@ -23,6 +23,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <cassert>
 #include <iostream>
 #include <iterator>
 #include <vector>
@@ -40,60 +41,17 @@ int main() {
   using std::endl;
   using esf::Index;
   using namespace esf;
-  // using namespace esf::StateSpace;
   using esf::binomial;
 
   Index n = 3;
 
-  // for (Index k = 0; k <= n; ++k) {
-  //   cout << binomial(n, k) << endl;
-  // }
-
-  // cout << "state:";
-  // for (auto s: StateSpace::index_to_state({1,2,3}, 4)) {
-  //   cout << ' ' << s;
-  // }
-  // cout << endl;
-
-  // for (int i = 0; i < 10; ++i) {
-  //   cout << "state(" << i << "):";
-  //   for (auto s: StateSpace::index_to_state({1,2,3}, i)) {
-  //     cout << ' ' << s;
-  //   }
-  //   cout << endl;
-  // }
-
-
-  cout << "state(1, 0, 0, 0, 2, 0, 0, 0, 3): ";
-  cout << StateSpace::state_to_index({1,2,3}, {1, 0, 0, 0, 2, 0, 0,
-  0, 3}) << endl;
-
-  // for (auto s: StateSpace::neighbors({1,2,3}, 8)) {
-  //   cout << "neighbors:";
-  //   for (auto t: s) {
-  //     cout << ' ' << t;
-  //   }
-  //   cout << endl;
-  // }
-  // cout << endl;
-
-  // esf::IndexList dim = {2, 3, 4};
-  // esf::IndexList idx = {1, 1, 0};
-  // cout << esf::index_n_to_1(dim, idx) << endl;
-
-  // for (auto a: esf::index_1_to_n(dim, 3)) {
-  //   cout << a << endl;
-  // }
-
-  // cout << "@@@@@@@@@@@@@@@@@@@@@@@@@@" << endl;
-
-  // vector<int> a = {0, 1, 2, 3, 4, 5, 6, 7};
-  // auto itr = next(a.begin(), 3);
-
-  // cout << *itr << endl;
-  // itr += 1;
-  // cout << *itr << endl;
-
+  // Test conversion of state to index and vice versa.
+  cout << "Check conversion of state to index vice versa: ";
+  for (int i = 0; i < 180; ++i) {
+    auto state = StateSpace::index_to_state({1,2,3}, i);
+    assert (i == StateSpace::state_to_index({1,2,3}, state));
+  }
+  cout << "passed\n";
 
   return 0;
 };

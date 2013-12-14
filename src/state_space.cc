@@ -50,7 +50,7 @@ namespace {
 
 State generate_state(Index, Index, Index);
 
-Index generate_index(State&, Index, Index, Index);
+Index generate_index(State&, Index, Index);
 
 };
 
@@ -63,7 +63,7 @@ Index StateSpace::state_to_index(Init init, State state) {
   transform(range.begin(), range.end(), accum.begin(),
             [ndeme, &state](Index i)
             {
-              return generate_index(state, ndeme, i, i + ndeme);
+              return generate_index(state, i, i + ndeme);
             });
 
   return index_n_to_1(state_dim(init), accum);
@@ -165,69 +165,53 @@ namespace {
 
 
 State generate_state(Index idx, Index ndeme, Index ngene) {
-  if (ndeme == 1) {
-    return {ngene};
+
+  Index j, offset = 0;
+  State state(ndeme);
+
+  for (Index i = 0; i < ndeme - 1; ++i) {
+
+    j = 0;
+
+    while (idx > 0 &&
+           (offset = binomial(ngene - j + ndeme - i - 2, ngene - j)) <= idx) {
+
+      idx -= offset;
+      ++j;
+
+    }
+
+    ngene -= j;
+    state[i] = j;
+
   }
 
-  IndexList offsets = {0};
-  IndexList tmp(ngene);
+  state[ndeme - 1] = ngene;
 
-  auto range = irange<Index>(0, ngene);
-
-
-  transform(range.begin(), range.end(), tmp.begin(),
-            [ndeme, ngene](Index i)
-            {
-              return binomial(ngene - i + ndeme - 2, ngene - i);
-            });
-
-  offsets.insert(offsets.end(), tmp.begin(), tmp.end());
-
-  IndexList::iterator oiter = offsets.begin(), end = offsets.end();
-
-  Index offset = 0;
-  while (oiter < end && idx >= *oiter) {
-    idx -= *oiter;
-    offset += 1;
-    oiter += 1;
-  }
-
-  if (offset > 0) {
-    offset -= 1;
-  }
-
-  State state = {offset};
-  auto rec = generate_state(idx, ndeme - 1, ngene - offset);
-  state.insert(state.end(), rec.begin(), rec.end());
   return state;
 }
 
 
-Index generate_index(State& state, Index size, Index b, Index e) {
-  if (size == 1) {
-    return 0;
+Index generate_index(State& state, Index b, Index e) {
+
+  Index idx = 0, curr = 0, ndeme = e - b;
+  Index size = accumulate(state.begin() + b, state.begin() + e, 0);
+
+  for (Index i = 0; i < ndeme - 1; ++i) {
+
+    curr = state[b++];
+
+    for (Index j = 0; j < curr; ++j) {
+
+      idx += binomial(size - j + ndeme - i - 2, size - j);
+
+    }
+
+    size -= curr;
+
   }
 
-  size -= 1;
-
-  auto it = state.begin();
-  auto begin = it + b;
-  auto end = it + e;
-
-  auto total = accumulate(begin, end, 0);
-  auto range = irange<Index>(0, *begin);
-
-  State tmp(range.size());
-  transform(range.begin(),
-            range.end(),
-            tmp.begin(),
-            [total, size](Index i)
-            {
-              return binomial(total - i + size - 1, total - i);
-            });
-
-  return accumulate(tmp.begin(), tmp.end(), 0) +
-      generate_index(state, size, b + 1, e);
+  return idx;
 }
 
 
