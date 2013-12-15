@@ -1,6 +1,6 @@
 // -*- mode: c++; coding: utf-8; -*-
 
-// test.cc - brief description
+// hit_prob.hh - Computing hitting probabilities
 
 // Copyright (C) 2013 Seiji Kumagai
 
@@ -23,50 +23,64 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-#include <cassert>
-#include <iostream>
-#include <iterator>
-#include <vector>
+#ifndef ESF_MULTI_HIT_PROB_HH
+#define ESF_MULTI_HIT_PROB_HH
 
-using std::cout;
-using std::endl;
-using std::vector;
-using std::next;
+#include "typedef.hh"
 
-#include "util.hh"
-#include "state_space.hh"
-#include "hit_prob.hh"
-
-int main() {
-  using std::cout;
-  using std::endl;
-  using esf::Index;
-  using namespace esf;
-  using esf::binomial;
-
-  Index n = 3;
-
-  // Test conversion of state to index and vice versa.
-  cout << "Check conversion of state to index vice versa: ";
-  for (int i = 0; i < 180; ++i) {
-    auto state = StateSpace::index_to_state({1,2,3}, i);
-    assert (i == StateSpace::state_to_index({1,2,3}, state));
-  }
-  cout << "passed\n";
+namespace esf {
 
 
-  // Params params({0, 1, 1, 1, 0, 1, 1, 1, 0},
-  //               {1, 1, 1},
-  //               {1, 1, 1});
+class Params {
+ private:
 
-  // HitProb hp({1, 2, 3}, params);
+  ValueList pop;
 
-  Params params({0., 1., 1., 0.}, {1., 1.}, {1., 1.});
-  HitProb hp({2, 2}, params);
+  ValueList mut;
 
-  for (int i = 0; i < 9; ++i) {
-    cout << hp.get(i) << '\n';
-  }
+  ValueList mig;
 
-  return 0;
+ public:
+  Params(ValueList mi, ValueList p, ValueList mu)
+      : mig(mi), pop(p), mut(mu) {};
+
+  Value mig_rate(Index, Index);
+
+  Value mut_rate(Index);
+
+  Value pop_size(Index);
+
 };
+
+
+class HitProb {
+
+ private:
+  Init init;
+
+  Params params;
+
+  ValueList prob;
+
+  void compute();
+
+  Value compute_u(State, State);
+
+  Value compute_v(State);
+
+ public:
+  HitProb(Init, Params);
+
+  Value get(Index);
+
+  Value get(IndexList);
+
+  void update(Params);
+
+};
+
+
+};
+
+
+#endif // ESF_MULTI_HIT_PROB_HH
