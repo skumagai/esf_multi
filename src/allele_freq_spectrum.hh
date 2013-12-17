@@ -1,6 +1,6 @@
 // -*- mode: c++; coding: utf-8; -*-
 
-// typedef.hh - typedefs
+// allele_freq_spectrum.hh - Allele frequency spectrum
 
 // Copyright (C) 2013 Seiji Kumagai
 
@@ -23,31 +23,27 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-#ifndef ESF_MULTI_TYPEDEF_HH
-#define ESF_MULTI_TYPEDEF_HH
-
-#include <cstddef>
-#include <vector>
-#include <set>
+#ifndef ESF_MULTI_ALLELE_FREQ_SPECTRUM_HH
+#define ESF_MULTI_ALLELE_FREQ_SPECTRUM_HH
 
 namespace esf {
 
-using ::std::multiset;
-using ::std::set;
-using ::std::size_t;
-using ::std::vector;
 
-typedef size_t Index;
-typedef double Value;
-typedef vector<Index> Init;
-typedef vector<Index> State;
-typedef vector<Index> IndexList;
-typedef vector<Value> ValueList;
-typedef vector<Value*> ValuePtrList;
-typedef vector<State> StateList;
-typedef multiset<vector<Index>> AlleleFreqSet;
-typedef set<AlleleFreqSet> AlleleFreqSpectrumList;
+class AlleleFreqSpectrum {
+
+ private:
+  AlleleFreqSet af;
+
+ public:
+
+  AlleleFreqSpectrum();
+
+  AlleleFreqSpectrumList all_afs();
 
 };
 
-#endif // ESF_MULTI_TYPEDEF_HH
+
+};
+
+
+#endif // ESF_MULTI_ALLELE_FREQ_SPECTRUM_HH
