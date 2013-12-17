@@ -56,6 +56,7 @@ class Params {
 class HitProb {
 
  private:
+
   Init init;
 
   Params params;
@@ -68,18 +69,15 @@ class HitProb {
 
   Value compute_u(State, State);
 
-  Value compute_v(State, ValueList::iterator const&);
+  void set_deme_specific_rate(Init, Index, Index);
 
  public:
+
   HitProb(Init, Params);
-
-  Value get(Index);
-
-  Value get(IndexList);
 
   Value get(Index, Index);
 
-  Value get(IndexList, Index);
+  Value get(State, Index);
 
   // Value coal_denom(Index, Index);
 

@@ -72,15 +72,19 @@ Value Params::pop_size(Index i) {
 
 HitProb::HitProb(Init i, Params p)
     : init(i), params(p) {
+
   auto n = total_state(init);
+
   prob.reserve(n);
+
   demeprob.reserve(n * init.size());
+
   compute();
 
 }
 
 
-Value HitProb::get(Index idx) {
+Value HitProb::get(Index idx, Index deme) {
 
   if (prob.empty()) {
 
@@ -88,37 +92,16 @@ Value HitProb::get(Index idx) {
 
   }
 
-  return prob[idx];
+  return prob[idx] * demeprob[init.size() * idx + deme];
 
 }
 
 
-Value HitProb::get(IndexList idx) {
+Value HitProb::get(State state, Index deme) {
 
-  return get(state_to_index(init, idx));
-
-}
-
-
-Value HitProb::get(Index idx, Index deme) {
-
-  return get(idx) * demeprob[init.size() * idx + deme];
+  return get(state_to_index(init, state), deme);
 
 }
-
-
-Value HitProb::get(IndexList idx, Index deme) {
-
-  return get(state_to_index(init, idx), deme);
-
-}
-
-
-// Value HitProb::denom(Index deme) {
-
-//   ;
-
-// }
 
 
 void HitProb::update(Params p) {
@@ -134,26 +117,25 @@ void HitProb::compute() {
 
   auto dim = total_state(init);
 
-  Matrix u(dim, dim), v(dim, dim);
+  Matrix u(dim, dim);
 
   auto ndeme = init.size();
 
   u.reserve(VectorXi::Constant(dim, (2 * ndeme * (ndeme - 1) + 1) * dim));
-  v.reserve(VectorXi::Constant(dim, 1));
 
-  Value u_val, v_val, total;
+  Value u_val, total;
 
   auto itrbase = demeprob.begin();
 
   State s;
+  Init ii;
   for (Index i = 0; i < dim; ++i) {
 
     s = index_to_state(init, i);
 
-    v_val = compute_v(s, itrbase + ndeme * i);
-    v.insert(i, i) = v_val;
+    set_deme_specific_rate(state_to_init(s), dim, ndeme);
 
-    total = v_val;
+    total = 0.0;
 
     for (auto adj: neighbors(init, i)) {
 
@@ -169,7 +151,6 @@ void HitProb::compute() {
   }
 
   u.makeCompressed();
-  v.makeCompressed();
 
   Vector a(dim);
   a.insert(state_to_index(init, init_to_state(init))) = 1.0;
@@ -179,7 +160,7 @@ void HitProb::compute() {
     return;
   }
 
-  auto x = (-v * solver.solve(a)).col(0);
+  auto x = -solver.solve(a).col(0);
   if (solver.info() != Eigen::Success) {
     return;
   }
@@ -210,28 +191,17 @@ Value HitProb::compute_u(State from, State to) {
 }
 
 
-Value HitProb::compute_v(State state, ValueList::iterator const& it) {
+void HitProb::set_deme_specific_rate(Init genes, Index dim, Index ndeme) {
 
-  auto genes = state_to_init(state);
+  for (Index i = 0; i < dim; ++i) {
 
-  Value val = 0.0, data = 0.0;
+    for (Index j = 0; j < ndeme; ++j) {
 
-  for (Index i = 0; i < genes.size(); ++i) {
+      demeprob[i * ndeme + j] = 2.0 * params.pop_size(j) * binomial(genes[i], 2);
 
-    val = 2.0 * params.pop_size(i) * binomial(genes[i], 2);
-    *(it + i) = val;
-    data += val;
-    data += genes[i] * params.mut_rate(i);
+    }
 
   }
-
-  for (Index i = 0; i < genes.size(); ++i) {
-
-    *(it + i) /= data;
-
-  }
-
-  return data;
 
 }
 
