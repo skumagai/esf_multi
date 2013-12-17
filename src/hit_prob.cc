@@ -72,7 +72,9 @@ Value Params::pop_size(Index i) {
 
 HitProb::HitProb(Init i, Params p)
     : init(i), params(p) {
-  prob.reserve(init.size() * init.size());
+  auto n = total_state(init);
+  prob.reserve(n);
+  demeprob.reserve(n * init.size());
   compute();
 
 }
@@ -98,6 +100,27 @@ Value HitProb::get(IndexList idx) {
 }
 
 
+Value HitProb::get(Index idx, Index deme) {
+
+  return get(idx) * demeprob[init.size() * idx + deme];
+
+}
+
+
+Value HitProb::get(IndexList idx, Index deme) {
+
+  return get(state_to_index(init, idx), deme);
+
+}
+
+
+// Value HitProb::denom(Index deme) {
+
+//   ;
+
+// }
+
+
 void HitProb::update(Params p) {
 
   params = p;
@@ -120,12 +143,14 @@ void HitProb::compute() {
 
   Value u_val, v_val, total;
 
+  auto itrbase = demeprob.begin();
+
   State s;
   for (Index i = 0; i < dim; ++i) {
 
     s = index_to_state(init, i);
 
-    v_val = compute_v(s);
+    v_val = compute_v(s, itrbase + ndeme * i);
     v.insert(i, i) = v_val;
 
     total = v_val;
@@ -185,15 +210,24 @@ Value HitProb::compute_u(State from, State to) {
 }
 
 
-Value HitProb::compute_v(State state) {
+Value HitProb::compute_v(State state, ValueList::iterator const& it) {
 
   auto genes = state_to_init(state);
 
-  Value data = 0.0;
+  Value val = 0.0, data = 0.0;
+
   for (Index i = 0; i < genes.size(); ++i) {
 
-    data += 2.0 * params.pop_size(i) * binomial(genes[i], 2);
+    val = 2.0 * params.pop_size(i) * binomial(genes[i], 2);
+    *(it + i) = val;
+    data += val;
     data += genes[i] * params.mut_rate(i);
+
+  }
+
+  for (Index i = 0; i < genes.size(); ++i) {
+
+    *(it + i) /= data;
 
   }
 

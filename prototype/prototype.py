@@ -84,11 +84,57 @@ def genstate(idx, ndeme, ngenes):
         offsets = offsets[1:]
     return [offset] + genstate(idx, ndeme - 1, ngenes - offset)
 
+def relocate_rec(n, data):
+    if n == 0:
+        return [data]
+
+    ndeme = len(data)
+
+    ret = []
+    for i in range(ndeme):
+        vec = [0] * ndeme
+        vec[i] = 1
+        val = add(vec, data)
+        for v in relocate_rec(n - 1, val):
+            ret.append(v)
+
+    return ret
+
+
+def add(*lists):
+    return [sum(vals) for vals in zip(*lists)]
+
+
+def combine(seqs, ndeme, vec):
+
+    if len(seqs) == 0:
+        return [vec]
+
+    head, rest = seqs[0], seqs[1:]
+    data = []
+    for v in relocate_rec(head, [0] * ndeme):
+        w = list(vec)
+        w.extend(v)
+        for x in combine(rest, ndeme, w):
+            data.append(x)
+
+    return set(tuple(i) for i in data)
+
 
 if __name__ == '__main__':
+
+    # print relocate_seqs([1, 2, 0])
+
+    # print relocate_rec(2, [0] * 3)
+
+    print combine([1, 2, 1], 3, [])
+
+    # print add([1,2,3], [3,4,5])
+
+
     # print state2idx([1, 2, 3], [1, 0, 0, 0, 2, 0, 0, 0, 3])
     # print idx2state([1, 2, 3], 8)
-    print neighbors([1, 2, 3], 8)
+    # print neighbors([1, 2, 3], 8)
     # print genidx([0, 0, 3])
     # print genidx([1, 0, 0])
     # print genidx([0, 1, 0])

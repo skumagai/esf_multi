@@ -62,11 +62,13 @@ class HitProb {
 
   ValueList prob;
 
+  ValueList demeprob;
+
   void compute();
 
   Value compute_u(State, State);
 
-  Value compute_v(State);
+  Value compute_v(State, ValueList::iterator const&);
 
  public:
   HitProb(Init, Params);
@@ -74,6 +76,14 @@ class HitProb {
   Value get(Index);
 
   Value get(IndexList);
+
+  Value get(Index, Index);
+
+  Value get(IndexList, Index);
+
+  // Value coal_denom(Index, Index);
+
+  // Value coal_denom(IndexList, Index);
 
   void update(Params);
 
