@@ -75,9 +75,7 @@ HitProb::HitProb(Init i, Params p)
 
   auto n = total_state(init);
 
-  prob.reserve(n);
-
-  demeprob.reserve(n * init.size());
+  prob.reserve(n * init.size());
 
   compute();
 
@@ -92,7 +90,7 @@ Value HitProb::get(Index idx, Index deme) {
 
   }
 
-  return prob[idx] * demeprob[init.size() * idx + deme];
+  return prob[init.size() * idx + deme];
 
 }
 
@@ -125,15 +123,20 @@ void HitProb::compute() {
 
   Value u_val, total;
 
-  auto itrbase = demeprob.begin();
-
   State s;
   Init ii;
+  InitList tmp(ndeme * dim);
   for (Index i = 0; i < dim; ++i) {
 
     s = index_to_state(init, i);
 
-    set_deme_specific_rate(state_to_init(s), dim, ndeme);
+    ii = state_to_init(s);
+
+    for (ij: ii) {
+
+      tmp.push_back(*ij);
+
+    }
 
     total = 0.0;
 
@@ -166,7 +169,13 @@ void HitProb::compute() {
   }
 
   for (Index i = 0; i < dim; ++i) {
-    prob.push_back(x(i));
+
+    for (Index j = 0; j < ndeme; ++i) {
+
+      prob.push_back(x(i) * 2.0 * params.pop_size(j) * binomial(tmp[i * ndeme + j], 2));
+
+    }
+
   }
 
 }
@@ -187,21 +196,6 @@ Value HitProb::compute_u(State from, State to) {
   }
 
   return from[i] * params.mig_rate(i % size, j % size);
-
-}
-
-
-void HitProb::set_deme_specific_rate(Init genes, Index dim, Index ndeme) {
-
-  for (Index i = 0; i < dim; ++i) {
-
-    for (Index j = 0; j < ndeme; ++j) {
-
-      demeprob[i * ndeme + j] = 2.0 * params.pop_size(j) * binomial(genes[i], 2);
-
-    }
-
-  }
 
 }
 

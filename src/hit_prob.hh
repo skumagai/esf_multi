@@ -69,8 +69,6 @@ class HitProb {
 
   Value compute_u(State, State);
 
-  void set_deme_specific_rate(Init, Index, Index);
-
  public:
 
   HitProb(Init, Params);
