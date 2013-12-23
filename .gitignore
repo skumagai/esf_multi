@@ -11,3 +11,12 @@
 *.lai
 *.la
 *.a
+
+# Obviously...
+a.out
+
+# googletest (gtest) related make files
+CMakeFiles/
+CMakeCache.txt
+ext/gtest/Makefile
+*.cmake
