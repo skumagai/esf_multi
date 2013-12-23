@@ -77,10 +77,6 @@ class HitProb {
 
   Value get(State, Index);
 
-  // Value coal_denom(Index, Index);
-
-  // Value coal_denom(IndexList, Index);
-
   void update(Params);
 
 };
