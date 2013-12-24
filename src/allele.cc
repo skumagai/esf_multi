@@ -79,6 +79,13 @@ Allele Allele::remove(Index deme) const {
 }
 
 
+bool Allele::singleton() const {
+
+  return total == 1;
+
+}
+
+
 Index Allele::size() const {
 
   return total;

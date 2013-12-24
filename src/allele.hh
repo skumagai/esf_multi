@@ -74,6 +74,8 @@ class Allele {
 
   Allele add(Index) const;
 
+  bool singleton() const;
+
   iterator begin();
 
   const_iterator begin() const;

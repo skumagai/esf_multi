@@ -97,6 +97,15 @@ TEST_F(AlleleTest, NonSingletonADD) {
 
 }
 
+
+TEST_F(AlleleTest, CheckSingleton) {
+
+  EXPECT_EQ(true, s.singleton());
+  EXPECT_NE(true, ns.singleton());
+
+}
+
+
 TEST_F(AlleleTest, AlleleCompare) {
 
   bool less = s < ns;
