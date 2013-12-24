@@ -34,26 +34,20 @@
 namespace esf {
 
 
-AFS::AFS(AFS const& afs, Allele const& allele, Index deme, Mode mode)
+AFS::AFS(AFS const& afs, Allele const& allele, Mode mode)
     : data(afs.data) {
 
-  if (data[allele] > 1) {
+  if (mode == Mode::ADD) {
+
+    data[allele] += 1;
+
+  } else if (data[allele] > 1) {
 
     data[allele] -= 1;
 
   } else {
 
     data.erase(allele);
-
-  }
-
-  if (mode == Mode::ADD) {
-
-    data[allele.add(deme)] += 1;
-
-  } else if (!allele.singleton()) {
-
-    data[allele.remove(deme)] += 1;
 
   }
 
@@ -71,16 +65,16 @@ AFS::AFS(::std::vector<Allele> const& avec) {
 }
 
 
-AFS AFS::add(Allele allele, Index deme) {
+AFS AFS::add(Allele allele) {
 
-  return AFS(*this, allele, deme, Mode::ADD);
+  return AFS(*this, allele, Mode::ADD);
 
 }
 
 
-AFS AFS::remove(Allele allele, Index deme) {
+AFS AFS::remove(Allele allele) {
 
-  return AFS(*this, allele, deme, Mode::REMOVE);
+  return AFS(*this, allele, Mode::REMOVE);
 
 }
 

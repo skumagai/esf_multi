@@ -73,18 +73,18 @@ TEST_F(AFSTest, Singleton) {
 
 TEST_F(AFSTest, SingletonAdd) {
 
-  auto afs0 = s.add(a100, 0);
+  auto afs0 = s.add(a100);
 
-  EXPECT_EQ(1, afs0[a100]);
-  EXPECT_EQ(1, afs0[a200]);
+  EXPECT_EQ(3, afs0[a100]);
+  EXPECT_EQ(0, afs0[a200]);
 
 }
 
 
 TEST_F(AFSTest, SingletonRemove) {
 
-  auto afs0 = s.remove(a100, 0);
-  auto afs1 = s.remove(a100, 0).remove(a100, 0);
+  auto afs0 = s.remove(a100);
+  auto afs1 = s.remove(a100).remove(a100);
 
   EXPECT_EQ(2, s[a100]);
   EXPECT_EQ(1, afs0[a100]);
@@ -110,7 +110,7 @@ TEST_F(AFSTest, NonSingleton) {
 
 TEST_F(AFSTest, NonSingletonAdd) {
 
-  auto a0 = ns.add(a100, 0);
+  auto a0 = ns.add(a200);
 
   EXPECT_EQ(0, a0[a100]);
   EXPECT_EQ(2, a0[a200]);
@@ -120,11 +120,11 @@ TEST_F(AFSTest, NonSingletonAdd) {
 
 TEST_F(AFSTest, NonSingletonRemove) {
 
-  auto afs0 = ns.remove(a200, 0);
-  auto afs1 = ns.remove(a200, 0).remove(a100, 0);
+  auto afs0 = ns.remove(a100);
+  auto afs1 = ns.remove(a200);
 
-  EXPECT_EQ(1, afs0[a100]);
-  EXPECT_EQ(0, afs0[a200]);
+  EXPECT_EQ(0, afs0[a100]);
+  EXPECT_EQ(1, afs0[a200]);
   EXPECT_EQ(0, afs1[a100]);
   EXPECT_EQ(0, afs1[a200]);
 

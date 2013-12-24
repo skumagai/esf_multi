@@ -57,7 +57,7 @@ class AFS {
 
   data_type data;
 
-  AFS(AFS const&, Allele const&, Index, Mode);
+  AFS(AFS const&, Allele const&, Mode);
 
  public:
 
@@ -69,9 +69,9 @@ class AFS {
 
   ~AFS() {};
 
-  AFS add(Allele, Index);
+  AFS add(Allele);
 
-  AFS remove(Allele, Index);
+  AFS remove(Allele);
 
   bool singleton() const;
 
