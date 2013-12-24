@@ -76,7 +76,11 @@ class Allele {
 
   iterator begin();
 
+  const_iterator begin() const;
+
   iterator end();
+
+  const_iterator end() const;
 
   bool operator<(Allele const&) const;
 

@@ -100,7 +100,21 @@ Allele::iterator Allele::begin() {
 }
 
 
+Allele::const_iterator Allele::begin() const {
+
+  return data.begin();
+
+}
+
+
 Allele::iterator Allele::end() {
+
+  return data.end();
+
+}
+
+
+Allele::const_iterator Allele::end() const {
 
   return data.end();
 
