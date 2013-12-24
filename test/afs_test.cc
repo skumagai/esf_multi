@@ -41,17 +41,10 @@ class AFSTest: public ::testing::Test {
         a200({2, 0, 0}),
         a020({0, 2, 0}),
         a002({0, 0, 2}),
-        s({::esf::Allele({1,0,0}),
-              ::esf::Allele({1,0,0}),
-              ::esf::Allele({0,1,0}),
-              ::esf::Allele({0,0,2})}),
-        ns({::esf::Allele({2,0,0}),
-                ::esf::Allele({0,2,0}),
-                ::esf::Allele({0,0,2})}),
-        c0({::esf::Allele({1,0,0}),
-                ::esf::Allele({1,0,0})}),
-        c1({::esf::Allele({1,0,0}),
-                ::esf::Allele({1,0,0})}) {}
+        s({a100, a100, a010, a002}),
+        ns({a200, a020, a002}),
+        c0({a100, a100}),
+        c1({a100, a100}) {}
 
 
   ::esf::Allele a100, a010, a200, a020, a002;
@@ -80,19 +73,22 @@ TEST_F(AFSTest, Singleton) {
 
 TEST_F(AFSTest, SingletonAdd) {
 
-  auto a0 = s.add(::esf::Allele({1, 0, 0}), 0);
+  auto afs0 = s.add(a100, 0);
 
-  EXPECT_EQ(0, a0[::esf::Allele({1, 0, 0})]);
-  EXPECT_EQ(1, a0[::esf::Allele({2, 0, 0})]);
+  EXPECT_EQ(1, afs0[a100]);
+  EXPECT_EQ(1, afs0[a200]);
 
 }
 
 
 TEST_F(AFSTest, SingletonRemove) {
 
-  auto a0 = s.remove(::esf::Allele({1, 0, 0}), 0);
+  auto afs0 = s.remove(a100, 0);
+  auto afs1 = s.remove(a100, 0).remove(a100, 0);
 
-  EXPECT_EQ(0, a0[::esf::Allele({1, 0, 0})]);
+  EXPECT_EQ(2, s[a100]);
+  EXPECT_EQ(1, afs0[a100]);
+  EXPECT_EQ(0, afs1[a100]);
 
 }
 
@@ -114,20 +110,23 @@ TEST_F(AFSTest, NonSingleton) {
 
 TEST_F(AFSTest, NonSingletonAdd) {
 
-  auto a0 = ns.add(::esf::Allele({1, 0, 0}), 0);
+  auto a0 = ns.add(a100, 0);
 
-  EXPECT_EQ(0, a0[::esf::Allele({1, 0, 0})]);
-  EXPECT_EQ(2, a0[::esf::Allele({2, 0, 0})]);
+  EXPECT_EQ(0, a0[a100]);
+  EXPECT_EQ(2, a0[a200]);
 
 }
 
 
 TEST_F(AFSTest, NonSingletonRemove) {
 
-  auto a0 = ns.remove(::esf::Allele({2, 0, 0}), 0);
+  auto afs0 = ns.remove(a200, 0);
+  auto afs1 = ns.remove(a200, 0).remove(a100, 0);
 
-  EXPECT_EQ(1, a0[::esf::Allele({1, 0, 0})]);
-  EXPECT_EQ(0, a0[::esf::Allele({2, 0, 0})]);
+  EXPECT_EQ(1, afs0[a100]);
+  EXPECT_EQ(0, afs0[a200]);
+  EXPECT_EQ(0, afs1[a100]);
+  EXPECT_EQ(0, afs1[a200]);
 
 }
 

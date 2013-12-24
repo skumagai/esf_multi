@@ -63,7 +63,7 @@ class AFS {
 
   AFS(::std::vector<Allele> const&);
 
-  // AFS(AFS const&) = delete;
+  AFS(AFS const&) = default;
 
   AFS& operator=(AFS const&) = default;
 

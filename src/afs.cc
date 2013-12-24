@@ -37,7 +37,7 @@ namespace esf {
 AFS::AFS(AFS const& afs, Allele const& allele, Index deme, Mode mode)
     : data(afs.data) {
 
-  if (allele.size() > 1) {
+  if (data[allele] > 1) {
 
     data[allele] -= 1;
 
@@ -51,7 +51,7 @@ AFS::AFS(AFS const& afs, Allele const& allele, Index deme, Mode mode)
 
     data[allele.add(deme)] += 1;
 
-  } else {
+  } else if (!allele.singleton()) {
 
     data[allele.remove(deme)] += 1;
 
