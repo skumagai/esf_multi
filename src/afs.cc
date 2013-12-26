@@ -37,17 +37,21 @@ namespace esf {
 AFS::AFS(AFS const& afs, Allele const& allele, Mode mode)
     : data(afs.data) {
 
-  if (mode == Mode::ADD) {
+  if (allele.size() > 0) {
 
-    data[allele] += 1;
+    if (mode == Mode::ADD) {
 
-  } else if (data[allele] > 1) {
+      data[allele] += 1;
 
-    data[allele] -= 1;
+    } else if (data[allele] > 1) {
 
-  } else {
+      data[allele] -= 1;
 
-    data.erase(allele);
+    } else {
+
+      data.erase(allele);
+
+    }
 
   }
 
