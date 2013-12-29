@@ -15,8 +15,10 @@
 # Obviously...
 a.out
 
-# googletest (gtest) related make files
+# generated files
+Makefile
 CMakeFiles/
 CMakeCache.txt
-ext/gtest/Makefile
 *.cmake
+esf_multi_test
+Testing
