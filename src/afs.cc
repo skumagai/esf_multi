@@ -60,6 +60,12 @@ AFS::AFS(AFS const& afs, Allele const& allele, Mode mode)
 
 AFS::AFS(::std::vector<Allele> const& avec) {
 
+  if (avec.size() > 0) {
+
+    m_deme = avec[0].deme();
+
+  }
+
   for (auto allele: avec) {
 
     data[allele] += 1;
@@ -130,6 +136,13 @@ Index AFS::size() const {
                              return a + (p.first).size() * p.second;
                            }
                            );
+}
+
+
+Index AFS::deme() const {
+
+  return m_deme;
+
 }
 
 

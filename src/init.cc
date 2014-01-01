@@ -29,6 +29,7 @@
 #include <numeric>
 #include <vector>
 
+#include "afs.hh"
 #include "init.hh"
 #include "state.hh"
 #include "typedef.hh"
@@ -61,6 +62,26 @@ Init::Init(State const& state)
   }
 
   set_size();
+
+}
+
+
+Init::Init(AFS const& afs)
+    : m_deme(afs.deme()) {
+
+  using ::std::vector;
+
+  m_data.resize(m_deme);
+
+  for (auto allele: afs) {
+
+    for (auto i = 0; i < m_deme; ++i) {
+
+      m_data[i] += (allele.first)[i] * allele.second;
+
+    }
+
+  }
 
 }
 

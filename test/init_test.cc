@@ -23,6 +23,8 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include "afs.hh"
+#include "allele.hh"
 #include "init.hh"
 #include "state.hh"
 #include "gtest/gtest.h"
@@ -105,10 +107,22 @@ TEST_F(InitTest, ThreeDemeNumber) {
 }
 
 
-TEST_F(InitTest, Conversion) {
+TEST_F(InitTest, ConversionFromState) {
 
   ::esf::State state(::esf::Init({2, 5}), {1, 1, 1, 4});
   ::esf::Init init(state);
+
+  EXPECT_EQ(init[0], 2);
+  EXPECT_EQ(init[1], 5);
+
+}
+
+
+TEST_F(InitTest, ConversionFromAFS) {
+
+  ::esf::Allele a0({0,2}), a1({2,1}), a2({0,2});
+  ::esf::AFS afs({a0, a1, a2});
+  ::esf::Init init(afs);
 
   EXPECT_EQ(init[0], 2);
   EXPECT_EQ(init[1], 5);

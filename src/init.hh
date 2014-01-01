@@ -34,6 +34,8 @@
 namespace esf {
 
 
+class AFS;
+
 class State;
 
 
@@ -72,6 +74,8 @@ class Init {
   Init(::std::vector<Index> const&);
 
   Init(State const&);
+
+  Init(AFS const&);
 
   Index deme() const;
 

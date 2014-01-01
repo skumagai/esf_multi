@@ -57,6 +57,8 @@ class AFS {
 
   data_type data;
 
+  Index m_deme;
+
   AFS(AFS const&, Allele const&, Mode);
 
  public:
@@ -80,6 +82,8 @@ class AFS {
   Index size(Index) const;
 
   Index size() const;
+
+  Index deme() const;
 
   iterator begin();
 

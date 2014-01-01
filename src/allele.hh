@@ -52,6 +52,8 @@ class Allele {
 
   Index total;
 
+  Index m_deme;
+
   Allele(Allele const&, Index, Mode);
 
   Allele(Allele&&, Index, Mode);
@@ -69,6 +71,8 @@ class Allele {
   Allele& operator=(Allele&&) = default;
 
   Index size() const;
+
+  Index deme() const;
 
   Allele remove(Index) const;
 

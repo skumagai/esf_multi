@@ -69,7 +69,7 @@ Allele::Allele(Allele&& allele, Index deme, Mode mode)
 
 
 Allele::Allele(::std::vector<Index> const& d)
-    : data(d), total(::std::accumulate(d.begin(), d.end(), 0)) {}
+    : data(d), total(::std::accumulate(d.begin(), d.end(), 0)), m_deme(d.size()) {}
 
 
 Allele Allele::remove(Index deme) const {
@@ -89,6 +89,13 @@ bool Allele::singleton() const {
 Index Allele::size() const {
 
   return total;
+
+}
+
+
+Index Allele::deme() const {
+
+  return m_deme;
 
 }
 
