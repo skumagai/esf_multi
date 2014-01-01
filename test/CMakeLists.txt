@@ -6,6 +6,11 @@ link_directories(${GTEST})
 set(test_SRC
   allele_test.cc
   afs_test.cc
+  hit_prob_test.cc
+  init_test.cc
+  param_test.cc
+  state_test.cc
+  util_test.cc
 )
 
 add_executable(${PROJECT_NAME} ${test_SRC})
