@@ -26,10 +26,13 @@
 
 #include <algorithm>
 #include <functional>
+#include <numeric>
 #include <vector>
 
+#include "init.hh"
+#include "state.hh"
 #include "typedef.hh"
-
+#include "util.hh"
 
 namespace esf {
 
@@ -69,7 +72,7 @@ Index Init::deme() const {
 }
 
 
-Index Init::operator[](Index id) {
+Index Init::operator[](Index id) const {
 
   return m_data[id];
 
@@ -85,6 +88,8 @@ Index Init::size(Index deme) const {
 
 Index Init::size() const {
 
+  using ::std::accumulate;
+
   return accumulate(m_size.begin(), m_size.end(), 1, ::std::multiplies<Index>());
 
 }
@@ -95,11 +100,39 @@ void Init::set_size() {
   m_size.resize(m_data.size());
 
   ::std::transform(m_data.begin(), m_data.end(), m_size.begin(),
-                   [m_deme](Index i)
+                   [this](Index i)
                    {
                      return binomial(i + m_deme - 1, i);
                    }
                    );
+
+}
+
+
+Init::iterator Init::begin() {
+
+  return m_data.begin();
+
+}
+
+
+Init::const_iterator Init::begin() const {
+
+  return m_data.begin();
+
+}
+
+
+Init::iterator Init::end() {
+
+  return m_data.end();
+
+}
+
+
+Init::const_iterator Init::end() const {
+
+  return m_data.end();
 
 }
 
