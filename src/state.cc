@@ -24,83 +24,86 @@
 // DEALINGS IN THE SOFTWARE.
 
 
+#include <numeric>
 #include <utility>
 #include <vector>
 
 #include "init.hh"
+#include "state.hh"
 #include "typedef.hh"
 #include "util.hh"
 
 namespace esf {
 
 
-State::State()
-    : m_id(0), m_deme(0), m_init(new Init) {}
+namespace {
 
 
-State::State(State const& other)
-    : m_id(other.m_id), m_deme(other.m_deme), m_init(new Init(other.m_init)) {}
+using ::std::vector;
 
 
-State::State(State&& other)
-    : m_id(other.m_id), m_deme(other.m_deme), m_init(nullptr) {
+vector<Index> state_dim(Init&);
 
-  m_init = other.m_init;
+vector<Index> generate_state(Index, Index, Index);
 
-  other.m_init = nullptr;
+Index generate_id(vector<Index>&, Index, Index);
+
 
 }
-
-
-State& operator=(State const& other) {
-
-  if (this != &other) {
-
-    delete m_init;
-
-    m_id = other.m_id;
-
-    m_deme = other.m_deme;
-
-    m_init = new Init(other);
-
-  }
-
-  return *this;
-
-}
-
-
-State& operator=(State&& other) {
-
-  delete m_init;
-
-  m_id = other.m_id;
-
-  m_deme = other.m_deme;
-
-  m_init = other.m_init;
-
-  other.m_init = nullptr;
-
-  return *this;
-}
-
-
-State::State(::std::vector<Index> const& data)
-    : m_data(data), m_id(compute_id()), m_deme(compute_deme(data)) {}
 
 
 State::State(Init const& init)
-    : m_data(expand_init(init)), m_id(compute_id(init)), m_deme(init.deme()) {}
+    : m_init(init), m_data(expand_init()), m_id(compute_id()) {}
 
 
-State::State(Init const& init, Init id) {}
+State::State(Init const& init, Index id)
+    : m_init(init), m_id(id) {
+
+  m_data = compute_state();
+
+}
 
 
-State::~State() {
+State::State(Init const& init, ::std::vector<Index> const& data)
+    : m_init(init), m_data(data), m_id(compute_id()) {}
 
-  delete m_init;
+
+::std::vector<State> State::neighbors() {
+
+  auto deme = m_init.deme();
+
+  using ::std::vector;
+
+  vector<State> neighbors;
+
+  for (Index src = 0; src < m_data.size(); ++src) {
+
+    if (m_data[src] != 0) {
+
+      auto d = src / deme;
+
+      for (Index tar = deme * d; tar < deme * (d + 1); ++tar) {
+
+        if (src != tar) {
+
+          State new_state(*this);
+
+          new_state[src] -= 1;
+          new_state[tar] += 1;
+
+          new_state.m_id = new_state.compute_id();
+
+          neighbors.push_back(new_state);
+
+        }
+
+      }
+
+    }
+
+  }
+
+  return neighbors;
 
 }
 
@@ -112,45 +115,202 @@ Index State::id() const {
 }
 
 
-void State::compute_state(Init const& init, Index id, Index deme) {
+Index State::deme() const {
 
-  auto idx_list = index_1_to_n(state_dim(init), id);
+  return m_init.deme();
 
-  m_data.reserve(deme * deme);
+}
+
+
+Index const& State::operator[](Index i) const {
+
+  return m_data[i];
+
+}
+
+
+Index& State::operator[](Index i) {
+
+  return m_data[i];
+
+}
+
+
+State::value_type State::compute_state() {
+
+  auto deme = m_init.deme();
+
+  value_type data;
+
+  data.reserve(deme * deme);
+
+  auto idx_list = index_1_to_n(state_dim(m_init), m_id);
 
   for (Index i = 0; i < deme; ++i) {
 
-    auto substate = generate_state(idx_list[i], deme, init[i]);
+    auto substate = generate_state(idx_list[i], deme, m_init[i]);
 
-    m_data.insert(m_data.end(), substate.begin(), substate.end());
+    data.insert(data.end(), substate.begin(), substate.end());
 
   }
 
-}
-
-
-void State::compute_id(Init const& init) {
-
-  ;
+  return data;
 
 }
 
 
-void State::expand_init(Init const& init) {
+Index State::compute_id() {
+
+  auto deme = m_init.deme();
+
+  using ::std::vector;
+
+  vector<Index> accum(deme);
+
+  for (Index i = 0; i < deme; ++i) {
+
+    accum[i] = generate_id(m_data, deme * i, deme * i + deme);
+
+  }
+
+  return index_n_to_1(state_dim(m_init), accum);
+
+}
+
+
+State::value_type State::expand_init() {
+
+  auto deme = m_init.deme();
+
+  value_type data;
+
+  data.resize(deme * deme);
+
+  for (Index i = 0; i < deme; ++i) {
+
+    data[i + i * deme] = m_init[i];
+
+  }
+
+  return data;
+
+}
+
+
+State::iterator State::begin() {
+
+  return m_data.begin();
+
+}
+
+
+State::const_iterator State::begin() const {
+
+  return m_data.begin();
+
+}
+
+
+State::iterator State::end() {
+
+  return m_data.end();
+
+}
+
+
+State::const_iterator State::end() const {
+
+  return m_data.end();
+
+}
+
+
+namespace {
+
+
+::std::vector<Index> state_dim(Init& init) {
 
   auto deme = init.deme();
 
-  m_data.resize(deme * deme);
+  ::std::vector<Index> dim(deme);
 
-  for (Index i = 0; i < ndeme; ++i) {
+  using ::std::transform;
 
-    m_data[i + i * deme] = init[i];
+  transform(init.begin(), init.end(), dim.begin(),
+            [deme](Index i)
+            {
+              return binomial(i + deme - 1, i);
+            });
 
-  }
+  return dim;
 
 }
 
 
+::std::vector<Index> generate_state(Index idx, Index deme, Index gene) {
+
+  using std::vector;
+
+  Index offset = 0;
+
+  vector<Index> state(deme);
+
+  for (Index i = 0; i < deme - 1; ++i) {
+
+    Index j = 0;
+
+    while (idx > 0 &&
+           (offset = binomial(gene - j + deme - i - 2, gene - j)) <= idx) {
+
+      idx -= offset;
+
+      ++j;
+
+    }
+
+    gene -= j;
+
+    state[i] = j;
+
+  }
+
+  state[deme - 1] = gene;
+
+  return state;
+
+}
+
+
+Index generate_id(::std::vector<Index>& state, Index b, Index e) {
+
+  auto deme = e - b;
+
+  using ::std::accumulate;
+
+  auto size = accumulate(state.begin() + b, state.begin() + e, 0);
+
+  Index idx = 0;
+
+  for (Index i = 0; i < deme - 1; ++i) {
+
+    auto curr = state[b++];
+
+    for (Index j = 0; j < curr; ++j) {
+
+      idx += binomial(size - j + deme - i - 2, size - j);
+
+    }
+
+    size -= curr;
+
+  }
+
+  return idx;
+
+}
+
+
+}
 
 
 }

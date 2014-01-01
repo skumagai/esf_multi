@@ -26,10 +26,11 @@
 #ifndef ESF_MULTI_STATE_HH
 #define ESF_MULTI_STATE_HH
 
+
+#include "init.hh"
+
+
 namespace esf {
-
-
-class Init;
 
 
 class State {
@@ -44,35 +45,31 @@ class State {
 
   private:
 
+  Init m_init;
+
   ::std::vector<Index> m_data;
 
   Index m_id;
 
-  Index m_deme;
+  value_type compute_state();
 
-  Init *m_init;
+  Index compute_id();
 
-  void compute_state();
-
-  void compute_id();
-
-  void expand_init();
+  value_type expand_init();
 
  public:
 
-  State();
+  State() = default;
 
-  State(State const&);
+  State(State const&) = default;
 
   State(State&&) = default;
 
-  State& operator=(State const&);
+  State& operator=(State const&) = default;
 
-  State& operator=(State&&);
+  State& operator=(State&&) = default;
 
-  ~State();
-
-  State(Init const&, ::std::vector<Index> const&);
+  ~State() = default;
 
   State(Init const&);
 
@@ -85,6 +82,18 @@ class State {
   Index id() const;
 
   Index deme() const;
+
+  Index const& operator[](Index) const;
+
+  Index& operator[](Index);
+
+  iterator begin();
+
+  const_iterator begin() const;
+
+  iterator end();
+
+  const_iterator end() const;
 
 };
 
