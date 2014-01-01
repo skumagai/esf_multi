@@ -26,13 +26,15 @@
 #ifndef ESF_MULTI_UTIL_HH
 #define ESF_MULTI_UTIL_HH
 
+#include "vector"
+
 #include "typedef.hh"
 
 namespace esf {
 
 Index binomial(Index, Index);
-Index index_n_to_1(IndexList, IndexList);
-IndexList index_1_to_n(IndexList, Index);
+Index index_n_to_1(::std::vector<Index>, ::std::vector<Index>);
+::std::vector<Index> index_1_to_n(::std::vector<Index>, Index);
 
 };
 

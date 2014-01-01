@@ -25,8 +25,12 @@
 
 #include <functional>
 #include <numeric>
+#include <vector>
 
 #include "typedef.hh"
+
+
+using ::std::vector;
 
 
 namespace esf {
@@ -38,7 +42,7 @@ using std::partial_sum;
 
 namespace {
 
-IndexList mult_factors(IndexList);
+vector<Index> mult_factors(vector<Index>);
 
 };
 
@@ -60,7 +64,7 @@ Index binomial(Index n, Index k) {
 };
 
 
-Index index_n_to_1(IndexList dim, IndexList idx) {
+Index index_n_to_1(vector<Index> dim, vector<Index> idx) {
   auto nsize = dim.size();
   auto accum = mult_factors(dim);
 
@@ -73,11 +77,11 @@ Index index_n_to_1(IndexList dim, IndexList idx) {
 };
 
 
-IndexList index_1_to_n(IndexList dim, Index idx) {
+vector<Index> index_1_to_n(vector<Index> dim, Index idx) {
   auto nsize = dim.size();
   auto accum = mult_factors(dim);
 
-  IndexList vals(nsize);
+  vector<Index> vals(nsize);
   for (Index i = 0; i < nsize; ++i) {
     vals[i] = (idx / accum[i]) % dim[i];
   }
@@ -89,8 +93,8 @@ IndexList index_1_to_n(IndexList dim, Index idx) {
 namespace {
 
 
-IndexList mult_factors(IndexList dim) {
-  IndexList accum(dim.size());
+vector<Index> mult_factors(vector<Index> dim) {
+  vector<Index> accum(dim.size());
   accum[0] = 1;
   partial_sum(dim.begin(), dim.end() - 1, accum.begin() + 1, multiplies<Index>());
   return accum;
