@@ -26,31 +26,18 @@
 #ifndef ESF_MULTI_HIT_PROB_HH
 #define ESF_MULTI_HIT_PROB_HH
 
+#include <vector>
+
+#include "init.hh"
+#include "param.hh"
 #include "typedef.hh"
 
 namespace esf {
 
+using ::std::vector;
 
-class Params {
- private:
-
-  ValueList pop;
-
-  ValueList mut;
-
-  ValueList mig;
-
- public:
-  Params(ValueList mi, ValueList p, ValueList mu)
-      : mig(mi), pop(p), mut(mu) {};
-
-  Value mig_rate(Index, Index);
-
-  Value mut_rate(Index);
-
-  Value pop_size(Index);
-
-};
+class Init;
+class State;
 
 
 class HitProb {
@@ -59,25 +46,23 @@ class HitProb {
 
   Init init;
 
-  Params params;
+  Param param;
 
-  ValueList prob;
-
-  ValueList demeprob;
+  vector<double> prob;
 
   void compute();
 
-  Value compute_u(State, State);
+  double compute_u(State, State);
 
  public:
 
-  HitProb(Init, Params);
+  HitProb(Init, Param);
 
-  Value get(Index, Index);
+  double get(Index, Index);
 
-  Value get(State, Index);
+  double get(State, Index);
 
-  void update(Params);
+  void update(Param);
 
 };
 

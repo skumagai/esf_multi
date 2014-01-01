@@ -23,66 +23,41 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <algorithm>
+#include <iterator>
+#include <numeric>
 
 #include <Eigen/SparseCore>
 #include <Eigen/SparseLU>
 #include <Eigen/SparseLU>
 
 #include "hit_prob.hh"
-#include "state_space.hh"
+#include "param.hh"
+#include "state.hh"
 #include "util.hh"
 
 namespace esf {
 
+using ::std::accumulate;
 
-using Matrix = Eigen::SparseMatrix<Value>;
-using Vector = Eigen::SparseVector<Value>;
+using Matrix = Eigen::SparseMatrix<double>;
+using Vector = Eigen::SparseVector<double>;
 using Solver = Eigen::SparseLU<Matrix>;
 using Eigen::VectorXi;
 using Eigen::VectorXd;
 
-using StateSpace::index_to_state;
-using StateSpace::init_to_state;
-using StateSpace::neighbors;
-using StateSpace::state_to_index;
-using StateSpace::state_to_init;
-using StateSpace::total_state;
 
+HitProb::HitProb(Init i, Param p)
+    : init(i), param(p) {
 
-Value Params::mig_rate(Index i, Index j) {
-
-  return mig[i + j * pop.size()];
-
-}
-
-
-Value Params::mut_rate(Index i) {
-
-  return mut[i];
-
-}
-
-
-Value Params::pop_size(Index i) {
-
-  return pop[i];
-
-}
-
-
-HitProb::HitProb(Init i, Params p)
-    : init(i), params(p) {
-
-  auto n = total_state(init);
-
-  prob.reserve(n * init.size());
+  prob.reserve(init.size() * init.deme());
 
   compute();
 
 }
 
 
-Value HitProb::get(Index idx, Index deme) {
+double HitProb::get(Index idx, Index deme) {
 
   if (prob.empty()) {
 
@@ -90,21 +65,21 @@ Value HitProb::get(Index idx, Index deme) {
 
   }
 
-  return prob[init.size() * idx + deme];
+  return prob[init.deme() * idx + deme];
 
 }
 
 
-Value HitProb::get(State state, Index deme) {
+double HitProb::get(State state, Index deme) {
 
-  return get(state_to_index(init, state), deme);
+  return get(state.id(), deme);
 
 }
 
 
-void HitProb::update(Params p) {
+void HitProb::update(Param p) {
 
-  params = p;
+  param = p;
 
   compute();
 
@@ -113,39 +88,41 @@ void HitProb::update(Params p) {
 
 void HitProb::compute() {
 
-  auto dim = total_state(init);
+  auto dim = init.size();
 
   Matrix u(dim, dim);
 
-  auto ndeme = init.size();
+  auto ndeme = init.deme();
 
   u.reserve(VectorXi::Constant(dim, (2 * ndeme * (ndeme - 1) + 1) * dim));
 
-  Value u_val, total;
+  vector<Index> coals;
+  coals.reserve(ndeme * dim);
 
-  State s;
-  Init ii;
-  InitList tmp(ndeme * dim);
   for (Index i = 0; i < dim; ++i) {
 
-    s = index_to_state(init, i);
+    State s(init, i);
 
-    ii = state_to_init(s);
+    Init ii(s);
 
-    for (ij: ii) {
+    double total = 0.0;
 
-      tmp.push_back(*ij);
+    for (auto adj: s.neighbors()) {
+
+      double u_val = compute_u(s, adj);
+      u.insert(adj.id(), i) = u_val;
+
+      total += u_val;
 
     }
 
-    total = 0.0;
+    for (auto deme = 0; deme < ndeme; ++deme) {
 
-    for (auto adj: neighbors(init, i)) {
+      auto coal = static_cast<double>(binomial(ii[deme], 2));
 
-      u_val = compute_u(s, adj);
-      u.insert(state_to_index(init, adj), i) = u_val;
+      total += 2.0 * coal * param.pop_size(deme) + ii[deme] * param.mut_rate(deme);
 
-      total += u_val;
+      coals.push_back(coal);
 
     }
 
@@ -156,23 +133,27 @@ void HitProb::compute() {
   u.makeCompressed();
 
   Vector a(dim);
-  a.insert(state_to_index(init, init_to_state(init))) = 1.0;
+  a.insert(State(init).id()) = 1.0;
 
   Solver solver(u);
   if (solver.info() != Eigen::Success) {
+
     return;
+
   }
 
-  auto x = -solver.solve(a).col(0);
+  VectorXd x = -solver.solve(a);
   if (solver.info() != Eigen::Success) {
+
     return;
+
   }
 
   for (Index i = 0; i < dim; ++i) {
 
-    for (Index j = 0; j < ndeme; ++i) {
+    for (Index j = 0; j < ndeme; ++j) {
 
-      prob.push_back(x(i) * 2.0 * params.pop_size(j) * binomial(tmp[i * ndeme + j], 2));
+      prob.push_back(x(i) * 2.0 * param.pop_size(j) * coals[i * ndeme + j]);
 
     }
 
@@ -181,9 +162,9 @@ void HitProb::compute() {
 }
 
 
-Value HitProb::compute_u(State from, State to) {
+double HitProb::compute_u(State from, State to) {
 
-  Index size = init.size();
+  Index size = init.deme();
 
   Index i = 0;
   while (from[i] != to[i] + 1) {
@@ -195,7 +176,7 @@ Value HitProb::compute_u(State from, State to) {
     ++j;
   }
 
-  return from[i] * params.mig_rate(i % size, j % size);
+  return from[i] * param.mig_rate(i % size, j % size);
 
 }
 
