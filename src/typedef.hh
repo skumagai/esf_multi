@@ -39,14 +39,6 @@ using ::std::vector;
 
 typedef size_t Index;
 typedef double Value;
-typedef vector<Index> Init;
-typedef vector<Index> State;
-typedef vector<Index> IndexList;
-typedef vector<Value> ValueList;
-typedef vector<Value*> ValuePtrList;
-typedef vector<State> StateList;
-typedef multiset<vector<Index>> AlleleFreqSet;
-typedef set<AlleleFreqSet> AlleleFreqSpectrumList;
 
 };
 
