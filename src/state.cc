@@ -225,6 +225,20 @@ State::const_iterator State::end() const {
 }
 
 
+bool operator==(State const& a, State const& b) {
+
+  return a.m_init == b.m_init && a.m_data == b.m_data && a.m_id == b.m_id;
+
+}
+
+
+bool operator<(State const& a, State const& b) {
+
+  return a.m_data < b.m_data;
+
+}
+
+
 namespace {
 
 

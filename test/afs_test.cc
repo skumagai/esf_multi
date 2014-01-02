@@ -25,9 +25,12 @@
 
 #include "afs.hh"
 #include "allele.hh"
+#include "init.hh"
+#include "state.hh"
 #include "gtest/gtest.h"
 
-#include <iostream>
+#include <algorithm>
+#include <vector>
 
 namespace {
 
@@ -138,6 +141,62 @@ TEST_F(AFSTest, CheckSingleton) {
 
 }
 
+
+TEST_F(AFSTest, AllReacheable) {
+
+  using ::std::find;
+  using ::esf::Allele;
+  using ::esf::AFS;
+  using ::esf::Init;
+  using ::esf::State;
+  using ::esf::ExitAFSPair;
+
+  auto test = AFS({Allele({1, 0}), Allele({0, 1})}).reacheable();
+
+  using ::std::vector;
+
+  Init init({1, 1});
+
+  vector<ExitAFSPair> exp =
+      {
+        ExitAFSPair({AFS({Allele({1, 0}), Allele({1, 0})}), State(init, {1, 0, 1, 0})}),
+        ExitAFSPair({AFS({Allele({1, 0}), Allele({0, 1})}), State(init, {1, 0, 0, 1})}),
+        ExitAFSPair({AFS({Allele({1, 0}), Allele({0, 1})}), State(init, {0, 1, 1, 0})}),
+        ExitAFSPair({AFS({Allele({0, 1}), Allele({0, 1})}), State(init, {0, 1, 0, 1})})
+      };
+
+  EXPECT_EQ(exp.size(), test.size());
+
+  auto end = exp.end();
+
+  for (auto val: test) {
+
+    EXPECT_NE(end, find(exp.begin(), exp.end(), val));
+
+  }
+
+  init = Init({2, 0});
+
+  exp =
+      {
+        ExitAFSPair({AFS({Allele({1, 0}), Allele({1, 0})}), State(init, {2, 0, 0, 0})}),
+        ExitAFSPair({AFS({Allele({1, 0}), Allele({0, 1})}), State(init, {1, 1, 0, 0})}),
+        ExitAFSPair({AFS({Allele({0, 1}), Allele({0, 1})}), State(init, {0, 2, 0, 0})})
+      };
+
+  test = AFS({Allele({1, 0}), Allele({1, 0})}).reacheable();
+
+  EXPECT_EQ(exp.size(), test.size());
+
+  end = exp.end();
+
+  for (auto val: test) {
+
+    EXPECT_NE(end, find(exp.begin(), exp.end(), val));
+
+  }
+
+}
 
 
 }  // namespace

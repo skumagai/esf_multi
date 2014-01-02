@@ -26,13 +26,15 @@
 #ifndef ESF_MULTI_ALLELE_HH
 #define ESF_MULTI_ALLELE_HH
 
-#include <utility>
 #include <vector>
 
 #include "typedef.hh"
 #include "enum.hh"
 
 namespace esf {
+
+
+struct ExitAllelePair;
 
 
 class Allele {
@@ -81,7 +83,7 @@ class Allele {
 
   bool singleton() const;
 
-  ::std::vector<::std::pair<Allele, ::std::vector<Index>>> reacheable() const;
+  ::std::vector<ExitAllelePair> reacheable() const;
 
   iterator begin();
 
@@ -97,9 +99,22 @@ class Allele {
 
   Index const& operator[](Index) const;
 
-  bool operator==(Allele const&) const;
+  friend bool operator==(Allele const&, Allele const&);
 
 };
+
+
+
+struct ExitAllelePair {
+
+  Allele allele;
+
+  ::std::vector<Index> state;
+
+};
+
+
+bool operator==(ExitAllelePair const&, ExitAllelePair const&);
 
 
 };

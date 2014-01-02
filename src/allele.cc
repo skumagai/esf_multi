@@ -40,10 +40,10 @@ using ::std::vector;
 
 vector<Allele> move_genes(Allele, Index, Index);
 
-vector<pair<Allele, vector<Index>>> combine(Allele,
-                                            vector<Index>,
-                                            vector<vector<Allele>>::iterator,
-                                            vector<vector<Allele>>::iterator);
+vector<ExitAllelePair> combine(Allele,
+                               vector<Index>,
+                               vector<vector<Allele>>::iterator,
+                               vector<vector<Allele>>::iterator);
 
 }
 
@@ -102,7 +102,7 @@ bool Allele::singleton() const {
 }
 
 
-::std::vector<::std::pair<Allele, ::std::vector<Index>>> Allele::reacheable() const {
+::std::vector<ExitAllelePair> Allele::reacheable() const {
 
   using ::std::vector;
 
@@ -118,7 +118,7 @@ bool Allele::singleton() const {
 
   }
 
-  vector<::std::pair<Allele, vector<Index>>> data;
+  vector<ExitAllelePair> data;
 
   for (auto a: retvals[0]) {
 
@@ -203,9 +203,18 @@ Index const& Allele::operator[](Index deme) const {
 }
 
 
-bool Allele::operator==(Allele const& other) const {
 
-  return data == other.data;
+
+bool operator==(Allele const& a, Allele const& b) {
+
+  return a.data == b.data;
+
+}
+
+
+bool operator==(ExitAllelePair const& a, ExitAllelePair const& b) {
+
+  return a.allele == b.allele && a.state == b.state;
 
 }
 
@@ -237,20 +246,18 @@ namespace {
 }
 
 
-vector<pair<Allele, vector<Index>>> combine(Allele allele,
-                                            vector<Index> state,
-                                            vector<vector<Allele>>::iterator begin,
-                                            vector<vector<Allele>>::iterator end) {
-
-  using ::std::make_pair;
+vector<ExitAllelePair> combine(Allele allele,
+                               vector<Index> state,
+                               vector<vector<Allele>>::iterator begin,
+                               vector<vector<Allele>>::iterator end) {
 
   if (begin == end) {
 
-    return {make_pair(allele, state)};
+    return {ExitAllelePair({allele, state})};
 
   }
 
-  vector<pair<Allele, vector<Index>>> data;
+  vector<ExitAllelePair> data;
 
   for (auto a: *begin) {
 

@@ -83,6 +83,8 @@ Init::Init(AFS const& afs)
 
   }
 
+  set_size();
+
 }
 
 
@@ -154,6 +156,13 @@ Init::iterator Init::end() {
 Init::const_iterator Init::end() const {
 
   return m_data.end();
+
+}
+
+
+bool operator==(Init const& a, Init const& b) {
+
+  return a.m_data == b.m_data && a.m_deme == b.m_deme && a.m_size == b.m_size;
 
 }
 

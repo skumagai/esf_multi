@@ -31,8 +31,16 @@
 #include "typedef.hh"
 #include "allele.hh"
 #include "enum.hh"
+#include "state.hh"
 
 namespace esf {
+
+
+class Init;
+
+struct ExitAllelePair;
+
+struct ExitAFSPair;
 
 
 class AFS {
@@ -61,6 +69,19 @@ class AFS {
 
   AFS(AFS const&, Allele const&, Mode);
 
+  ::std::vector<ExitAFSPair> build(::std::vector<Allele>,
+                                   ::std::vector<Index>,
+                                   data_type::const_iterator,
+                                   data_type::const_iterator) const;
+
+  ::std::vector<ExitAFSPair> sub_build(::std::vector<Allele>,
+                                       ::std::vector<Index>,
+                                       data_type::const_iterator,
+                                       data_type::const_iterator,
+                                       Index,
+                                       ::std::vector<ExitAllelePair>::const_iterator,
+                                       ::std::vector<ExitAllelePair>::const_iterator) const;
+
  public:
 
   AFS(::std::vector<Allele> const&);
@@ -69,7 +90,7 @@ class AFS {
 
   AFS& operator=(AFS const&) = default;
 
-  ~AFS() {};
+  ~AFS() = default;
 
   AFS add(Allele);
 
@@ -85,6 +106,8 @@ class AFS {
 
   Index deme() const;
 
+  ::std::vector<ExitAFSPair> reacheable() const;
+
   iterator begin();
 
   const_iterator begin() const;
@@ -93,7 +116,25 @@ class AFS {
 
   const_iterator end() const;
 
+  friend bool operator==(AFS const&, AFS const&);
+
+  friend bool operator<(AFS const&, AFS const&);
+
 };
+
+
+struct ExitAFSPair {
+
+  AFS afs;
+
+  State state;
+
+};
+
+
+bool operator==(ExitAFSPair const&, ExitAFSPair const&);
+
+bool operator<(ExitAFSPair const&, ExitAFSPair const&);
 
 
 };

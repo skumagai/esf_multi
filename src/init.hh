@@ -85,6 +85,8 @@ class Init {
 
   Index operator[](Index) const;
 
+  friend bool operator==(Init const&, Init const&);
+
   iterator begin();
 
   const_iterator begin() const;
@@ -94,6 +96,8 @@ class Init {
   const_iterator end() const;
 
 };
+
+
 
 
 }

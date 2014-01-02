@@ -30,6 +30,7 @@
 
 #include "afs.hh"
 #include "allele.hh"
+#include "init.hh"
 
 namespace esf {
 
@@ -146,6 +147,83 @@ Index AFS::deme() const {
 }
 
 
+::std::vector<ExitAFSPair> AFS::reacheable() const {
+
+  ::std::vector<Allele> alleles;
+  ::std::vector<Index> state_vec(m_deme * m_deme);
+
+  return build(alleles, state_vec, data.begin(), data.end());
+
+}
+
+
+::std::vector<ExitAFSPair> AFS::build(::std::vector<Allele> alleles,
+                                      ::std::vector<Index> states,
+                                      data_type::const_iterator begin,
+                                      data_type::const_iterator end) const {
+
+  if (begin == end) {
+
+    return {ExitAFSPair({AFS(alleles), State(Init(*this), states)})};
+
+  }
+
+  auto reacheables = begin->first.reacheable();
+
+  auto itr_b = reacheables.begin();
+  auto itr_e = reacheables.end();
+
+  return sub_build(alleles, states, begin, end, begin->second, itr_b, itr_e);
+
+}
+
+
+::std::vector<ExitAFSPair>
+AFS::sub_build(::std::vector<Allele> alleles,
+               ::std::vector<Index> states,
+               data_type::const_iterator begin,
+               data_type::const_iterator end,
+               Index count,
+               ::std::vector<ExitAllelePair>::const_iterator allele_begin,
+               ::std::vector<ExitAllelePair>::const_iterator allele_end) const {
+
+  if (count == 0 || allele_begin == allele_end) {
+
+    auto begin_copy = begin;
+
+    ++begin_copy;
+
+    return build(alleles, states, begin_copy, end);
+
+  }
+
+  ::std::vector<ExitAFSPair> retval;
+
+  for (auto a_itr = allele_begin; a_itr != allele_end; ++a_itr) {
+
+    auto a_copy = alleles;
+    auto s_copy = states;
+
+    a_copy.push_back(a_itr->allele);
+
+    auto s = a_itr->state;
+    for (auto i = 0; i != s.size(); ++i) {
+
+      s_copy[i] += s[i];
+
+    }
+
+    auto p = sub_build(a_copy, s_copy, begin, end, count - 1, a_itr, allele_end);
+
+    retval.insert(retval.end(), p.begin(), p.end());
+
+  }
+
+  return retval;
+
+}
+
+
 AFS::iterator AFS::begin() {
 
   return data.begin();
@@ -170,6 +248,40 @@ AFS::iterator AFS::end() {
 AFS::const_iterator AFS::end() const {
 
   return data.end();
+
+}
+
+
+bool operator==(AFS const& a, AFS const& b) {
+
+  return a.data == b.data;
+
+}
+
+
+bool operator<(AFS const& a, AFS const& b) {
+
+  return a.data < b.data;
+
+}
+
+
+bool operator==(ExitAFSPair const& a, ExitAFSPair const& b) {
+
+  return a.afs == b.afs && a.state == b.state;
+
+}
+
+
+bool operator<(ExitAFSPair const& a, ExitAFSPair const& b) {
+
+  if (a.afs == b.afs) {
+
+    return a.state < b.state;
+
+  }
+
+  return a.afs < b.afs;
 
 }
 

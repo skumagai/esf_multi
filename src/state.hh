@@ -95,6 +95,10 @@ class State {
 
   const_iterator end() const;
 
+  friend bool operator==(State const&, State const&);
+
+  friend bool operator<(State const&, State const&);
+
 };
 
 
