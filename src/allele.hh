@@ -26,6 +26,7 @@
 #ifndef ESF_MULTI_ALLELE_HH
 #define ESF_MULTI_ALLELE_HH
 
+#include <utility>
 #include <vector>
 
 #include "typedef.hh"
@@ -80,6 +81,8 @@ class Allele {
 
   bool singleton() const;
 
+  ::std::vector<::std::pair<Allele, ::std::vector<Index>>> reacheable() const;
+
   iterator begin();
 
   const_iterator begin() const;
@@ -90,7 +93,11 @@ class Allele {
 
   bool operator<(Allele const&) const;
 
-  Index operator[](Index) const;
+  Index& operator[](Index);
+
+  Index const& operator[](Index) const;
+
+  bool operator==(Allele const&) const;
 
 };
 

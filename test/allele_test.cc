@@ -24,8 +24,10 @@
 // DEALINGS IN THE SOFTWARE.
 
 #include "allele.hh"
+#include "typedef.hh"
 #include "gtest/gtest.h"
 
+#include <algorithm>
 #include <vector>
 
 namespace {
@@ -112,6 +114,42 @@ TEST_F(AlleleTest, AlleleCompare) {
 
   EXPECT_EQ(true, less);
   // == and > are not implemented.
+
+}
+
+
+TEST_F(AlleleTest, ReacheableAlleles) {
+
+  using ::std::vector;
+  using ::std::pair;
+  using ::std::make_pair;
+  using ::esf::Allele;
+  using ::esf::Index;
+
+  vector<pair<Allele, vector<Index>>> exp =
+      {
+        make_pair(Allele({3, 0}), vector<Index>({2, 0, 1, 0})),
+        make_pair(Allele({2, 1}), vector<Index>({2, 0, 0, 1})),
+        make_pair(Allele({2, 1}), vector<Index>({1, 1, 1, 0})),
+        make_pair(Allele({1, 2}), vector<Index>({1, 1, 0, 1})),
+        make_pair(Allele({1, 2}), vector<Index>({0, 2, 1, 0})),
+        make_pair(Allele({0, 3}), vector<Index>({0, 2, 0, 1}))
+      };
+
+
+  Allele allele({2, 1});
+
+  auto pairs = allele.reacheable();
+
+  auto crit = exp.end();
+
+  EXPECT_EQ(exp.size(), pairs.size());
+
+  for (auto pair: pairs) {
+
+    EXPECT_NE(crit, ::std::find(exp.begin(), exp.end(), pair));
+
+  }
 
 }
 
