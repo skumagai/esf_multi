@@ -28,9 +28,10 @@
 
 #include "typedef.hh"
 #include "afs.hh"
-#include "hitprob.hh"
+#include "hit_prob.hh"
+#include "param.hh"
 
-namespace esef {
+namespace esf {
 
 
 class ESFProb {
@@ -43,19 +44,19 @@ class ESFProb {
 
   Index ndeme;
 
-  Params params;
+  Param param;
 
-  HitProb hitprob;
+  double compute_with_singleton();
 
-  Value compute_with_singleton();
+  double compute_without_singleton();
 
-  Value compute_without_singleton();
+  double compute_coal_probs(ExitAFSPair const&, HitProb const&);
 
  public:
 
-  ESFProb(AFS, Params);
+  ESFProb(AFS, Param);
 
-  Value compute();
+  double compute();
 
 };
 

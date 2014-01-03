@@ -57,31 +57,23 @@ HitProb::HitProb(Init i, Param p)
 }
 
 
-double HitProb::get(Index idx, Index deme) {
-
-  if (prob.empty()) {
-
-    compute();
-
-  }
+double HitProb::get(Index idx, Index deme) const {
 
   return prob[init.deme() * idx + deme];
 
 }
 
 
-double HitProb::get(State state, Index deme) {
+double HitProb::get(State state, Index deme) const {
 
   return get(state.id(), deme);
 
 }
 
 
-void HitProb::update(Param p) {
+HitProb HitProb::update(Param p) const {
 
-  param = p;
-
-  compute();
+  return HitProb(init, param);
 
 }
 

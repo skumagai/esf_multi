@@ -6,6 +6,7 @@ link_directories(${GTEST})
 set(test_SRC
   allele_test.cc
   afs_test.cc
+  esf_prob_test.cc
   hit_prob_test.cc
   init_test.cc
   param_test.cc

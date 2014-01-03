@@ -28,20 +28,17 @@
 #include "afs.hh"
 #include "allele.hh"
 #include "enum.hh"
+#include "hit_prob.hh"
 #include "esf_prob.hh"
 
 namespace esf {
 
 
-ESFProb::ESFProb(AFS a, Params p)
-    : afs(a), init(a.to_init()), ndeme(a.demes()), params(p) {
-
-  hitprob = HitProb(init, params);
-
-}
+ESFProb::ESFProb(AFS a, Param p)
+    : afs(a), init(a), ndeme(a.deme()), param(p) {}
 
 
-Value ESFProb::compute() {
+double ESFProb::compute() {
 
   if (afs.singleton()) {
 
@@ -56,7 +53,24 @@ Value ESFProb::compute() {
 }
 
 
-Value ESFProb::compute_without_singleton() {
+double ESFProb::compute_without_singleton() {
+
+  double val = 0.0;
+
+  HitProb hp(init, param);
+
+  for (auto spec: afs.reacheable()) {
+
+    val += compute_coal_probs(spec, hp);
+
+  }
+
+  return val;
+
+}
+
+
+Value ESFProb::compute_with_singleton() {
 
   if (afs.size() == 1) {
 
@@ -64,31 +78,15 @@ Value ESFProb::compute_without_singleton() {
 
   }
 
-  Value val = 0.0;
+  using ::std::find_if;
 
-  HitProb hp = HitProb(init, params);
+  auto singleton = find_if(afs.begin(), afs.end(),
+                           [](AFS::value_type p)
+                           {
+                             return p.first.singleton();
+                           });
 
-  AFS other;
-  Allele na;
-
-  for (auto spec: afs.reacheable()) {
-
-    val += compute_coal_probs(spec);
-
-  }
-
-}
-
-
-Value ESFProb::compute_with_singleton() {
-
-  auto singleton = ::std::find_if(afs.begin(), afs.end(),
-                                  [](AFS::value_type p)
-                                  {
-                                    return p.first.singleton();
-                                  });
-
-  Allele na, allele = *singleton;
+  Allele allele = singleton->first;
 
   Index deme = 0;
   while (allele[deme] == 0) {
@@ -97,49 +95,57 @@ Value ESFProb::compute_with_singleton() {
 
   }
 
-  Index dsize = afs.size(deme);
+  double dsize = static_cast<double>(afs.size(deme));
 
-  AFS base = afs.remove(allele).add(allele.remove(deme)), other;
+  AFS base = afs.remove(allele).add(allele.remove(deme));
 
-  Value val = ESFProb(base, params).compute();
+  // probability of a sample excluding one of singleton alleles.
+  double val = ESFProb(base, param).compute();
 
   for (auto a: base) {
 
-    na = a.add(deme);
+    // add a gene to previously an observed allele.
+    Allele na = a.first.add(deme);
 
-    other = base.remove(a).add(na);
+    AFS other = base.remove(a.first).add(na);
 
-    val -= ESFProb(other, params).compute() * other[na] * na.size(deme) / dsize;
+    val -= ESFProb(other, param).compute() * other[na] * na[deme] / dsize;
+
 
   }
 
-  val *= allele.size(deme) / dsize;
+  val *= dsize / afs[allele];
 
   return val;
 
 }
 
 
-Value compute_coal_probs(AFS afs) {
+double ESFProb::compute_coal_probs(ExitAFSPair const& pair, HitProb const& hp) {
 
-  Value val = 0.0;
-  State state = afs.to_state();
-  AFS other0, other1;
-  Allele na;
+  double val = 0.0;
+  AFS afs = pair.afs;
+  State state = pair.state;
 
-  for (auto allele: afs) {
+  for (auto a: afs) {
 
-    other0 = afs.remove(allele);
+    auto allele = a.first;
+
+    AFS other0 = afs.remove(allele);
 
     for (Index i = 0; i < ndeme; ++i) {
 
-      if (allele.size(i) > 1) {
+      if (allele[i] > 1) {
 
-        na = allele.remove(i);
+        Allele na = allele.remove(i);
 
-        other1 = other0.add(na);
+        AFS other1 = other0.add(na);
 
-        val += other1.compute() * other1.count(na) * na.size(i) / other1.size(i);
+        double tmp = hp.get(state, i) * ESFProb(other1, param).compute();
+
+        tmp *= na.size() * other1[na] / other1.size();
+
+        val += tmp;
 
       }
 
@@ -150,5 +156,6 @@ Value compute_coal_probs(AFS afs) {
   return val;
 
 }
+
 
 };

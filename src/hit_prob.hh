@@ -58,11 +58,11 @@ class HitProb {
 
   HitProb(Init, Param);
 
-  double get(Index, Index);
+  double get(Index, Index) const;
 
-  double get(State, Index);
+  double get(State, Index) const;
 
-  void update(Param);
+  HitProb update(Param) const;
 
 };
 

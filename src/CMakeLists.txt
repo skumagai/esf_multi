@@ -8,7 +8,7 @@ include_directories(/usr/local/include/eigen3)
 set(LIB_SRC
   afs.cc
   allele.cc
-  # esf_prob.cc
+  esf_prob.cc
   hit_prob.cc
   init.cc
   param.cc

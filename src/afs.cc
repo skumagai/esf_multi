@@ -36,7 +36,7 @@ namespace esf {
 
 
 AFS::AFS(AFS const& afs, Allele const& allele, Mode mode)
-    : data(afs.data) {
+    : data(afs.data), m_deme(afs.m_deme) {
 
   if (allele.size() > 0) {
 

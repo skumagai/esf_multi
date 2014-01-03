@@ -98,7 +98,7 @@ class AFS {
 
   bool singleton() const;
 
-  Index operator[](const Allele&) const;
+  Index operator[](Allele const&) const;
 
   Index size(Index) const;
 
