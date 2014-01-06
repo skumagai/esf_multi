@@ -5,7 +5,7 @@ cmake_minimum_required(VERSION 2.6)
 project(esf_multi)
 
 # specify the default flags
-set(CMAKE_CXX_FLAGS "-g -std=c++11 -stdlib=libc++" CACHE STRING "default compiler flags" FORCE)
+set(CMAKE_CXX_FLAGS "-std=c++11" CACHE STRING "default compiler flags" FORCE)
 include_directories(${CMAKE_SOURCE_DIR}/src)
 link_directories(${CMAKE_SOURCE_DIR}/src)
 
