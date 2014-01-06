@@ -3,7 +3,7 @@ project(${CMAKE_PROJECT_NAME})
 set(LIB_NAME ${PROJECT_NAME}_lib)
 set(LIB_NAME ${LIB_NAME} PARENT_SCOPE)
 
-include_directories(/usr/local/include/eigen3)
+include_directories(/usr/include/eigen3 /usr/local/include/eigen3)
 
 set(LIB_SRC
   afs.cc
