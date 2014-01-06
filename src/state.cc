@@ -24,6 +24,7 @@
 // DEALINGS IN THE SOFTWARE.
 
 
+#include <algorithm>
 #include <numeric>
 #include <utility>
 #include <vector>
