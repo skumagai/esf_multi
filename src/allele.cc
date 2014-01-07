@@ -196,7 +196,7 @@ Index& Allele::operator[](Index deme) {
 }
 
 
-Index const& Allele::operator[](Index deme) const {
+Index const Allele::operator[](Index deme) const {
 
   return data[deme];
 
