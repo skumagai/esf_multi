@@ -34,6 +34,9 @@
 namespace esf {
 
 
+// An instance of this class computes probabilities of an allele
+// frequency spectrum according to population-structured extension to
+// Ewen's sampling formula.
 class ESFProb {
 
  private:
@@ -54,8 +57,15 @@ class ESFProb {
 
  public:
 
+  // This constructor takes an allele frequency spectrum (of AFS
+  // class) and demographic paramegers of (Param class).  The acutual
+  // computation is deferred until compute method is explicitly invoked.
   ESFProb(AFS, Param);
 
+  // This function implements actual computation of
+  // population-structured ESP, and it's return value is a probability
+  // according to the sample state (allele frequency spectrum) and
+  // demographic parameters.  The computation is performed recursively.
   double compute();
 
 };

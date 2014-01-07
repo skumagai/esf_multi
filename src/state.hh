@@ -33,6 +33,8 @@
 namespace esf {
 
 
+// This class represents a state. States contain information of inital
+// location of genes and the current location.
 class State {
 
  public:
@@ -71,16 +73,31 @@ class State {
 
   ~State() = default;
 
+  // Create a state from initial condition. This conversion assumes
+  // that all genes remain in their initial locations.
   State(Init const&);
 
+  // Createa i-th state associated with an initial condition.
   State(Init const&, Index);
 
+  // Create a state associated with an initial condition. The state is
+  // specified as a list of number of genes in each deme grouped by
+  // their initial location. That said, the list has length of n^2 for
+  // n the number of demes.  Order of elements is {g_00, g_01,...g_10,
+  // g_11,..., a_nn} for g_ij number of genes where i the inital
+  // location and j the current location.
   State(Init const&, ::std::vector<Index> const&);
 
+  // Computes a list of states, which are diferent from the current
+  // state by one migration event.  This excludes the currentstate itself.
   ::std::vector<State> neighbors();
 
+  // Returns an ID associated with the current state. The order of
+  // states is stable, but forward and backward comptatibilities are
+  // not guaranteed.
   Index id() const;
 
+  // Returns the number of demes.
   Index deme() const;
 
   Index const& operator[](Index) const;
@@ -95,6 +112,8 @@ class State {
 
   const_iterator end() const;
 
+  // Comparison operators.  Some of STL containers require object to
+  // implement these.
   friend bool operator==(State const&, State const&);
 
   friend bool operator<(State const&, State const&);

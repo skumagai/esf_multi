@@ -32,8 +32,15 @@
 
 namespace esf {
 
+// Compute binomial coefficient.
 Index binomial(Index, Index);
+
+// Converts multidimensional index to 1 dimensional index. The most
+// rapidly chaning element is the first element, and the most slowly
+// chaning element is the last element.
 Index index_n_to_1(::std::vector<Index>, ::std::vector<Index>);
+
+// Convert one dimensional index to multidimensional index.
 ::std::vector<Index> index_1_to_n(::std::vector<Index>, Index);
 
 };

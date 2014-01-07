@@ -36,13 +36,20 @@
 namespace esf {
 
 
+// Forward declarations
+
 class Init;
 
+// Internally used structs for bookkeeping purpose
 struct ExitAllelePair;
 
 struct ExitAFSPair;
 
 
+// This class provides a representation of allele frequency spectrum
+// (AFS).  It provides convenient access to underlying allele as well
+// as creation of new AFS by modifying the current AFS.  This object
+// is immutable.
 class AFS {
 
  private:
@@ -92,20 +99,35 @@ class AFS {
 
   ~AFS() = default;
 
+  // Create a new AFS by adding another allele to the current AFS.
   AFS add(Allele);
 
+  // Create a new AFS by removing a preexisting allele from the
+  // current AFS.
   AFS remove(Allele);
 
+  // Test if the current AFS is singleton.  AFS is singleton if it
+  // contains a single allele and if the allele is singleton.
   bool singleton() const;
 
+  // Returns the multiplicity of the specified allele in AFS.
+  // Different allele might have identical placement of genes.  THen
+  // the multiplicty of allele is said to be more than one.
   Index operator[](Allele const&) const;
 
+  // Return the number of genes in the specified deme.
   Index size(Index) const;
 
+  // Return the total number of genes in AFS.
   Index size() const;
 
+  // Returns the number of demes.
   Index deme() const;
 
+  // Returns a list of AFS reacheable by one or more migrations.
+  // Because origin and destination of genes need to be tracked,
+  // return value is a list of pairs, whose first element is AFS and
+  // the second element is its corresponding states.
   ::std::vector<ExitAFSPair> reacheable() const;
 
   iterator begin();
@@ -116,6 +138,8 @@ class AFS {
 
   const_iterator end() const;
 
+  // Equality and less than operator are implemented to satisfy
+  // requirement for storing in some of STL containers.
   friend bool operator==(AFS const&, AFS const&);
 
   friend bool operator<(AFS const&, AFS const&);
@@ -123,6 +147,7 @@ class AFS {
 };
 
 
+// This struct keeps AFS and its corresponding state together.
 struct ExitAFSPair {
 
   AFS afs;

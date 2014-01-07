@@ -34,11 +34,14 @@
 namespace esf {
 
 
+// Forward declarations
 class AFS;
-
 class State;
 
 
+// This class represents an initial arrangement of genes either at the
+// time in a sample or immediately after coalescent event. Genotype is
+// ignored.
 class Init {
 
  public:
@@ -73,16 +76,26 @@ class Init {
 
   Init(::std::vector<Index> const&);
 
+  // Construct the current arrangement of genes by disregarding where
+  // genes come from.
   Init(State const&);
 
+  // Construct the current arrangement of genes by disregarding
+  // genotype of genes.
   Init(AFS const&);
 
+  // Returns the number of demes.
   Index deme() const;
 
+  // Returns the number of dimensions of state space with regard to
+  // genes in a specified deme.
   Index size(Index) const;
 
+  // Returns the total number dimensions of state space, where all
+  // states are reacheable from this inital condition.
   Index size() const;
 
+  // Returns the number of geens in a specified deme.
   Index operator[](Index) const;
 
   friend bool operator==(Init const&, Init const&);

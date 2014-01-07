@@ -36,6 +36,10 @@
 namespace esf {
 
 
+// This class stores demographic parameters.  Those parameters at
+// present are migration rates, population size relative to
+// (idealized) ancestral population, and mutation rates.  All
+// parameters including mutation rates are subpopulation-specific.
 class Param {
 
  public:
@@ -52,14 +56,25 @@ class Param {
 
  public:
 
+  // This constructor takes migration rate matrix, relative population
+  // size vector, and mutation rate vector.  If there are n
+  // subpopulations, respective size is n^2, n, and n.  Note that the
+  // migration rate matrix needs to be flattened and that the matrix
+  // has to be specified in column-major order (FORTRAN's storate mode
+  // rather than C's).
   Param(value_type mi, value_type p, value_type mu)
       : m_mig(mi), m_pop(p), m_mut(mu) {}
 
-  // migration rate is stored in column-major order
+  // This function takes two integers corresponding to source and
+  // target demes, and it returns the corresponding migration rate.
+  // Note that direction of migration is defined in backward in
+  // time.  Deme index starts from zero.
   double& mig_rate(Index, Index);
 
+  // This function returns a mutation rate in a deme.
   double& mut_rate(Index);
 
+  // This function returns a relative population size of a deme.
   double& pop_size(Index);
 
 };

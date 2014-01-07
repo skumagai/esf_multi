@@ -36,10 +36,17 @@ namespace esf {
 
 using ::std::vector;
 
+
+// Forward declaration
 class Init;
 class State;
 
 
+// This class computes the probabilities of coalescence given initial
+// locations of genes and demographic parameters. Genotype of genes is
+// not considered. The probabilities are computed for location of
+// genes immediately prior to coalescence and the location of
+// coalescent event.
 class HitProb {
 
  private:
@@ -56,10 +63,17 @@ class HitProb {
 
  public:
 
+  // The hittng probabilities are computated upon construction of
+  // HitProb object.
   HitProb(Init, Param);
 
+  // Returns the hitting probability of i-th state and coalescence in
+  // j-th deme. States contain information of initial and current
+  // placement of genes, but they do not contain information on
+  // coalescence.
   double get(Index, Index) const;
 
+  // Returns the hitting probability of specified state and deme.
   double get(State, Index) const;
 
   HitProb update(Param) const;

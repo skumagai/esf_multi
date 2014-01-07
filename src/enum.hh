@@ -32,8 +32,7 @@ namespace esf {
 
 namespace {
 
-
-  enum class Mode {ADD, REMOVE};
+enum class Mode {ADD, REMOVE};
 
 
 }
