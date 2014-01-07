@@ -36,29 +36,67 @@ using ::esf::AFS;
 using ::esf::Param;
 using ::esf::ESFProb;
 
-class ESFProbTest: public ::testing::Test {
 
+class ESFProbTest: public ::testing::Test {
 
  protected:
 
   ESFProbTest()
-      : allele1({1,0}),
-        afs1({allele1}),
-        param({0,1,1,0},{1,1},{1,1}) {}
+      : s20({Allele({1, 0}), Allele({0, 1})}),
+        s21({Allele({1, 0}), Allele({1, 0})}),
+        s30({Allele({1, 0}), Allele({0, 1}), Allele({1, 0})}),
+        s31({Allele({1, 0}), Allele({1, 0}), Allele({1, 0})}),
+        s32({Allele({2, 0}), Allele({1, 0})}),
+        s33({Allele({2, 0}), Allele({0, 1})}),
+        ns2({Allele({2, 0})}),
+        ns3({Allele({3, 0})}),
+        p({0.0, 1.0, 0.5, 0.0}, {1.0, 1.5}, {0.2, 0.4}) {}
 
-  Allele allele1;
-  AFS afs1;
-  Param param;
+  AFS s20, s21, s30, s31, s32, s33, ns2, ns3;
+  Param p;
 
 };
 
 
-TEST_F(ESFProbTest, Base) {
+TEST_F(ESFProbTest, BaseCase) {
 
-  double exp = 1.0;
-  auto val = ESFProb(afs1, param).compute();
+  ESFProb prob(AFS({Allele({1,0})}), p);
 
-  EXPECT_DOUBLE_EQ(exp, val);
+  EXPECT_DOUBLE_EQ(1., prob.compute());
+
+}
+
+
+TEST_F(ESFProbTest, WithSingleton) {
+
+  ESFProb prob(s20, p);
+  EXPECT_NEAR(0.4815596672047684, prob.compute(), 1e-6);
+
+  prob = ESFProb(s21, p);
+  EXPECT_NEAR(0.25928225506022595, prob.compute(), 1e-6);
+
+  prob = ESFProb(s30, p);
+  EXPECT_NEAR(0.09009334137786906, prob.compute(), 1e-6);
+
+  prob = ESFProb(s31, p);
+  EXPECT_NEAR(0.03589004507443738, prob.compute(), 1e-6);
+
+  prob = ESFProb(s32, p);
+  EXPECT_NEAR(0.33508831497868286, prob.compute(), 1e-6);
+
+  prob = ESFProb(s33, p);
+  EXPECT_NEAR(0.3068718689857209, prob.compute(), 1e-6);
+
+}
+
+
+TEST_F(ESFProbTest, WithoutSingleton) {
+
+  ESFProb prob(ns2, p);
+  EXPECT_NEAR(0.740717744939774, prob.compute(), 1e-6);
+
+  prob = ESFProb(ns3, p);
+  EXPECT_NEAR(0.6290216399468798, prob.compute(), 1e-6);
 
 }
 
