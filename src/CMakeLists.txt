@@ -1,9 +1,40 @@
 project(${CMAKE_PROJECT_NAME})
 
+
+# enable warnings if they are available and reasonable.
+
+include(CheckCXXCompilerFlag)
+
+check_cxx_compiler_flag(-Wall HAS_W_ALL)
+if(HAS_W_ALL)
+add_definitions(-Wall)
+endif()
+
+check_cxx_compiler_flag(-Wextra HAS_W_EXTRA)
+if(HAS_W_EXTRA)
+add_definitions(-Wextra)
+endif()
+
+check_cxx_compiler_flag(-Weverything HAS_W_EVERYTHING)
+if(HAS_W_EVERYTHING)
+add_definitions(-Weverything)
+endif()
+
+check_cxx_compiler_flag(-Wno-c++98-compat-pedantic HAS_W_NO_CXX98_COMPAT_PEDANTIC)
+if(HAS_W_NO_CXX98_COMPAT_PEDANTIC)
+add_definitions(-Wno-c++98-compat-pedantic)
+endif()
+
+check_cxx_compiler_flag(-Wno-c++98-compat HAS_W_NO_CXX98_COMPAT)
+if(HAS_W_NO_CXX98_COMPAT)
+add_definitions(-Wno-c++98-compat)
+endif()
+
 set(LIB_NAME ${PROJECT_NAME}_lib)
 set(LIB_NAME ${LIB_NAME} PARENT_SCOPE)
 
-include_directories(${DEP_DIR}/eigen)
+# suppress those warnings from Eigen
+include_directories(SYSTEM ${DEP_DIR}/eigen)
 
 set(LIB_SRC
   afs.cc

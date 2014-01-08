@@ -1,6 +1,6 @@
 project(${CMAKE_PROJECT_NAME}_test)
 
-include_directories("${GTEST}/include")
+include_directories(SYSTEM "${GTEST}/include")
 link_directories(${GTEST})
 
 set(test_SRC
