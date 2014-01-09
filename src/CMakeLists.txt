@@ -21,23 +21,13 @@ add_definitions(-Weverything)
 endif()
 
 check_cxx_compiler_flag(-Wno-c++98-compat-pedantic HAS_W_NO_CXX98_COMPAT_PEDANTIC)
-if(HAS_W_NO_CXX98_COMPAT_PEDANTIC)
+if(HAS_W_NO_CXX98_COMPAT_PEDANTIC AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 add_definitions(-Wno-c++98-compat-pedantic)
 endif()
 
 check_cxx_compiler_flag(-Wno-c++98-compat HAS_W_NO_CXX98_COMPAT)
-if(HAS_W_NO_CXX98_COMPAT)
+if(HAS_W_NO_CXX98_COMPAT AND "${CMAKE_CXX_COMPILER_ID}" STREQUAL "Clang")
 add_definitions(-Wno-c++98-compat)
-endif()
-
-check_cxx_compiler_flag(-Wno-padded HAS_W_NO_PADDED)
-if(HAS_W_NO_PADDED)
-add_definitions(-Wno-padded)
-endif()
-
-check_cxx_compiler_flag(-Wno-unused-member-function HAS_W_NO_UNUSED_MEMBER_FUNCTION)
-if(HAS_W_NO_UNUSED_MEMBER_FUNCTION)
-add_definitions(-Wno-unused-member-function)
 endif()
 
 check_cxx_compiler_flag(-pedantic HAS_PEDANTIC)
