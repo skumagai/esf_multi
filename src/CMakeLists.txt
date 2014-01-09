@@ -40,6 +40,11 @@ if(HAS_W_NO_UNUSED_MEMBER_FUNCTION)
 add_definitions(-Wno-unused-member-function)
 endif()
 
+check_cxx_compiler_flag(-pedantic HAS_PEDANTIC)
+if(HAS_PEDANTIC)
+add_definitions(-pedantic)
+endif()
+
 set(LIB_NAME ${PROJECT_NAME}_lib)
 set(LIB_NAME ${LIB_NAME} PARENT_SCOPE)
 
