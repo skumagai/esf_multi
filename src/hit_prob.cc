@@ -40,26 +40,27 @@ namespace esf {
 
 using ::std::accumulate;
 
-using Matrix = Eigen::SparseMatrix<double>;
-using Vector = Eigen::SparseVector<double>;
+using Matrix = Eigen::SparseMatrix<double, Eigen::ColMajor, Index>;
+using Vector = Eigen::SparseVector<double, Eigen::ColMajor, Index>;
 using Solver = Eigen::SparseLU<Matrix>;
-using Eigen::VectorXi;
-using Eigen::VectorXd;
+using VectorXi = Eigen::Matrix<Index, Eigen::Dynamic, 1>;
+using VectorXd = Eigen::Matrix<double, Eigen::Dynamic, 1>;
 
 
 HitProb::HitProb(Init i, Param p)
-    : init(i), param(p) {
+    : m_init(i), m_param(p) {
 
-  prob.reserve(init.size() * init.deme());
+  m_prob.reserve(unsign(m_init.size() * m_init.deme()));
 
   compute();
 
 }
 
 
-double HitProb::get(Index idx, Index deme) const {
+double HitProb::get(Index idx,
+                    Index deme) const {
 
-  return prob[init.deme() * idx + deme];
+  return m_prob[unsign(m_init.deme() * idx + deme)];
 
 }
 
@@ -73,27 +74,28 @@ double HitProb::get(State state, Index deme) const {
 
 HitProb HitProb::update(Param p) const {
 
-  return HitProb(init, param);
+  return HitProb(m_init, p);
 
 }
 
 
+// Because Eigen only handles
 void HitProb::compute() {
 
-  auto dim = init.size();
+  auto dim = m_init.size();
 
   Matrix u(dim, dim);
 
-  auto ndeme = init.deme();
+  auto ndeme = m_init.deme();
 
   u.reserve(VectorXi::Constant(dim, (2 * ndeme * (ndeme - 1) + 1) * dim));
 
-  vector<Index> coals;
-  coals.reserve(ndeme * dim);
+  vector<double> coals;
+  coals.reserve(unsign(ndeme * dim));
 
-  for (Index i = 0; i < dim; ++i) {
+  for (decltype(dim) i = 0; i < dim; ++i) {
 
-    State s(init, i);
+    State s(m_init, i);
 
     Init ii(s);
 
@@ -108,11 +110,11 @@ void HitProb::compute() {
 
     }
 
-    for (auto deme = 0; deme < ndeme; ++deme) {
+    for (decltype(ndeme) deme = 0; deme < ndeme; ++deme) {
 
-      auto coal = static_cast<double>(binomial(ii[deme], 2));
-
-      total += 2.0 * coal * param.pop_size(deme) + ii[deme] * param.mut_rate(deme);
+      Index choice = 2;
+      auto coal = binomial(ii[deme], choice);
+      total += 2.0 * coal * m_param.pop_size(deme) + ii[deme] * m_param.mut_rate(deme);
 
       coals.push_back(coal);
 
@@ -125,7 +127,7 @@ void HitProb::compute() {
   u.makeCompressed();
 
   Vector a(dim);
-  a.insert(State(init).id()) = 1.0;
+  a.insert(State(m_init).id()) = 1.0;
 
   Solver solver(u);
   if (solver.info() != Eigen::Success) {
@@ -141,11 +143,11 @@ void HitProb::compute() {
 
   }
 
-  for (Index i = 0; i < dim; ++i) {
+  for (decltype(dim) i = 0; i < dim; ++i) {
 
-    for (Index j = 0; j < ndeme; ++j) {
+    for (decltype(ndeme) j = 0; j < ndeme; ++j) {
 
-      prob.push_back(x(i) * 2.0 * param.pop_size(j) * coals[i * ndeme + j]);
+      m_prob.push_back(x(i) * 2.0 * m_param.pop_size(j) * coals[unsign(i * ndeme + j)]);
 
     }
 
@@ -156,7 +158,7 @@ void HitProb::compute() {
 
 double HitProb::compute_u(State from, State to) {
 
-  Index size = init.deme();
+  Index size = m_init.deme();
 
   Index i = 0;
   while (from[i] != to[i] + 1) {
@@ -168,7 +170,7 @@ double HitProb::compute_u(State from, State to) {
     ++j;
   }
 
-  return from[i] * param.mig_rate(i % size, j % size);
+  return from[i] * m_param.mig_rate(i % size, j % size);
 
 }
 

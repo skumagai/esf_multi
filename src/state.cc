@@ -40,6 +40,7 @@ namespace esf {
 namespace {
 
 
+using ::std::size_t;
 using ::std::vector;
 
 
@@ -77,13 +78,15 @@ State::State(Init const& init, ::std::vector<Index> const& data)
 
   vector<State> neighbors;
 
-  for (Index src = 0; src < m_data.size(); ++src) {
+  auto size = sign(m_data.size());
 
-    if (m_data[src] != 0) {
+  for (Index src = 0; src < size; ++src) {
+
+    if (m_data[unsign(src)] != 0) {
 
       auto d = src / deme;
 
-      for (Index tar = deme * d; tar < deme * (d + 1); ++tar) {
+      for (auto tar = deme * d; tar < deme * (d + 1); ++tar) {
 
         if (src != tar) {
 
@@ -123,16 +126,16 @@ Index State::deme() const {
 }
 
 
-Index const& State::operator[](Index i) const {
+Index State::operator[](Index i) const {
 
-  return m_data[i];
+  return m_data[unsign(i)];
 
 }
 
 
 Index& State::operator[](Index i) {
 
-  return m_data[i];
+  return m_data[unsign(i)];
 
 }
 
@@ -143,13 +146,13 @@ State::value_type State::compute_state() {
 
   value_type data;
 
-  data.reserve(deme * deme);
+  data.reserve(unsign(deme * deme));
 
   auto idx_list = index_1_to_n(state_dim(m_init), m_id);
 
-  for (Index i = 0; i < deme; ++i) {
+  for (decltype(deme) i = 0; i < deme; ++i) {
 
-    auto substate = generate_state(idx_list[i], deme, m_init[i]);
+    auto substate = generate_state(idx_list[unsign(i)], deme, m_init[i]);
 
     data.insert(data.end(), substate.begin(), substate.end());
 
@@ -166,11 +169,11 @@ Index State::compute_id() {
 
   using ::std::vector;
 
-  vector<Index> accum(deme);
+  vector<Index> accum(unsign(deme));
 
-  for (Index i = 0; i < deme; ++i) {
+  for (decltype(deme) i = 0; i < deme; ++i) {
 
-    accum[i] = generate_id(m_data, deme * i, deme * i + deme);
+    accum[unsign(i)] = generate_id(m_data, deme * i, deme * i + deme);
 
   }
 
@@ -185,11 +188,11 @@ State::value_type State::expand_init() {
 
   value_type data;
 
-  data.resize(deme * deme);
+  data.resize(unsign(deme * deme));
 
-  for (Index i = 0; i < deme; ++i) {
+  for (decltype(deme) i = 0; i < deme; ++i) {
 
-    data[i + i * deme] = m_init[i];
+    data[unsign(i + i * deme)] = m_init[i];
 
   }
 
@@ -247,7 +250,7 @@ namespace {
 
   auto deme = init.deme();
 
-  ::std::vector<Index> dim(deme);
+  ::std::vector<Index> dim(unsign(deme));
 
   using ::std::transform;
 
@@ -261,16 +264,15 @@ namespace {
 
 }
 
-
 ::std::vector<Index> generate_state(Index idx, Index deme, Index gene) {
 
   using std::vector;
 
   Index offset = 0;
 
-  vector<Index> state(deme);
+  vector<Index> state(unsign(deme));
 
-  for (Index i = 0; i < deme - 1; ++i) {
+  for (decltype(deme) i = 0; i < deme - 1; ++i) {
 
     Index j = 0;
 
@@ -285,11 +287,11 @@ namespace {
 
     gene -= j;
 
-    state[i] = j;
+    state[unsign(i)] = j;
 
   }
 
-  state[deme - 1] = gene;
+  state[unsign(deme - 1)] = gene;
 
   return state;
 
@@ -298,19 +300,27 @@ namespace {
 
 Index generate_id(::std::vector<Index>& state, Index b, Index e) {
 
+  using ::std::size_t;
+  using ::std::ptrdiff_t;
+
   auto deme = e - b;
+
+  ptrdiff_t begin = static_cast<ptrdiff_t>(b);
+  ptrdiff_t end = static_cast<ptrdiff_t>(e);
 
   using ::std::accumulate;
 
-  auto size = accumulate(state.begin() + b, state.begin() + e, 0);
+  auto size = accumulate(state.begin() + begin, state.begin() + end, 0);
 
   Index idx = 0;
 
-  for (Index i = 0; i < deme - 1; ++i) {
+  for (decltype(deme) i = 0; i < deme - 1; ++i) {
 
-    auto curr = state[b++];
+    auto curr = state[unsign(b)];
 
-    for (Index j = 0; j < curr; ++j) {
+    ++b;
+
+    for (decltype(curr) j = 0; j < curr; ++j) {
 
       idx += binomial(size - j + deme - i - 2, size - j);
 

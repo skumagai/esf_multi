@@ -100,7 +100,7 @@ class State {
   // Returns the number of demes.
   Index deme() const;
 
-  Index const& operator[](Index) const;
+  Index operator[](Index) const;
 
   Index& operator[](Index);
 

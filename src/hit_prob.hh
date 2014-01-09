@@ -49,13 +49,17 @@ class State;
 // coalescent event.
 class HitProb {
 
+ public:
+
+  typedef typename ::std::vector<double> value_type;
+
  private:
 
-  Init init;
+  Init m_init;
 
-  Param param;
+  Param m_param;
 
-  vector<double> prob;
+  vector<double> m_prob;
 
   void compute();
 

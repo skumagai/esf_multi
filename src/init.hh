@@ -56,8 +56,6 @@ class Init {
 
   value_type m_data;
 
-  Index m_deme;
-
   ::std::vector<Index> m_size;
 
   void set_size();

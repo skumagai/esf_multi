@@ -70,9 +70,7 @@ class AFS {
 
  private:
 
-  data_type data;
-
-  Index m_deme;
+  data_type m_data;
 
   AFS(AFS const&, Allele const&, Mode);
 

@@ -37,9 +37,10 @@ using ::std::set;
 using ::std::size_t;
 using ::std::vector;
 
-typedef size_t Index;
+typedef long Index;
 typedef double Value;
 
 };
+
 
 #endif // ESF_MULTI_TYPEDEF_HH

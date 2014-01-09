@@ -28,7 +28,7 @@
 #include <utility>
 
 #include "allele.hh"
-
+#include "util.hh"
 
 namespace esf {
 
@@ -36,6 +36,7 @@ namespace esf {
 namespace {
 
 using ::std::pair;
+using ::std::size_t;
 using ::std::vector;
 
 vector<Allele> move_genes(Allele, Index, Index);
@@ -49,17 +50,17 @@ vector<ExitAllelePair> combine(Allele,
 
 
 Allele::Allele(Allele const& allele, Index deme, Mode mode)
-    : data(allele.data), total(allele.total), m_deme(allele.m_deme) {
+    : m_data(allele.m_data), m_total(allele.m_total) {
 
   if (mode == Mode::ADD) {
 
-    data[deme] += 1;
-    total += 1;
+    m_data[unsign(deme)] += 1;
+    m_total += 1;
 
   } else {
 
-    data[deme] -= 1;
-    total -= 1;
+    m_data[unsign(deme)] -= 1;
+    m_total -= 1;
 
   }
 
@@ -67,17 +68,17 @@ Allele::Allele(Allele const& allele, Index deme, Mode mode)
 
 
 Allele::Allele(Allele&& allele, Index deme, Mode mode)
-    : total(allele.total), data(::std::move(allele.data)) {
+    : m_data(::std::move(allele.m_data)), m_total(allele.m_total) {
 
   if (mode == Mode::ADD) {
 
-    data[deme] += 1;
-    total += 1;
+    m_data[unsign(deme)] += 1;
+    m_total += 1;
 
   } else {
 
-    data[deme] -= 1;
-    total -= 1;
+    m_data[unsign(deme)] -= 1;
+    m_total -= 1;
 
   }
 
@@ -85,7 +86,8 @@ Allele::Allele(Allele&& allele, Index deme, Mode mode)
 
 
 Allele::Allele(::std::vector<Index> const& d)
-    : data(d), total(::std::accumulate(d.begin(), d.end(), 0)), m_deme(d.size()) {}
+    : m_data(d),
+      m_total(::std::accumulate(d.begin(), d.end(), static_cast<Index>(0))) {}
 
 
 Allele Allele::remove(Index deme) const {
@@ -97,7 +99,7 @@ Allele Allele::remove(Index deme) const {
 
 bool Allele::singleton() const {
 
-  return total == 1;
+  return m_total == 1;
 
 }
 
@@ -106,15 +108,17 @@ bool Allele::singleton() const {
 
   using ::std::vector;
 
-  vector<Index> vals(m_deme);
+  auto d = deme();
+
+  vector<Index> vals(unsign(d));
 
   Allele base(vals);
 
   vector<vector<Allele>> retvals;
 
-  for (auto i = 0; i < m_deme; ++i) {
+  for (decltype(d) i = 0; i < d; ++i) {
 
-    retvals.push_back(move_genes(base, 0, data[i]));
+    retvals.push_back(move_genes(base, 0, m_data[unsign(i)]));
 
   }
 
@@ -122,7 +126,7 @@ bool Allele::singleton() const {
 
   for (auto a: retvals[0]) {
 
-    auto pairs = combine(a, a.data, retvals.begin() + 1, retvals.end());
+    auto pairs = combine(a, a.m_data, retvals.begin() + 1, retvals.end());
 
     data.insert(data.end(), pairs.begin(), pairs.end());
 
@@ -135,14 +139,14 @@ bool Allele::singleton() const {
 
 Index Allele::size() const {
 
-  return total;
+  return m_total;
 
 }
 
 
 Index Allele::deme() const {
 
-  return m_deme;
+  return sign(m_data.size());
 
 }
 
@@ -156,49 +160,49 @@ Allele Allele::add(Index deme) const {
 
 Allele::iterator Allele::begin() {
 
-  return data.begin();
+  return m_data.begin();
 
 }
 
 
 Allele::const_iterator Allele::begin() const {
 
-  return data.begin();
+  return m_data.begin();
 
 }
 
 
 Allele::iterator Allele::end() {
 
-  return data.end();
+  return m_data.end();
 
 }
 
 
 Allele::const_iterator Allele::end() const {
 
-  return data.end();
+  return m_data.end();
 
 }
 
 
 bool Allele::operator<(Allele const& allele) const {
 
-  return data < allele.data;
+  return m_data < allele.m_data;
 
 }
 
 
 Index& Allele::operator[](Index deme) {
 
-  return data[deme];
+  return m_data[unsign(deme)];
 
 }
 
 
-Index const Allele::operator[](Index deme) const {
+Index Allele::operator[](Index deme) const {
 
-  return data[deme];
+  return m_data[unsign(deme)];
 
 }
 
@@ -207,7 +211,7 @@ Index const Allele::operator[](Index deme) const {
 
 bool operator==(Allele const& a, Allele const& b) {
 
-  return a.data == b.data;
+  return a.m_data == b.m_data;
 
 }
 
@@ -267,7 +271,7 @@ vector<ExitAllelePair> combine(Allele allele,
 
     auto b = allele;
 
-    for (auto i = 0; i < allele.deme(); ++i) {
+    for (decltype(allele.deme()) i = 0; i < allele.deme(); ++i) {
 
       for (auto j = a[i]; j > 0; --j) {
 

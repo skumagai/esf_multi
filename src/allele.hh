@@ -57,9 +57,9 @@ class Allele {
 
  private:
 
-  value_type data;
+  value_type m_data;
 
-  Index total;
+  Index m_total;
 
   Index m_deme;
 
@@ -126,7 +126,7 @@ class Allele {
   // Returns number of genes in a specified deme.
   Index& operator[](Index);
 
-  Index const operator[](Index) const;
+  Index operator[](Index) const;
 
   // Implements equality test for the same reason as less-than operator.
   friend bool operator==(Allele const&, Allele const&);

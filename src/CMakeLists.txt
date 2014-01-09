@@ -30,6 +30,16 @@ if(HAS_W_NO_CXX98_COMPAT)
 add_definitions(-Wno-c++98-compat)
 endif()
 
+check_cxx_compiler_flag(-Wno-padded HAS_W_NO_PADDED)
+if(HAS_W_NO_PADDED)
+add_definitions(-Wno-padded)
+endif()
+
+check_cxx_compiler_flag(-Wno-unused-member-function HAS_W_NO_UNUSED_MEMBER_FUNCTION)
+if(HAS_W_NO_UNUSED_MEMBER_FUNCTION)
+add_definitions(-Wno-unused-member-function)
+endif()
+
 set(LIB_NAME ${PROJECT_NAME}_lib)
 set(LIB_NAME ${LIB_NAME} PARENT_SCOPE)
 
@@ -44,7 +54,6 @@ set(LIB_SRC
   init.cc
   param.cc
   state.cc
-  util.cc
 )
 
 add_library(${LIB_NAME} STATIC ${LIB_SRC})

@@ -30,6 +30,7 @@
 #include "afs.hh"
 #include "hit_prob.hh"
 #include "param.hh"
+#include "typedef.hh"
 
 namespace esf {
 
@@ -41,13 +42,11 @@ class ESFProb {
 
  private:
 
-  AFS afs;
+  AFS m_afs;
 
-  Init init;
+  Init m_init;
 
-  Index ndeme;
-
-  Param param;
+  Param m_param;
 
   double compute_with_singleton();
 

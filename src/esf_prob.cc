@@ -30,17 +30,18 @@
 #include "enum.hh"
 #include "hit_prob.hh"
 #include "esf_prob.hh"
+#include "util.hh"
 
 namespace esf {
 
 
 ESFProb::ESFProb(AFS a, Param p)
-    : afs(a), init(a), ndeme(a.deme()), param(p) {}
+    : m_afs(a), m_init(a), m_param(p) {}
 
 
 double ESFProb::compute() {
 
-  if (afs.singleton()) {
+  if (m_afs.singleton()) {
 
     return compute_with_singleton();
 
@@ -57,9 +58,9 @@ double ESFProb::compute_without_singleton() {
 
   double val = 0.0;
 
-  HitProb hp(init, param);
+  HitProb hp(m_init, m_param);
 
-  for (auto spec: afs.reacheable()) {
+  for (auto spec: m_afs.reacheable()) {
 
     val += compute_coal_probs(spec, hp);
 
@@ -72,7 +73,7 @@ double ESFProb::compute_without_singleton() {
 
 Value ESFProb::compute_with_singleton() {
 
-  if (afs.size() == 1) {
+  if (m_afs.size() == 1) {
 
     return 1.0;
 
@@ -80,7 +81,7 @@ Value ESFProb::compute_with_singleton() {
 
   using ::std::find_if;
 
-  auto singleton = find_if(afs.begin(), afs.end(),
+  auto singleton = find_if(m_afs.begin(), m_afs.end(),
                            [](AFS::value_type p)
                            {
                              return p.first.singleton();
@@ -88,19 +89,19 @@ Value ESFProb::compute_with_singleton() {
 
   Allele allele = singleton->first;
 
-  Index deme = 0;
+  decltype(m_afs.deme()) deme = 0;
   while (allele[deme] == 0) {
 
     ++deme;
 
   }
 
-  double dsize = static_cast<double>(afs.size(deme));
+  double dsize = static_cast<double>(m_afs.size(deme));
 
-  AFS base = afs.remove(allele).add(allele.remove(deme));
+  AFS base = m_afs.remove(allele).add(allele.remove(deme));
 
   // probability of a sample excluding one of singleton alleles.
-  double val = ESFProb(base, param).compute();
+  double val = ESFProb(base, m_param).compute();
 
   for (auto a: base) {
 
@@ -109,12 +110,12 @@ Value ESFProb::compute_with_singleton() {
 
     AFS other = base.remove(a.first).add(na);
 
-    val -= ESFProb(other, param).compute() * other[na] * na[deme] / dsize;
+    val -= ESFProb(other, m_param).compute() * other[na] * na[deme] / dsize;
 
 
   }
 
-  val *= dsize / afs[allele];
+  val *= dsize / m_afs[allele];
 
   return val;
 
@@ -127,13 +128,15 @@ double ESFProb::compute_coal_probs(ExitAFSPair const& pair, HitProb const& hp) {
   AFS afs = pair.afs;
   State state = pair.state;
 
+  auto deme = m_init.deme();
+
   for (auto a: afs) {
 
     auto allele = a.first;
 
     AFS other0 = afs.remove(allele);
 
-    for (Index i = 0; i < ndeme; ++i) {
+    for (Index i = 0; i < deme; ++i) {
 
       if (allele[i] > 1) {
 
@@ -141,7 +144,7 @@ double ESFProb::compute_coal_probs(ExitAFSPair const& pair, HitProb const& hp) {
 
         AFS other1 = other0.add(na);
 
-        double tmp = hp.get(state, i) * ESFProb(other1, param).compute();
+        double tmp = hp.get(state, i) * ESFProb(other1, m_param).compute();
 
         tmp *= na.size() * other1[na] / other1.size();
 

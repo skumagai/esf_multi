@@ -48,11 +48,11 @@ class Param {
 
  private:
 
+  value_type m_mig;
+
   value_type m_pop;
 
   value_type m_mut;
-
-  value_type m_mig;
 
  public:
 

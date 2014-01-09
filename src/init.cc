@@ -39,23 +39,24 @@ namespace esf {
 
 
 Init::Init(::std::vector<Index> const& data)
-    : m_data(data), m_deme(data.size()) {
+    : m_data(data) {
 
   set_size();
 
 }
 
 
-Init::Init(State const& state)
-    : m_deme(state.deme()) {
+Init::Init(State const& state) {
 
-  m_data.resize(m_deme);
+  auto deme = state.deme();
 
-  for (Index d = 0; d < m_deme; ++d) {
+  m_data.resize(unsign(deme));
 
-    for (Index a = 0; a < m_deme; ++a) {
+  for (decltype(deme) d = 0; d < deme; ++d) {
 
-      m_data[d] += state[d + a * m_deme];
+    for (decltype(deme) a = 0; a < deme; ++a) {
+
+      m_data[unsign(d)] += state[d + a * deme];
 
     }
 
@@ -66,18 +67,17 @@ Init::Init(State const& state)
 }
 
 
-Init::Init(AFS const& afs)
-    : m_deme(afs.deme()) {
+Init::Init(AFS const& afs) {
 
-  using ::std::vector;
+  auto deme = afs.deme();
 
-  m_data.resize(m_deme);
+  m_data.resize(unsign(deme));
 
   for (auto allele: afs) {
 
-    for (auto i = 0; i < m_deme; ++i) {
+    for (decltype(deme) i = 0; i < deme; ++i) {
 
-      m_data[i] += (allele.first)[i] * allele.second;
+      m_data[unsign(i)] += (allele.first)[i] * allele.second;
 
     }
 
@@ -90,21 +90,21 @@ Init::Init(AFS const& afs)
 
 Index Init::deme() const {
 
-  return m_deme;
+  return sign(m_data.size());
 
 }
 
 
 Index Init::operator[](Index id) const {
 
-  return m_data[id];
+  return m_data[unsign(id)];
 
 }
 
 
 Index Init::size(Index deme) const {
 
-  return m_size[deme];
+  return m_size[unsign(deme)];
 
 }
 
@@ -113,19 +113,21 @@ Index Init::size() const {
 
   using ::std::accumulate;
 
-  return accumulate(m_size.begin(), m_size.end(), 1, ::std::multiplies<Index>());
+  return accumulate(m_size.begin(), m_size.end(), 0, multiplies<Index>());
 
 }
 
 
 void Init::set_size() {
 
-  m_size.resize(m_data.size());
+  auto deme = sign(m_data.size());
+
+  m_size.resize(unsign(deme));
 
   ::std::transform(m_data.begin(), m_data.end(), m_size.begin(),
-                   [this](Index i)
+                   [deme](Index i)
                    {
-                     return binomial(i + m_deme - 1, i);
+                     return binomial<Index>(i + deme - 1, i);
                    }
                    );
 
@@ -162,7 +164,7 @@ Init::const_iterator Init::end() const {
 
 bool operator==(Init const& a, Init const& b) {
 
-  return a.m_data == b.m_data && a.m_deme == b.m_deme && a.m_size == b.m_size;
+  return a.m_data == b.m_data && a.m_size == b.m_size;
 
 }
 

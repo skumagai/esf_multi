@@ -31,26 +31,27 @@
 #include "afs.hh"
 #include "allele.hh"
 #include "init.hh"
+#include "util.hh"
 
 namespace esf {
 
 
 AFS::AFS(AFS const& afs, Allele const& allele, Mode mode)
-    : data(afs.data), m_deme(afs.m_deme) {
+    : m_data(afs.m_data) {
 
   if (allele.size() > 0) {
 
     if (mode == Mode::ADD) {
 
-      data[allele] += 1;
+      m_data[allele] += 1;
 
-    } else if (data[allele] > 1) {
+    } else if (m_data[allele] > 1) {
 
-      data[allele] -= 1;
+      m_data[allele] -= 1;
 
     } else {
 
-      data.erase(allele);
+      m_data.erase(allele);
 
     }
 
@@ -61,15 +62,9 @@ AFS::AFS(AFS const& afs, Allele const& allele, Mode mode)
 
 AFS::AFS(::std::vector<Allele> const& avec) {
 
-  if (avec.size() > 0) {
-
-    m_deme = avec[0].deme();
-
-  }
-
   for (auto allele: avec) {
 
-    data[allele] += 1;
+    m_data[allele] += 1;
 
   }
 
@@ -92,7 +87,7 @@ AFS AFS::remove(Allele allele) {
 
 bool AFS::singleton() const {
 
-  return ::std::any_of(data.begin(), data.end(),
+  return ::std::any_of(m_data.begin(), m_data.end(),
                        [](value_type p)
                        {
                          return p.first.singleton();
@@ -106,9 +101,9 @@ Index AFS::operator[](const Allele& allele) const {
 
   try {
 
-    return data.at(allele);
+    return m_data.at(allele);
 
-  } catch (::std::out_of_range& e) {
+  } catch (::std::out_of_range&) {
 
     return 0;
 
@@ -119,7 +114,8 @@ Index AFS::operator[](const Allele& allele) const {
 
 Index AFS::size(Index deme) const {
 
-  return ::std::accumulate(data.begin(), data.end(), 0,
+  Index start = 0;
+  return ::std::accumulate(m_data.begin(), m_data.end(), start,
                            [deme](Index a, value_type p)
                            {
                              return a + (p.first)[deme] * p.second;
@@ -131,7 +127,8 @@ Index AFS::size(Index deme) const {
 
 Index AFS::size() const {
 
-  return ::std::accumulate(this->begin(), this->end(), 0,
+  Index start = 0;
+  return ::std::accumulate(this->begin(), this->end(), start,
                            [](Index a, value_type p)
                            {
                              return a + (p.first).size() * p.second;
@@ -142,17 +139,19 @@ Index AFS::size() const {
 
 Index AFS::deme() const {
 
-  return m_deme;
+  return m_data.begin()->first.deme();
 
 }
 
 
 ::std::vector<ExitAFSPair> AFS::reacheable() const {
 
-  ::std::vector<Allele> alleles;
-  ::std::vector<Index> state_vec(m_deme * m_deme);
+  using ::std::vector;
 
-  return build(alleles, state_vec, data.begin(), data.end());
+  vector<Allele> alleles;
+  vector<Index> state_vec(unsign(deme() * deme()));
+
+  return build(alleles, state_vec, m_data.begin(), m_data.end());
 
 }
 
@@ -197,7 +196,9 @@ AFS::sub_build(::std::vector<Allele> alleles,
 
   }
 
-  ::std::vector<ExitAFSPair> retval;
+  using ::std::vector;
+
+  vector<ExitAFSPair> retval;
 
   for (auto a_itr = allele_begin; a_itr != allele_end; ++a_itr) {
 
@@ -207,7 +208,7 @@ AFS::sub_build(::std::vector<Allele> alleles,
     a_copy.push_back(a_itr->allele);
 
     auto s = a_itr->state;
-    for (auto i = 0; i != s.size(); ++i) {
+    for (decltype(s.size()) i = 0; i != s.size(); ++i) {
 
       s_copy[i] += s[i];
 
@@ -226,42 +227,42 @@ AFS::sub_build(::std::vector<Allele> alleles,
 
 AFS::iterator AFS::begin() {
 
-  return data.begin();
+  return m_data.begin();
 
 }
 
 
 AFS::const_iterator AFS::begin() const {
 
-  return data.begin();
+  return m_data.begin();
 
 }
 
 
 AFS::iterator AFS::end() {
 
-  return data.end();
+  return m_data.end();
 
 }
 
 
 AFS::const_iterator AFS::end() const {
 
-  return data.end();
+  return m_data.end();
 
 }
 
 
 bool operator==(AFS const& a, AFS const& b) {
 
-  return a.data == b.data;
+  return a.m_data == b.m_data;
 
 }
 
 
 bool operator<(AFS const& a, AFS const& b) {
 
-  return a.data < b.data;
+  return a.m_data < b.m_data;
 
 }
 
