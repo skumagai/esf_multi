@@ -29,7 +29,6 @@
 #include <vector>
 
 #include "typedef.hh"
-#include "enum.hh"
 
 namespace esf {
 
@@ -62,14 +61,6 @@ class Allele {
   Index m_total;
 
   Index m_deme;
-
-  // This constructure creates a new object of Allele class by adding
-  // or removing one gene to an already existing allele.  Because of
-  // immutability of Allele class, new object has to be created every
-  // time a gene is added to ore removed from pre-existing Allele class.
-  Allele(Allele const&, Index, Mode);
-
-  Allele(Allele&&, Index, Mode);
 
  public:
 

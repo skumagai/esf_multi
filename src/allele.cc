@@ -49,50 +49,43 @@ vector<ExitAllelePair> combine(Allele,
 }
 
 
-Allele::Allele(Allele const& allele, Index deme, Mode mode)
-    : m_data(allele.m_data), m_total(allele.m_total) {
-
-  if (mode == Mode::ADD) {
-
-    m_data[unsign(deme)] += 1;
-    m_total += 1;
-
-  } else {
-
-    m_data[unsign(deme)] -= 1;
-    m_total -= 1;
-
-  }
-
-}
-
-
-Allele::Allele(Allele&& allele, Index deme, Mode mode)
-    : m_data(::std::move(allele.m_data)), m_total(allele.m_total) {
-
-  if (mode == Mode::ADD) {
-
-    m_data[unsign(deme)] += 1;
-    m_total += 1;
-
-  } else {
-
-    m_data[unsign(deme)] -= 1;
-    m_total -= 1;
-
-  }
-
-}
-
-
 Allele::Allele(::std::vector<Index> const& d)
     : m_data(d),
       m_total(::std::accumulate(d.begin(), d.end(), static_cast<Index>(0))) {}
 
 
+Index Allele::size() const {
+
+  return m_total;
+
+}
+
+
+Index Allele::deme() const {
+
+  return sign(m_data.size());
+
+}
+
+
 Allele Allele::remove(Index deme) const {
 
-  return Allele(*this, deme, Mode::REMOVE);
+  value_type data = m_data;
+
+  --data[unsign(deme)];
+
+  return Allele(data);
+
+}
+
+
+Allele Allele::add(Index deme) const {
+
+  value_type data = m_data;
+
+  ++data[unsign(deme)];
+
+  return Allele(data);
 
 }
 
@@ -133,27 +126,6 @@ bool Allele::singleton() const {
   }
 
   return data;
-
-}
-
-
-Index Allele::size() const {
-
-  return m_total;
-
-}
-
-
-Index Allele::deme() const {
-
-  return sign(m_data.size());
-
-}
-
-
-Allele Allele::add(Index deme) const {
-
-  return Allele(*this, deme, Mode::ADD);
 
 }
 

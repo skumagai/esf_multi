@@ -44,13 +44,17 @@ class AFSTest: public ::testing::Test {
         a200({2, 0, 0}),
         a020({0, 2, 0}),
         a002({0, 0, 2}),
-        s({a100, a100, a010, a002}),
-        ns({a200, a020, a002}),
-        c0({a100, a100}),
-        c1({a100, a100}) {}
-
+        vs({a100, a100, a010, a002}),
+        vns({a200, a020, a002}),
+        vc0({a100, a100}),
+        vc1({a100, a100}),
+        s(vs),
+        ns(vns),
+        c0(vc0),
+        c1(vc1) {}
 
   ::esf::Allele a100, a010, a200, a020, a002;
+  ::std::vector<::esf::Allele> vs, vns, vc0, vc1;
   ::esf::AFS s;  // singleton only
   ::esf::AFS ns; // non singleton present
   ::esf::AFS c0, c1;  // for comparison
@@ -145,13 +149,18 @@ TEST_F(AFSTest, CheckSingleton) {
 TEST_F(AFSTest, AllReacheable) {
 
   using ::std::find;
+  using ::std::vector;
   using ::esf::Allele;
   using ::esf::AFS;
   using ::esf::Init;
   using ::esf::State;
   using ::esf::ExitAFSPair;
 
-  auto test = AFS({Allele({1, 0}), Allele({0, 1})}).reacheable();
+  vector<Allele> v0 = {Allele({1, 0}), Allele({1, 0})};
+  vector<Allele> v1 = {Allele({1, 0}), Allele({0, 1})};
+  vector<Allele> v2 = {Allele({0, 1}), Allele({0, 1})};
+
+  auto test = AFS(v1).reacheable();
 
   using ::std::vector;
 
@@ -159,10 +168,10 @@ TEST_F(AFSTest, AllReacheable) {
 
   vector<ExitAFSPair> exp =
       {
-        ExitAFSPair({AFS({Allele({1, 0}), Allele({1, 0})}), State(init, {1, 0, 1, 0})}),
-        ExitAFSPair({AFS({Allele({1, 0}), Allele({0, 1})}), State(init, {1, 0, 0, 1})}),
-        ExitAFSPair({AFS({Allele({1, 0}), Allele({0, 1})}), State(init, {0, 1, 1, 0})}),
-        ExitAFSPair({AFS({Allele({0, 1}), Allele({0, 1})}), State(init, {0, 1, 0, 1})})
+        ExitAFSPair({AFS(v0), State(init, {1, 0, 1, 0})}),
+        ExitAFSPair({AFS(v1), State(init, {1, 0, 0, 1})}),
+        ExitAFSPair({AFS(v1), State(init, {0, 1, 1, 0})}),
+        ExitAFSPair({AFS(v2), State(init, {0, 1, 0, 1})})
       };
 
   EXPECT_EQ(exp.size(), test.size());
@@ -179,12 +188,12 @@ TEST_F(AFSTest, AllReacheable) {
 
   exp =
       {
-        ExitAFSPair({AFS({Allele({1, 0}), Allele({1, 0})}), State(init, {2, 0, 0, 0})}),
-        ExitAFSPair({AFS({Allele({1, 0}), Allele({0, 1})}), State(init, {1, 1, 0, 0})}),
-        ExitAFSPair({AFS({Allele({0, 1}), Allele({0, 1})}), State(init, {0, 2, 0, 0})})
+        ExitAFSPair({AFS(v0), State(init, {2, 0, 0, 0})}),
+        ExitAFSPair({AFS(v1), State(init, {1, 1, 0, 0})}),
+        ExitAFSPair({AFS(v2), State(init, {0, 2, 0, 0})})
       };
 
-  test = AFS({Allele({1, 0}), Allele({1, 0})}).reacheable();
+  test = AFS(v0).reacheable();
 
   EXPECT_EQ(exp.size(), test.size());
 

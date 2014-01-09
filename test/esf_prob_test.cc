@@ -23,6 +23,8 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <vector>
+
 #include "afs.hh"
 #include "allele.hh"
 #include "esf_prob.hh"
@@ -35,6 +37,7 @@ using ::esf::Allele;
 using ::esf::AFS;
 using ::esf::Param;
 using ::esf::ESFProb;
+using vector = ::std::vector<Allele>;
 
 
 class ESFProbTest: public ::testing::Test {
@@ -42,14 +45,14 @@ class ESFProbTest: public ::testing::Test {
  protected:
 
   ESFProbTest()
-      : s20({Allele({1, 0}), Allele({0, 1})}),
-        s21({Allele({1, 0}), Allele({1, 0})}),
-        s30({Allele({1, 0}), Allele({0, 1}), Allele({1, 0})}),
-        s31({Allele({1, 0}), Allele({1, 0}), Allele({1, 0})}),
-        s32({Allele({2, 0}), Allele({1, 0})}),
-        s33({Allele({2, 0}), Allele({0, 1})}),
-        ns2({Allele({2, 0})}),
-        ns3({Allele({3, 0})}),
+      : s20(vector({Allele({1, 0}), Allele({0, 1})})),
+        s21(vector({Allele({1, 0}), Allele({1, 0})})),
+        s30(vector({Allele({1, 0}), Allele({0, 1}), Allele({1, 0})})),
+        s31(vector({Allele({1, 0}), Allele({1, 0}), Allele({1, 0})})),
+        s32(vector({Allele({2, 0}), Allele({1, 0})})),
+        s33(vector({Allele({2, 0}), Allele({0, 1})})),
+        ns2(vector({Allele({2, 0})})),
+        ns3(vector({Allele({3, 0})})),
         p({0.0, 1.0, 0.5, 0.0}, {1.0, 1.5}, {0.2, 0.4}) {}
 
   AFS s20, s21, s30, s31, s32, s33, ns2, ns3;

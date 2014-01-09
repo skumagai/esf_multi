@@ -30,7 +30,6 @@
 
 #include "typedef.hh"
 #include "allele.hh"
-#include "enum.hh"
 #include "state.hh"
 
 namespace esf {
@@ -72,8 +71,6 @@ class AFS {
 
   data_type m_data;
 
-  AFS(AFS const&, Allele const&, Mode);
-
   ::std::vector<ExitAFSPair> build(::std::vector<Allele>,
                                    ::std::vector<Index>,
                                    data_type::const_iterator,
@@ -90,6 +87,8 @@ class AFS {
  public:
 
   AFS(::std::vector<Allele> const&);
+
+  AFS(data_type const&);
 
   AFS(AFS const&) = default;
 

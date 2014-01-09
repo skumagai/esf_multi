@@ -36,30 +36,6 @@
 namespace esf {
 
 
-AFS::AFS(AFS const& afs, Allele const& allele, Mode mode)
-    : m_data(afs.m_data) {
-
-  if (allele.size() > 0) {
-
-    if (mode == Mode::ADD) {
-
-      m_data[allele] += 1;
-
-    } else if (m_data[allele] > 1) {
-
-      m_data[allele] -= 1;
-
-    } else {
-
-      m_data.erase(allele);
-
-    }
-
-  }
-
-}
-
-
 AFS::AFS(::std::vector<Allele> const& avec) {
 
   for (auto allele: avec) {
@@ -71,16 +47,44 @@ AFS::AFS(::std::vector<Allele> const& avec) {
 }
 
 
+AFS::AFS(AFS::data_type const& data)
+    : m_data(data) {}
+
+
 AFS AFS::add(Allele allele) {
 
-  return AFS(*this, allele, Mode::ADD);
+  auto data = m_data;
+
+  if (allele.size() > 0) {
+
+    ++data[allele];
+
+  }
+
+  return AFS(data);
 
 }
 
 
 AFS AFS::remove(Allele allele) {
 
-  return AFS(*this, allele, Mode::REMOVE);
+  auto data = m_data;
+
+  if (allele.size() > 0) {
+
+    if (data[allele] > 1) {
+
+      --data[allele];
+
+    } else {
+
+      data.erase(allele);
+
+    }
+
+  }
+
+  return AFS(data);
 
 }
 
