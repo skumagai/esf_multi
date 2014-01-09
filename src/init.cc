@@ -41,7 +41,7 @@ namespace esf {
 Init::Init(::std::vector<Index> const& data)
     : m_data(data) {
 
-  set_size();
+  set_dim();
 
 }
 
@@ -62,7 +62,7 @@ Init::Init(State const& state) {
 
   }
 
-  set_size();
+  set_dim();
 
 }
 
@@ -83,7 +83,7 @@ Init::Init(AFS const& afs) {
 
   }
 
-  set_size();
+  set_dim();
 
 }
 
@@ -102,29 +102,29 @@ Index Init::operator[](Index id) const {
 }
 
 
-Index Init::size(Index deme) const {
+Index Init::dim(Index deme) const {
 
-  return m_size[unsign(deme)];
+  return m_dim[unsign(deme)];
 
 }
 
 
-Index Init::size() const {
+Index Init::dim() const {
 
   using ::std::accumulate;
 
-  return accumulate(m_size.begin(), m_size.end(), 1, multiplies<Index>());
+  return accumulate(m_dim.begin(), m_dim.end(), 1, multiplies<Index>());
 
 }
 
 
-void Init::set_size() {
+void Init::set_dim() {
 
   auto deme = sign(m_data.size());
 
-  m_size.resize(unsign(deme));
+  m_dim.resize(unsign(deme));
 
-  ::std::transform(m_data.begin(), m_data.end(), m_size.begin(),
+  ::std::transform(m_data.begin(), m_data.end(), m_dim.begin(),
                    [deme](Index i)
                    {
                      return binomial<Index>(i + deme - 1, i);
@@ -164,7 +164,7 @@ Init::const_iterator Init::end() const {
 
 bool operator==(Init const& a, Init const& b) {
 
-  return a.m_data == b.m_data && a.m_size == b.m_size;
+  return a.m_data == b.m_data && a.m_dim == b.m_dim;
 
 }
 

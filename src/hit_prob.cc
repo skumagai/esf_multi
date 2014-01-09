@@ -50,7 +50,7 @@ using VectorXd = Eigen::Matrix<double, Eigen::Dynamic, 1>;
 HitProb::HitProb(Init i, Param p)
     : m_init(i), m_param(p) {
 
-  m_prob.reserve(unsign(m_init.size() * m_init.deme()));
+  m_prob.reserve(unsign(m_init.dim() * m_init.deme()));
 
   compute();
 
@@ -82,7 +82,7 @@ HitProb HitProb::update(Param p) const {
 // Because Eigen only handles
 void HitProb::compute() {
 
-  auto dim = m_init.size();
+  auto dim = m_init.dim();
 
   Matrix u(dim, dim);
 

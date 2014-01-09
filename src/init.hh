@@ -56,9 +56,9 @@ class Init {
 
   value_type m_data;
 
-  ::std::vector<Index> m_size;
+  ::std::vector<Index> m_dim;
 
-  void set_size();
+  void set_dim();
 
  public:
 
@@ -87,11 +87,11 @@ class Init {
 
   // Returns the number of dimensions of state space with regard to
   // genes in a specified deme.
-  Index size(Index) const;
+  Index dim(Index) const;
 
   // Returns the total number dimensions of state space, where all
   // states are reacheable from this inital condition.
-  Index size() const;
+  Index dim() const;
 
   // Returns the number of geens in a specified deme.
   Index operator[](Index) const;

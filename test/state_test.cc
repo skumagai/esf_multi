@@ -46,7 +46,7 @@ TEST_F(StateTest, TwoDemeID) {
 
   ::esf::Init init({2, 3});
 
-  for (auto i = 0; i < init.size(); ++i) {
+  for (auto i = 0; i < init.dim(); ++i) {
 
     ::esf::State s(init, i);
 
@@ -175,7 +175,7 @@ TEST_F(StateTest, ThreeDemeID) {
 
   ::esf::Init init({2, 3, 2});
 
-  for (auto i = 0; i < init.size(); ++i) {
+  for (auto i = 0; i < init.dim(); ++i) {
 
     ::esf::State s(init, i);
 

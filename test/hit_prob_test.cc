@@ -56,7 +56,7 @@ class HitProbTest: public ::testing::Test {
 
 TEST_F(HitProbTest, TwoDeme) {
 
-  auto nstate = init2.size();
+  auto nstate = init2.dim();
   auto ndeme = init2.deme();
 
   vector<double> exp =
@@ -86,7 +86,7 @@ TEST_F(HitProbTest, TwoDeme) {
 TEST_F(HitProbTest, ThreeDeme) {
 
 
-  auto nstate = init3.size();
+  auto nstate = init3.dim();
   auto ndeme = init3.deme();
 
   vector<double> exp =

@@ -45,7 +45,7 @@ class InitTest: public ::testing::Test {
 };
 
 
-TEST_F(InitTest, TwoDemePopSize) {
+TEST_F(InitTest, TwoDemePopDim) {
 
   EXPECT_EQ(2, i2[0]);
   EXPECT_EQ(3, i2[1]);
@@ -53,17 +53,17 @@ TEST_F(InitTest, TwoDemePopSize) {
 }
 
 
-TEST_F(InitTest, TwoDemeSizePerDeme) {
+TEST_F(InitTest, TwoDemeDimPerDeme) {
 
-  EXPECT_EQ(3, i2.size(0));
-  EXPECT_EQ(4, i2.size(1));
+  EXPECT_EQ(3, i2.dim(0));
+  EXPECT_EQ(4, i2.dim(1));
 
 }
 
 
-TEST_F(InitTest, TwoDemeTotalSize) {
+TEST_F(InitTest, TwoDemeTotalDim) {
 
-  EXPECT_EQ(12, i2.size());
+  EXPECT_EQ(12, i2.dim());
 
 }
 
@@ -75,7 +75,7 @@ TEST_F(InitTest, TwoDemeNumber) {
 }
 
 
-TEST_F(InitTest, ThreeDemePopSize) {
+TEST_F(InitTest, ThreeDemePopDim) {
 
   EXPECT_EQ(2, i3[0]);
   EXPECT_EQ(3, i3[1]);
@@ -84,18 +84,18 @@ TEST_F(InitTest, ThreeDemePopSize) {
 }
 
 
-TEST_F(InitTest, ThreeDemeSizePerDeme) {
+TEST_F(InitTest, ThreeDemeDimPerDeme) {
 
-  EXPECT_EQ(6, i3.size(0));
-  EXPECT_EQ(10, i3.size(1));
-  EXPECT_EQ(6, i3.size(2));
+  EXPECT_EQ(6, i3.dim(0));
+  EXPECT_EQ(10, i3.dim(1));
+  EXPECT_EQ(6, i3.dim(2));
 
 }
 
 
-TEST_F(InitTest, ThreeDemeTotalSize) {
+TEST_F(InitTest, ThreeDemeTotalDim) {
 
-  EXPECT_EQ(360, i3.size());
+  EXPECT_EQ(360, i3.dim());
 
 }
 
