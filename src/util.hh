@@ -121,7 +121,7 @@ T binomial(T n, T k) {
 
   T value = 1;
 
-  if (k > n - k > 0) {
+  if (k > n - k && n - k >= 0) {
 
     k = n - k;
 
