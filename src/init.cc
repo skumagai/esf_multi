@@ -113,7 +113,7 @@ Index Init::size() const {
 
   using ::std::accumulate;
 
-  return accumulate(m_size.begin(), m_size.end(), 0, multiplies<Index>());
+  return accumulate(m_size.begin(), m_size.end(), 1, multiplies<Index>());
 
 }
 
