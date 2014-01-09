@@ -121,7 +121,7 @@ class State {
 };
 
 
-};
+}
 
 
 #endif // ESF_MULTI_STATE_HH

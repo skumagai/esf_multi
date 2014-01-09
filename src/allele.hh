@@ -150,7 +150,7 @@ struct ExitAllelePair {
 bool operator==(ExitAllelePair const&, ExitAllelePair const&);
 
 
-};
+}
 
 
 #endif // ESF_MULTI_ALLELE_HH

@@ -161,4 +161,4 @@ double ESFProb::compute_coal_probs(ExitAFSPair const& pair, HitProb const& hp) {
 }
 
 
-};
+}

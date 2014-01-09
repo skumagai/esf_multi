@@ -160,7 +160,7 @@ bool operator==(ExitAFSPair const&, ExitAFSPair const&);
 bool operator<(ExitAFSPair const&, ExitAFSPair const&);
 
 
-};
+}
 
 
 #endif // ESF_MULTI_AFS_HH

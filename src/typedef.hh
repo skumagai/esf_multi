@@ -40,7 +40,7 @@ using ::std::vector;
 typedef long Index;
 typedef double Value;
 
-};
+}
 
 
 #endif // ESF_MULTI_TYPEDEF_HH

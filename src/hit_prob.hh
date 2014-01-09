@@ -85,7 +85,7 @@ class HitProb {
 };
 
 
-};
+}
 
 
 #endif // ESF_MULTI_HIT_PROB_HH

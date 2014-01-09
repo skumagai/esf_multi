@@ -175,4 +175,4 @@ double HitProb::compute_u(State from, State to) {
 }
 
 
-};
+}

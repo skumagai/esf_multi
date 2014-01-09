@@ -70,7 +70,7 @@ class ESFProb {
 };
 
 
-};
+}
 
 
 #endif // ESF_MULTI_ESF_PROB_HH
