@@ -50,7 +50,7 @@ TEST_F(StateTest, TwoDemeID) {
 
     ::esf::State s(init, i);
 
-    ::std::vector<::size_t> v;
+    ::std::vector<::esf::Index> v;
 
     for (auto j: s) {
 
@@ -73,7 +73,7 @@ TEST_F(StateTest, TwoDemeNeighbors) {
 
   ::esf::State s(init, 0);
 
-  ::std::vector<::size_t> ids;
+  ::std::vector<::esf::Index> ids;
 
   for (auto adj: s.neighbors()) {
 
@@ -83,13 +83,13 @@ TEST_F(StateTest, TwoDemeNeighbors) {
 
   ::std::sort(ids.begin(), ids.end());
 
-  ::std::vector<::std::vector<::size_t>> states =
+  ::std::vector<::std::vector<::esf::Index>> states =
       {
         {1, 1, 0 ,2},
         {0, 2, 1, 2}
       };
 
-  ::std::vector<::size_t> test_data;
+  ::std::vector<::esf::Index> test_data;
 
   for (auto ss: states) {
 
@@ -160,7 +160,7 @@ TEST_F(StateTest, TwoDemeConversionFromInit) {
 
   ::esf::Init test(state);
 
-  ::std::vector<::size_t> data = {3, 2};
+  ::std::vector<::esf::Index> data = {3, 2};
 
   for (auto i = 0; i < test.deme(); ++i) {
 
@@ -179,7 +179,7 @@ TEST_F(StateTest, ThreeDemeID) {
 
     ::esf::State s(init, i);
 
-    ::std::vector<::size_t> v;
+    ::std::vector<::esf::Index> v;
 
     for (auto j: s) {
 
@@ -202,7 +202,7 @@ TEST_F(StateTest, ThreeDemeNeighbors) {
 
   ::esf::State s(init, 0);
 
-  ::std::vector<::size_t> ids;
+  ::std::vector<::esf::Index> ids;
 
   for (auto adj: s.neighbors()) {
 
@@ -212,7 +212,7 @@ TEST_F(StateTest, ThreeDemeNeighbors) {
 
   ::std::sort(ids.begin(), ids.end());
 
-  ::std::vector<::std::vector<::size_t>> states =
+  ::std::vector<::std::vector<::esf::Index>> states =
       {
         {0, 1, 1, 0, 0, 3, 0, 0, 2},
         {1, 0 ,1, 0, 0, 3, 0, 0, 2},
@@ -222,7 +222,7 @@ TEST_F(StateTest, ThreeDemeNeighbors) {
         {0, 0, 2, 0, 0, 3, 0, 1, 1}
       };
 
-  ::std::vector<::size_t> test_data;
+  ::std::vector<::esf::Index> test_data;
 
   for (auto ss: states) {
 
@@ -304,7 +304,7 @@ TEST_F(StateTest, ThreeDemeConversionFromInit) {
 
   ::esf::Init test(state);
 
-  ::std::vector<::size_t> data = {1, 3, 3};
+  ::std::vector<::esf::Index> data = {1, 3, 3};
 
   for (auto i = 0; i < test.deme(); ++i) {
 
