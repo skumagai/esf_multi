@@ -27,7 +27,6 @@
 
 #include "afs.hh"
 #include "allele.hh"
-#include "enum.hh"
 #include "hit_prob.hh"
 #include "esf_prob.hh"
 #include "util.hh"
