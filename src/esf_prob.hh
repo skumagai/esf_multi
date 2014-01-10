@@ -59,7 +59,7 @@ class ESFProb {
   // This constructor takes an allele frequency spectrum (of AFS
   // class) and demographic paramegers of (Param class).  The acutual
   // computation is deferred until compute method is explicitly invoked.
-  ESFProb(AFS, Param);
+  ESFProb(AFS const&, Param const&);
 
   // This function implements actual computation of
   // population-structured ESP, and it's return value is a probability

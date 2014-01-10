@@ -63,13 +63,13 @@ class HitProb {
 
   void compute();
 
-  double compute_u(State, State);
+  double compute_u(State const&, State const&) const;
 
  public:
 
   // The hittng probabilities are computated upon construction of
   // HitProb object.
-  HitProb(Init, Param);
+  HitProb(Init const&, Param const&);
 
   // Returns the hitting probability of i-th state and coalescence in
   // j-th deme. States contain information of initial and current
@@ -78,9 +78,9 @@ class HitProb {
   double get(Index, Index) const;
 
   // Returns the hitting probability of specified state and deme.
-  double get(State, Index) const;
+  double get(State const&, Index) const;
 
-  HitProb update(Param) const;
+  HitProb update(Param const&) const;
 
 };
 

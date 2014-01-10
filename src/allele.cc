@@ -39,10 +39,10 @@ using ::std::pair;
 using ::std::size_t;
 using ::std::vector;
 
-vector<Allele> move_genes(Allele, Index, Index);
+vector<Allele> move_genes(Allele const&, Index, Index);
 
-vector<ExitAllelePair> combine(Allele,
-                               vector<Index>,
+vector<ExitAllelePair> combine(Allele const&,
+                               vector<Index> const&,
                                vector<vector<Allele>>::iterator,
                                vector<vector<Allele>>::iterator);
 
@@ -198,7 +198,7 @@ bool operator==(ExitAllelePair const& a, ExitAllelePair const& b) {
 namespace {
 
 
-::std::vector<Allele> move_genes(Allele orig, Index begin, Index remaining) {
+::std::vector<Allele> move_genes(Allele const& orig, Index begin, Index remaining) {
 
   if (begin == orig.deme() || !remaining) {
 
@@ -222,8 +222,8 @@ namespace {
 }
 
 
-vector<ExitAllelePair> combine(Allele allele,
-                               vector<Index> state,
+vector<ExitAllelePair> combine(Allele const& allele,
+                               vector<Index> const& state,
                                vector<vector<Allele>>::iterator begin,
                                vector<vector<Allele>>::iterator end) {
 

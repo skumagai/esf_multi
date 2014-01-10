@@ -51,7 +51,7 @@ AFS::AFS(AFS::data_type const& data)
     : m_data(data) {}
 
 
-AFS AFS::add(Allele allele) {
+AFS AFS::add(Allele const& allele) const {
 
   auto data = m_data;
 
@@ -66,7 +66,7 @@ AFS AFS::add(Allele allele) {
 }
 
 
-AFS AFS::remove(Allele allele) {
+AFS AFS::remove(Allele const& allele) const {
 
   auto data = m_data;
 

@@ -47,7 +47,7 @@ using VectorXi = Eigen::Matrix<Index, Eigen::Dynamic, 1>;
 using VectorXd = Eigen::Matrix<double, Eigen::Dynamic, 1>;
 
 
-HitProb::HitProb(Init i, Param p)
+HitProb::HitProb(Init const& i, Param const& p)
     : m_init(i), m_param(p) {
 
   m_prob.reserve(unsign(m_init.dim() * m_init.deme()));
@@ -65,14 +65,14 @@ double HitProb::get(Index idx,
 }
 
 
-double HitProb::get(State state, Index deme) const {
+double HitProb::get(State const& state, Index deme) const {
 
   return get(state.id(), deme);
 
 }
 
 
-HitProb HitProb::update(Param p) const {
+HitProb HitProb::update(Param const& p) const {
 
   return HitProb(m_init, p);
 
@@ -156,7 +156,7 @@ void HitProb::compute() {
 }
 
 
-double HitProb::compute_u(State from, State to) {
+double HitProb::compute_u(State const& from, State const& to) const {
 
   Index size = m_init.deme();
 

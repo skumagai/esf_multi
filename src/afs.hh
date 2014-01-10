@@ -97,11 +97,11 @@ class AFS {
   ~AFS() = default;
 
   // Create a new AFS by adding another allele to the current AFS.
-  AFS add(Allele);
+  AFS add(Allele const&) const;
 
   // Create a new AFS by removing a preexisting allele from the
   // current AFS.
-  AFS remove(Allele);
+  AFS remove(Allele const&) const;
 
   // Test if the current AFS is singleton.  AFS is singleton if it
   // contains a single allele and if the allele is singleton.

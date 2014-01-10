@@ -90,7 +90,7 @@ class State {
 
   // Computes a list of states, which are diferent from the current
   // state by one migration event.  This excludes the currentstate itself.
-  ::std::vector<State> neighbors();
+  ::std::vector<State> neighbors() const;
 
   // Returns an ID associated with the current state. The order of
   // states is stable, but forward and backward comptatibilities are

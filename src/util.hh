@@ -66,18 +66,18 @@ T binomial(T n, T k);
 // chaning element is the last element.
 template <typename T,
           class = typename enable_if<is_integral<T>::value>::type>
-T index_n_to_1(vector<T> dim, vector<T> idx);
+T index_n_to_1(vector<T> const& dim, vector<T> const& idx);
 
 
 // Convert one dimensional index to multidimensional index.
 template <typename T,
           class = typename enable_if<is_integral<T>::value>::type>
-vector<T> index_1_to_n(vector<T> dim, T idx);
+vector<T> index_1_to_n(vector<T> const& dim, T idx);
 
 
 template <typename T,
           class = typename enable_if<is_integral<T>::value>::type>
-vector<T> mult_factors(vector<T> dim);
+vector<T> mult_factors(vector<T> const& dim);
 
 
 // template function definitions
@@ -103,7 +103,7 @@ typename make_unsigned<T>::type unsign(T val) {
 
 
 template <typename T, class>
-vector<T> mult_factors(vector<T> dim) {
+vector<T> mult_factors(vector<T> const& dim) {
 
   vector<T> accum(dim.size());
 
@@ -143,7 +143,7 @@ T binomial(T n, T k) {
 // rapidly chaning element is the first element, and the most slowly
 // chaning element is the last element.
 template <typename T, class>
-T index_n_to_1(vector<T> dim, vector<T> idx) {
+T index_n_to_1(vector<T> const& dim, vector<T> const& idx) {
 
   typename vector<T>::size_type size = dim.size();
 
@@ -164,7 +164,7 @@ T index_n_to_1(vector<T> dim, vector<T> idx) {
 
 // Convert one dimensional index to multidimensional index.
 template <typename T, class>
-vector<T> index_1_to_n(vector<T> dim, T idx) {
+vector<T> index_1_to_n(vector<T> const& dim, T idx) {
 
   typename vector<T>::size_type size = dim.size();
 

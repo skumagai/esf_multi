@@ -70,7 +70,7 @@ State::State(Init const& init, ::std::vector<Index> const& data)
     : m_init(init), m_data(data), m_id(compute_id()) {}
 
 
-::std::vector<State> State::neighbors() {
+::std::vector<State> State::neighbors() const {
 
   auto deme = m_init.deme();
 

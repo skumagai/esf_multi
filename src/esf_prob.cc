@@ -34,7 +34,7 @@
 namespace esf {
 
 
-ESFProb::ESFProb(AFS a, Param p)
+ESFProb::ESFProb(AFS const& a, Param const& p)
     : m_afs(a), m_init(a), m_param(p) {}
 
 
