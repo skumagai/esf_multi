@@ -168,7 +168,7 @@ bool operator<(ExitAFSPair const&, ExitAFSPair const&);
 
 
 template <>
-struct ::std::hash<::esf::AFS> {
+struct std::hash<::esf::AFS> {
 
   ::std::size_t operator()(::esf::AFS const& afs) const {
 

@@ -115,7 +115,7 @@ class Init {
 
 
 template <>
-struct ::std::hash<::esf::Init> {
+struct std::hash<::esf::Init> {
 
   ::std::size_t operator()(::esf::Init const& init) const {
 
