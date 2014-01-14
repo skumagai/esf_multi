@@ -56,6 +56,16 @@ class Param {
 
  public:
 
+  Param() = default;
+
+  Param(Param const&) = default;
+  Param(Param&&) = default;
+
+  Param& operator=(Param const&) = default;
+  Param& operator=(Param&&) = default;
+
+  ~Param() = default;
+
   // This constructor takes migration rate matrix, relative population
   // size vector, and mutation rate vector.  If there are n
   // subpopulations, respective size is n^2, n, and n.  Note that the

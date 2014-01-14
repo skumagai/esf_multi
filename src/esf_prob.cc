@@ -24,9 +24,11 @@
 // DEALINGS IN THE SOFTWARE.
 
 #include <algorithm>
+#include <stdexcept>
 
 #include "afs.hh"
 #include "allele.hh"
+#include "cache.hh"
 #include "hit_prob.hh"
 #include "esf_prob.hh"
 #include "util.hh"
@@ -34,19 +36,56 @@
 namespace esf {
 
 
+ESFProb::~ESFProb() {
+
+  if (&(m_esf_prob_cache->root()) == &m_afs) {
+
+    delete m_esf_prob_cache;
+    delete m_hit_prob_cache;
+
+  }
+
+}
+
+
 ESFProb::ESFProb(AFS const& a, Param const& p)
-    : m_afs(a), m_init(a), m_param(p) {}
+    : m_afs(a), m_init(a), m_param(p),
+      m_esf_prob_cache(new Cache<AFS, double>(m_afs)),
+      m_hit_prob_cache(new Cache<Init, HitProb>(m_init)) {}
+
+
+ESFProb::ESFProb(AFS const& a, Param const& p,
+                 Cache<AFS, double>* esf_prob_cache,
+                 Cache<Init, HitProb>* hit_prob_cache)
+    : m_afs(a), m_init(a), m_param(p),
+      m_esf_prob_cache(esf_prob_cache),
+      m_hit_prob_cache(hit_prob_cache) {}
 
 
 double ESFProb::compute() {
 
-  if (m_afs.singleton()) {
+  try {
 
-    return compute_with_singleton();
+    return m_esf_prob_cache->at(m_afs);
 
-  } else {
+  } catch (::std::out_of_range&) {
 
-    return compute_without_singleton();
+    double val;
+
+    if (m_afs.singleton()) {
+
+      val = compute_with_singleton();
+
+
+    } else {
+
+      val = compute_without_singleton();
+
+    }
+
+    (*m_esf_prob_cache)[m_afs] = val;
+
+    return val;
 
   }
 
@@ -57,7 +96,19 @@ double ESFProb::compute_without_singleton() {
 
   double val = 0.0;
 
-  HitProb hp(m_init, m_param);
+  HitProb hp;
+
+  try {
+
+    hp = m_hit_prob_cache->at(m_init);
+
+  } catch (::std::out_of_range&) {
+
+    hp = HitProb(m_init, m_param);
+
+    (*m_hit_prob_cache)[m_init] = hp;
+
+  }
 
   for (auto spec: m_afs.reacheable()) {
 

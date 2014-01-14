@@ -72,34 +72,34 @@ TEST_F(ESFProbTest, BaseCase) {
 
 TEST_F(ESFProbTest, WithSingleton) {
 
-  ESFProb prob(s20, p);
-  EXPECT_NEAR(0.4815596672047684, prob.compute(), 1e-6);
+  ESFProb p0(s20, p);
+  EXPECT_NEAR(0.4815596672047684, p0.compute(), 1e-6);
 
-  prob = ESFProb(s21, p);
-  EXPECT_NEAR(0.25928225506022595, prob.compute(), 1e-6);
+  ESFProb p1(s21, p);
+  EXPECT_NEAR(0.25928225506022595, p1.compute(), 1e-6);
 
-  prob = ESFProb(s30, p);
-  EXPECT_NEAR(0.09009334137786906, prob.compute(), 1e-6);
+  ESFProb p2(s30, p);
+  EXPECT_NEAR(0.09009334137786906, p2.compute(), 1e-6);
 
-  prob = ESFProb(s31, p);
-  EXPECT_NEAR(0.03589004507443738, prob.compute(), 1e-6);
+  ESFProb p3(s31, p);
+  EXPECT_NEAR(0.03589004507443738, p3.compute(), 1e-6);
 
-  prob = ESFProb(s32, p);
-  EXPECT_NEAR(0.33508831497868286, prob.compute(), 1e-6);
+  ESFProb p4(s32, p);
+  EXPECT_NEAR(0.33508831497868286, p4.compute(), 1e-6);
 
-  prob = ESFProb(s33, p);
-  EXPECT_NEAR(0.3068718689857209, prob.compute(), 1e-6);
+  ESFProb p5(s33, p);
+  EXPECT_NEAR(0.3068718689857209, p5.compute(), 1e-6);
 
 }
 
 
 TEST_F(ESFProbTest, WithoutSingleton) {
 
-  ESFProb prob(ns2, p);
-  EXPECT_NEAR(0.740717744939774, prob.compute(), 1e-6);
+  ESFProb p0(ns2, p);
+  EXPECT_NEAR(0.740717744939774, p0.compute(), 1e-6);
 
-  prob = ESFProb(ns3, p);
-  EXPECT_NEAR(0.6290216399468798, prob.compute(), 1e-6);
+  ESFProb p1(ns3, p);
+  EXPECT_NEAR(0.6290216399468798, p1.compute(), 1e-6);
 
 }
 

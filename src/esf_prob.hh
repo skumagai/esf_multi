@@ -35,6 +35,9 @@
 namespace esf {
 
 
+template <typename KEY, typename VALUE> class Cache;
+
+
 // An instance of this class computes probabilities of an allele
 // frequency spectrum according to population-structured extension to
 // Ewen's sampling formula.
@@ -42,11 +45,15 @@ class ESFProb {
 
  private:
 
-  AFS m_afs;
+  AFS const m_afs;
 
-  Init m_init;
+  Init const m_init;
 
-  Param m_param;
+  Param const m_param;
+
+  Cache<AFS, double>*  m_esf_prob_cache;
+
+  Cache<Init, HitProb>* m_hit_prob_cache;
 
   double compute_with_singleton();
 
@@ -56,16 +63,28 @@ class ESFProb {
 
  public:
 
+  // ESFProb() = delete;
+
+  // ESFProb(ESFProb const&);
+
+  ESFProb& operator=(ESFProb const&);
+
+  ~ESFProb();
+
   // This constructor takes an allele frequency spectrum (of AFS
   // class) and demographic paramegers of (Param class).  The acutual
   // computation is deferred until compute method is explicitly invoked.
   ESFProb(AFS const&, Param const&);
+
+  ESFProb(AFS const&, Param const&, Cache<AFS, double>*, Cache<Init, HitProb>*);
 
   // This function implements actual computation of
   // population-structured ESP, and it's return value is a probability
   // according to the sample state (allele frequency spectrum) and
   // demographic parameters.  The computation is performed recursively.
   double compute();
+
+  friend void swap(ESFProb&, ESFProb&);
 
 };
 

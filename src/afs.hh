@@ -26,11 +26,14 @@
 #ifndef ESF_MULTI_AFS_HH
 #define ESF_MULTI_AFS_HH
 
+#include <cstddef>
+#include <functional>
 #include <map>
 
 #include "typedef.hh"
 #include "allele.hh"
 #include "state.hh"
+#include "util.hh"
 
 namespace esf {
 
@@ -85,6 +88,8 @@ class AFS {
                                        ::std::vector<ExitAllelePair>::const_iterator) const;
 
  public:
+
+  AFS() = default;
 
   AFS(::std::vector<Allele> const&);
 
@@ -160,6 +165,43 @@ bool operator<(ExitAFSPair const&, ExitAFSPair const&);
 
 
 }
+
+
+template <>
+struct ::std::hash<::esf::AFS> {
+
+  ::std::size_t operator()(::esf::AFS const& afs) const {
+
+    using ::std::size_t;
+    using ::esf::unsign;
+
+    ::std::hash<size_t> hasher;
+
+    size_t mult = (1 << 4) - 1, hash = 1;
+
+    for (auto elem: afs) {
+
+      size_t deme = 1, i = unsign(elem.second), value = 1;
+
+      for (auto d: elem.first) {
+
+        value += deme * unsign(d) * i;
+
+        deme <<= 1;
+
+      }
+
+      hash *= hasher(mult * value);
+
+      mult <<= 1;
+
+    }
+
+    return hash;
+
+  }
+
+};
 
 
 #endif // ESF_MULTI_AFS_HH

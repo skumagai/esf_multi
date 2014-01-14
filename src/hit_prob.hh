@@ -67,6 +67,18 @@ class HitProb {
 
  public:
 
+  HitProb() = default;
+
+  HitProb(HitProb const&) = default;
+
+  HitProb(HitProb&&) = default;
+
+  HitProb& operator=(HitProb const&) = default;
+
+  HitProb& operator=(HitProb&&) = default;
+
+  ~HitProb() = default;
+
   // The hittng probabilities are computated upon construction of
   // HitProb object.
   HitProb(Init const&, Param const&);

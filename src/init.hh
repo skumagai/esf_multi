@@ -26,10 +26,12 @@
 #ifndef ESF_MULTI_INIT_HH
 #define ESF_MULTI_INIT_HH
 
-
+#include <cstddef>
+#include <functional>
 #include <vector>
 
 #include "typedef.hh"
+#include "util.hh"
 
 namespace esf {
 
@@ -110,6 +112,32 @@ class Init {
 
 
 }
+
+
+template <>
+struct ::std::hash<::esf::Init> {
+
+  ::std::size_t operator()(::esf::Init const& init) const {
+
+    using ::std::size_t;
+    using ::esf::unsign;
+
+    size_t mult = 1, value = 0;
+
+    for (auto i: init) {
+
+      value += unsign(i) * mult;
+      mult <<= 4;
+
+    }
+
+    ::std::hash<size_t> hasher;
+
+    return hasher(value);
+
+  }
+
+};
 
 
 #endif // ESF_MULTI_INIT_HH
