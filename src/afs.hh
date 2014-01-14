@@ -167,8 +167,11 @@ bool operator<(ExitAFSPair const&, ExitAFSPair const&);
 }
 
 
+namespace std {
+
+
 template <>
-struct std::hash<::esf::AFS> {
+struct hash<::esf::AFS> {
 
   ::std::size_t operator()(::esf::AFS const& afs) const {
 
@@ -202,6 +205,9 @@ struct std::hash<::esf::AFS> {
   }
 
 };
+
+
+}
 
 
 #endif // ESF_MULTI_AFS_HH

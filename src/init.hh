@@ -114,8 +114,11 @@ class Init {
 }
 
 
+namespace std {
+
+
 template <>
-struct std::hash<::esf::Init> {
+struct hash<::esf::Init> {
 
   ::std::size_t operator()(::esf::Init const& init) const {
 
@@ -138,6 +141,9 @@ struct std::hash<::esf::Init> {
   }
 
 };
+
+
+}
 
 
 #endif // ESF_MULTI_INIT_HH
