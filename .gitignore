@@ -12,13 +12,5 @@
 *.la
 *.a
 
-# Obviously...
-a.out
-
-# generated files
-Makefile
-CMakeFiles/
-CMakeCache.txt
-*.cmake
-esf_multi_test
-Testing
+# any file generated during build process
+build/
