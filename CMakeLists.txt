@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 2.6)
 
 # name of the project
-project(esf_multi)
+project(esfp)
 
 # version number
 set(PROJECT_VERSION_MAJOR 0)
@@ -21,14 +21,22 @@ link_directories(${CMAKE_SOURCE_DIR}/src)
 # compile static libraries
 set(BUILD_SHARED_LIBS OFF)
 
-
+################################################################################
 # build dependencies
+################################################################################
 set(DEP_DIR ${CMAKE_SOURCE_DIR}/ext)
 
 # Lua for configuration
+
+# disable install_* commands, because only a static library is needed.
+macro(install)
+endmacro()
+
 add_subdirectory(${DEP_DIR}/lua)
 set_target_properties(lua luac PROPERTIES EXCLUDE_FROM_ALL ON)
-
+macro(install)
+_install(${ARGV})
+endmacro(install)
 
 ################################################################################
 # build main program

@@ -35,7 +35,7 @@ if(HAS_PEDANTIC)
 add_definitions(-pedantic)
 endif()
 
-set(LIB_NAME ${PROJECT_NAME}_lib)
+set(LIB_NAME ${PROJECT_NAME})
 set(LIB_NAME ${LIB_NAME} PARENT_SCOPE)
 
 # suppress those warnings from Eigen
