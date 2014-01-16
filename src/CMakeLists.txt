@@ -1,7 +1,8 @@
 ################################################################################
 # set up names of library and executable
 ################################################################################
-set(LIB_NAME esfprob PARENT_SCOPE)
+set(LIB_NAME esfprob)
+set(LIB_NAME ${LIB_NAME} PARENT_SCOPE)
 
 set(BINARY_NAME esf)
 
