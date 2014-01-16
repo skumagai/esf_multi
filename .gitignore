@@ -12,5 +12,8 @@
 *.la
 *.a
 
-# any file generated during build process
+# out-of-tree build directory
 build/
+
+# test installation directory
+install/
