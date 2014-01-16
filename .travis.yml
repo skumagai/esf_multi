@@ -10,6 +10,7 @@ install:
   - if [ "$CXX" = "g++" ]; then sudo apt-get install -qq g++-4.8; fi
   - if [ "$CXX" = "g++" ]; then export CXX="g++-4.8" CC="gcc-4.8"; fi
   - sudo dpkg -i libeigen3-dev_3.2.0-5_all.deb
+  - sudo apt-get install liblua5.1-0-dev
 script:
   - mkdir build && cd build && cmake .. && make && make test
 branches:
