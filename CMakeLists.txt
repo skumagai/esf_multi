@@ -1,5 +1,5 @@
 # supported minimum version of cmake
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 2.6.2)
 
 # name of the project
 project(esfp)
@@ -14,29 +14,29 @@ set(PROJECT_VERSION "${PROJECT_VERSION_MAJOR}.${PROJECT_VERSION_MINOR}.${PROJECT
 # specify the default flags
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
-include_directories(${CMAKE_SOURCE_DIR}/src)
-link_directories(${CMAKE_SOURCE_DIR}/src)
-
-
-# compile static libraries
-set(BUILD_SHARED_LIBS OFF)
 
 ################################################################################
 # build dependencies
 ################################################################################
 set(DEP_DIR ${CMAKE_SOURCE_DIR}/ext)
 
-# Lua for configuration
+set(CMAKE_MODULE_PATH ${PROJECT_SOURCE_DIR}/cmake)
 
-# disable install_* commands, because only a static library is needed.
-macro(install)
-endmacro()
+find_package(Lua51 REQUIRED)
 
-add_subdirectory(${DEP_DIR}/lua)
-set_target_properties(lua luac PROPERTIES EXCLUDE_FROM_ALL ON)
-macro(install)
-_install(${ARGV})
-endmacro(install)
+find_package(Eigen3 3.1.0 REQUIRED)
+if (3.0.6 VERSION_GREATER ${EIGEN3_VERSION})
+   message(FATAL_ERROR "Eigen3 is too old (required at least version 3.0.6)")
+endif()
+
+include_directories(${CMAKE_SOURCE_DIR}/src ${Lua51_INCLUDE_DIRS})
+
+# Eigen3 generates lots of errors during build.  In order to suppress those errors,
+# use -isystem instead of -I.
+include_directories(SYSTEM ${EIGEN3_INCLUDE_DIR})
+
+link_directories(${CMAKE_BINARY_DIR}/src ${Lua51_LIBRARIES})
+
 
 ################################################################################
 # build main program
@@ -51,7 +51,7 @@ add_subdirectory(src)
 enable_testing()
 
 # google test (gtest) for unit tests
-set(GTEST ${DEP_DIR}/gtest)
+set(GTEST ${CMAKE_SOURCE_DIR}/ext/gtest)
 add_subdirectory(${GTEST})
 
 add_subdirectory(test)

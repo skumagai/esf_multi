@@ -38,9 +38,6 @@ endif()
 set(LIB_NAME ${PROJECT_NAME})
 set(LIB_NAME ${LIB_NAME} PARENT_SCOPE)
 
-# suppress those warnings from Eigen
-include_directories(SYSTEM ${DEP_DIR}/eigen)
-
 set(LIB_SRC
   afs.cc
   allele.cc
