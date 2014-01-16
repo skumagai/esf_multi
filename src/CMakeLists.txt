@@ -1,7 +1,13 @@
-project(${CMAKE_PROJECT_NAME})
+################################################################################
+# set up names of library and executable
+################################################################################
+set(LIB_NAME esfprob PARENT_SCOPE)
 
+set(BINARY_NAME esf)
 
-# enable warnings if they are available and reasonable.
+################################################################################
+# check and set compiler flags
+################################################################################
 
 include(CheckCXXCompilerFlag)
 
@@ -35,8 +41,9 @@ if(HAS_PEDANTIC)
 add_definitions(-pedantic)
 endif()
 
-set(LIB_NAME ${PROJECT_NAME})
-set(LIB_NAME ${LIB_NAME} PARENT_SCOPE)
+################################################################################
+# compile
+################################################################################
 
 set(LIB_SRC
   afs.cc
@@ -49,3 +56,13 @@ set(LIB_SRC
 )
 
 add_library(${LIB_NAME} STATIC ${LIB_SRC})
+
+add_executable(${BINARY_NAME} main.cc)
+
+target_link_libraries(${BINARY_NAME} ${LIB_NAME})
+
+################################################################################
+# install
+################################################################################
+
+install(TARGETS ${BINARY_NAME} RUNTIME DESTINATION bin)
