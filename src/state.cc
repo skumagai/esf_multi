@@ -25,6 +25,8 @@
 
 
 #include <algorithm>
+#include <iostream>
+#include <iterator>
 #include <numeric>
 #include <utility>
 #include <vector>
@@ -334,6 +336,20 @@ Index generate_id(::std::vector<Index>& state, Index b, Index e) {
 
 }
 
+
+}
+
+
+::std::ostream& operator<<(::std::ostream& str, State const& state) {
+
+  using ::std::copy;
+  using ::std::ostream_iterator;
+
+  str << "State(";
+  copy(state.begin(), state.end(), ostream_iterator<Index>(str, ", "));
+  str << "\b\b)";
+
+  return str;
 
 }
 

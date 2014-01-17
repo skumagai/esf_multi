@@ -121,6 +121,8 @@ class State {
 };
 
 
+::std::ostream& operator<<(::std::ostream&, State const&);
+
 }
 
 
