@@ -163,6 +163,9 @@ bool operator==(ExitAFSPair const&, ExitAFSPair const&);
 
 bool operator<(ExitAFSPair const&, ExitAFSPair const&);
 
+::std::ostream& operator<<(::std::ostream&, ::std::pair<Allele, Index> const&);
+::std::ostream& operator<<(::std::ostream&, AFS const&);
+
 
 }
 

@@ -140,6 +140,7 @@ struct ExitAllelePair {
 
 bool operator==(ExitAllelePair const&, ExitAllelePair const&);
 
+std::ostream& operator<<(std::ostream&, Allele const&);
 
 }
 

@@ -24,8 +24,11 @@
 // DEALINGS IN THE SOFTWARE.
 
 #include <algorithm>
+#include <iostream>
+#include <iterator>
 #include <numeric>
 #include <stdexcept>
+#include <utility>
 #include <vector>
 
 #include "afs.hh"
@@ -290,5 +293,31 @@ bool operator<(ExitAFSPair const& a, ExitAFSPair const& b) {
 
 }
 
+
+::std::ostream& operator<<(::std::ostream& str, ::std::pair<Allele, Index> const& p) {
+  using ::std::copy;
+  using ::std::ostream_iterator;
+
+  str << p.first << ": " << p.second;
+
+  return str;
+
+}
+
+
+::std::ostream& operator<<(::std::ostream& str, AFS const& afs) {
+
+  using ::std::copy;
+  using ::std::ostream_iterator;
+  using ::std::pair;
+
+  str << "AFS(";
+  copy(afs.begin(), afs.end(), ostream_iterator<pair<Allele, Index>>(str, ", "));
+  str << "\b\b";
+  str << ")";
+
+  return str;
+
+}
 
 }

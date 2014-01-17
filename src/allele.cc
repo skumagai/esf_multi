@@ -23,7 +23,9 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-
+#include <algorithm>
+#include <iostream>
+#include <iterator>
 #include <numeric>
 #include <utility>
 
@@ -193,6 +195,22 @@ bool operator==(ExitAllelePair const& a, ExitAllelePair const& b) {
   return a.allele == b.allele && a.state == b.state;
 
 }
+
+
+::std::ostream& operator<<(::std::ostream& str, Allele const& allele) {
+
+  using ::std::copy;
+  using ::std::ostream_iterator;
+
+  str << "Allele(";
+  copy(allele.begin(), allele.end(), ostream_iterator<Index>(str, ", "));
+  str << "\b\b";
+  str << ")";
+
+  return str;
+
+}
+
 
 
 namespace {
