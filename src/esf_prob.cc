@@ -151,7 +151,7 @@ Value ESFProb::compute_with_singleton() {
   AFS base = m_afs.remove(allele).add(allele.remove(deme));
 
   // probability of a sample excluding one of singleton alleles.
-  double val = ESFProb(base, m_param).compute();
+  double val = ESFProb(base, m_param, m_esf_prob_cache, m_hit_prob_cache).compute();
 
   for (auto a: base) {
 
@@ -160,7 +160,8 @@ Value ESFProb::compute_with_singleton() {
 
     AFS other = base.remove(a.first).add(na);
 
-    val -= ESFProb(other, m_param).compute() * other[na] * na[deme] / dsize;
+    val -= ESFProb(other, m_param, m_esf_prob_cache, m_hit_prob_cache).compute() * \
+        other[na] * na[deme] / dsize;
 
 
   }
@@ -194,7 +195,8 @@ double ESFProb::compute_coal_probs(ExitAFSPair const& pair, HitProb const& hp) {
 
         AFS other1 = other0.add(na);
 
-        double tmp = hp.get(state, i) * ESFProb(other1, m_param).compute();
+        double tmp = hp.get(state, i) * \
+            ESFProb(other1, m_param, m_esf_prob_cache, m_hit_prob_cache).compute();
 
         tmp *= na.size() * other1[na] / other1.size();
 
