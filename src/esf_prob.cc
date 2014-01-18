@@ -124,9 +124,7 @@ double ESFProb::compute_without_singleton() {
 Value ESFProb::compute_with_singleton() {
 
   if (m_afs.size() == 1) {
-
     return 1.0;
-
   }
 
   using ::std::find_if;
@@ -141,9 +139,7 @@ Value ESFProb::compute_with_singleton() {
 
   decltype(m_afs.deme()) deme = 0;
   while (allele[deme] == 0) {
-
     ++deme;
-
   }
 
   double dsize = static_cast<double>(m_afs.size(deme));
@@ -192,15 +188,10 @@ double ESFProb::compute_coal_probs(ExitAFSPair const& pair, HitProb const& hp) {
       if (allele[i] > 1) {
 
         Allele na = allele.remove(i);
-
         AFS other1 = other0.add(na);
-
         double tmp = hp.get(state, i) * \
             ESFProb(other1, m_param, m_esf_prob_cache, m_hit_prob_cache).compute();
-
-        tmp *= na.size() * other1[na] / other1.size();
-
-        val += tmp;
+        val += tmp * na[i] * other1[na] / other1.size(i);
 
       }
 
