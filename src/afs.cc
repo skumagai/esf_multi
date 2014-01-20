@@ -151,7 +151,7 @@ Index AFS::deme() const {
 }
 
 
-::std::vector<ExitAFSPair> AFS::reacheable() const {
+::std::vector<ExitAFSData> AFS::reacheable() const {
 
   using ::std::vector;
 
@@ -163,14 +163,14 @@ Index AFS::deme() const {
 }
 
 
-::std::vector<ExitAFSPair> AFS::build(::std::vector<Allele> alleles,
+::std::vector<ExitAFSData> AFS::build(::std::vector<Allele> alleles,
                                       ::std::vector<Index> states,
                                       data_type::const_iterator begin,
                                       data_type::const_iterator end) const {
 
   if (begin == end) {
 
-    return {ExitAFSPair({AFS(alleles), State(Init(*this), states)})};
+    return {ExitAFSData({AFS(alleles), State(Init(*this), states)})};
 
   }
 
@@ -184,14 +184,14 @@ Index AFS::deme() const {
 }
 
 
-::std::vector<ExitAFSPair>
+::std::vector<ExitAFSData>
 AFS::sub_build(::std::vector<Allele> alleles,
                ::std::vector<Index> states,
                data_type::const_iterator begin,
                data_type::const_iterator end,
                Index count,
-               ::std::vector<ExitAllelePair>::const_iterator allele_begin,
-               ::std::vector<ExitAllelePair>::const_iterator allele_end) const {
+               ::std::vector<ExitAlleleData>::const_iterator allele_begin,
+               ::std::vector<ExitAlleleData>::const_iterator allele_end) const {
 
   if (count == 0 || allele_begin == allele_end) {
 
@@ -205,7 +205,7 @@ AFS::sub_build(::std::vector<Allele> alleles,
 
   using ::std::vector;
 
-  vector<ExitAFSPair> retval;
+  vector<ExitAFSData> retval;
 
   for (auto a_itr = allele_begin; a_itr != allele_end; ++a_itr) {
 
@@ -274,14 +274,14 @@ bool operator<(AFS const& a, AFS const& b) {
 }
 
 
-bool operator==(ExitAFSPair const& a, ExitAFSPair const& b) {
+bool operator==(ExitAFSData const& a, ExitAFSData const& b) {
 
   return a.afs == b.afs && a.state == b.state;
 
 }
 
 
-bool operator<(ExitAFSPair const& a, ExitAFSPair const& b) {
+bool operator<(ExitAFSData const& a, ExitAFSData const& b) {
 
   if (a.afs == b.afs) {
 

@@ -43,9 +43,9 @@ namespace esf {
 class Init;
 
 // Internally used structs for bookkeeping purpose
-struct ExitAllelePair;
+struct ExitAlleleData;
 
-struct ExitAFSPair;
+struct ExitAFSData;
 
 
 // This class provides a representation of allele frequency spectrum
@@ -74,18 +74,18 @@ class AFS {
 
   data_type m_data;
 
-  ::std::vector<ExitAFSPair> build(::std::vector<Allele>,
+  ::std::vector<ExitAFSData> build(::std::vector<Allele>,
                                    ::std::vector<Index>,
                                    data_type::const_iterator,
                                    data_type::const_iterator) const;
 
-  ::std::vector<ExitAFSPair> sub_build(::std::vector<Allele>,
+  ::std::vector<ExitAFSData> sub_build(::std::vector<Allele>,
                                        ::std::vector<Index>,
                                        data_type::const_iterator,
                                        data_type::const_iterator,
                                        Index,
-                                       ::std::vector<ExitAllelePair>::const_iterator,
-                                       ::std::vector<ExitAllelePair>::const_iterator) const;
+                                       ::std::vector<ExitAlleleData>::const_iterator,
+                                       ::std::vector<ExitAlleleData>::const_iterator) const;
 
  public:
 
@@ -130,7 +130,7 @@ class AFS {
   // Because origin and destination of genes need to be tracked,
   // return value is a list of pairs, whose first element is AFS and
   // the second element is its corresponding states.
-  ::std::vector<ExitAFSPair> reacheable() const;
+  ::std::vector<ExitAFSData> reacheable() const;
 
   iterator begin();
 
@@ -150,7 +150,7 @@ class AFS {
 
 
 // This struct keeps AFS and its corresponding state together.
-struct ExitAFSPair {
+struct ExitAFSData {
 
   AFS afs;
 
@@ -159,9 +159,9 @@ struct ExitAFSPair {
 };
 
 
-bool operator==(ExitAFSPair const&, ExitAFSPair const&);
+bool operator==(ExitAFSData const&, ExitAFSData const&);
 
-bool operator<(ExitAFSPair const&, ExitAFSPair const&);
+bool operator<(ExitAFSData const&, ExitAFSData const&);
 
 ::std::ostream& operator<<(::std::ostream&, ::std::pair<Allele, Index> const&);
 ::std::ostream& operator<<(::std::ostream&, AFS const&);

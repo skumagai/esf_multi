@@ -43,7 +43,7 @@ using ::std::vector;
 
 vector<Allele> move_genes(Allele const&, Index, Index);
 
-vector<ExitAllelePair> combine(Allele const&,
+vector<ExitAlleleData> combine(Allele const&,
                                vector<Index> const&,
                                vector<vector<Allele>>::iterator,
                                vector<vector<Allele>>::iterator);
@@ -99,7 +99,7 @@ bool Allele::singleton() const {
 }
 
 
-::std::vector<ExitAllelePair> Allele::reacheable() const {
+::std::vector<ExitAlleleData> Allele::reacheable() const {
 
   using ::std::vector;
 
@@ -117,7 +117,7 @@ bool Allele::singleton() const {
 
   }
 
-  vector<ExitAllelePair> data;
+  vector<ExitAlleleData> data;
 
   for (auto a: retvals[0]) {
 
@@ -190,7 +190,7 @@ bool operator==(Allele const& a, Allele const& b) {
 }
 
 
-bool operator==(ExitAllelePair const& a, ExitAllelePair const& b) {
+bool operator==(ExitAlleleData const& a, ExitAlleleData const& b) {
 
   return a.allele == b.allele && a.state == b.state;
 
@@ -240,18 +240,18 @@ namespace {
 }
 
 
-vector<ExitAllelePair> combine(Allele const& allele,
+vector<ExitAlleleData> combine(Allele const& allele,
                                vector<Index> const& state,
                                vector<vector<Allele>>::iterator begin,
                                vector<vector<Allele>>::iterator end) {
 
   if (begin == end) {
 
-    return {ExitAllelePair({allele, state})};
+    return {ExitAlleleData({allele, state})};
 
   }
 
-  vector<ExitAllelePair> data;
+  vector<ExitAlleleData> data;
 
   for (auto a: *begin) {
 

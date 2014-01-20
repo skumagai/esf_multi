@@ -169,7 +169,7 @@ Value ESFProb::compute_with_singleton() {
 }
 
 
-double ESFProb::compute_coal_probs(ExitAFSPair const& pair, HitProb const& hp) {
+double ESFProb::compute_coal_probs(ExitAFSData const& pair, HitProb const& hp) {
 
   double val = 0.0;
   AFS afs = pair.afs;

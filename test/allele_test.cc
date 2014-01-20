@@ -123,16 +123,16 @@ TEST_F(AlleleTest, ReacheableAlleles) {
   using ::std::vector;
   using ::esf::Allele;
   using ::esf::Index;
-  using ::esf::ExitAllelePair;
+  using ::esf::ExitAlleleData;
 
-  vector<ExitAllelePair> exp =
+  vector<ExitAlleleData> exp =
       {
-        ExitAllelePair({Allele({3, 0}), vector<Index>({2, 0, 1, 0})}),
-        ExitAllelePair({Allele({2, 1}), vector<Index>({2, 0, 0, 1})}),
-        ExitAllelePair({Allele({2, 1}), vector<Index>({1, 1, 1, 0})}),
-        ExitAllelePair({Allele({1, 2}), vector<Index>({1, 1, 0, 1})}),
-        ExitAllelePair({Allele({1, 2}), vector<Index>({0, 2, 1, 0})}),
-        ExitAllelePair({Allele({0, 3}), vector<Index>({0, 2, 0, 1})})
+        ExitAlleleData({Allele({3, 0}), vector<Index>({2, 0, 1, 0})}),
+        ExitAlleleData({Allele({2, 1}), vector<Index>({2, 0, 0, 1})}),
+        ExitAlleleData({Allele({2, 1}), vector<Index>({1, 1, 1, 0})}),
+        ExitAlleleData({Allele({1, 2}), vector<Index>({1, 1, 0, 1})}),
+        ExitAlleleData({Allele({1, 2}), vector<Index>({0, 2, 1, 0})}),
+        ExitAlleleData({Allele({0, 3}), vector<Index>({0, 2, 0, 1})})
       };
 
 

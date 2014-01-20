@@ -154,7 +154,7 @@ TEST_F(AFSTest, AllReacheable) {
   using ::esf::AFS;
   using ::esf::Init;
   using ::esf::State;
-  using ::esf::ExitAFSPair;
+  using ::esf::ExitAFSData;
 
   vector<Allele> v0 = {Allele({1, 0}), Allele({1, 0})};
   vector<Allele> v1 = {Allele({1, 0}), Allele({0, 1})};
@@ -166,12 +166,12 @@ TEST_F(AFSTest, AllReacheable) {
 
   Init init({1, 1});
 
-  vector<ExitAFSPair> exp =
+  vector<ExitAFSData> exp =
       {
-        ExitAFSPair({AFS(v0), State(init, {1, 0, 1, 0})}),
-        ExitAFSPair({AFS(v1), State(init, {1, 0, 0, 1})}),
-        ExitAFSPair({AFS(v1), State(init, {0, 1, 1, 0})}),
-        ExitAFSPair({AFS(v2), State(init, {0, 1, 0, 1})})
+        ExitAFSData({AFS(v0), State(init, {1, 0, 1, 0})}),
+        ExitAFSData({AFS(v1), State(init, {1, 0, 0, 1})}),
+        ExitAFSData({AFS(v1), State(init, {0, 1, 1, 0})}),
+        ExitAFSData({AFS(v2), State(init, {0, 1, 0, 1})})
       };
 
   EXPECT_EQ(exp.size(), test.size());
@@ -188,9 +188,9 @@ TEST_F(AFSTest, AllReacheable) {
 
   exp =
       {
-        ExitAFSPair({AFS(v0), State(init, {2, 0, 0, 0})}),
-        ExitAFSPair({AFS(v1), State(init, {1, 1, 0, 0})}),
-        ExitAFSPair({AFS(v2), State(init, {0, 2, 0, 0})})
+        ExitAFSData({AFS(v0), State(init, {2, 0, 0, 0})}),
+        ExitAFSData({AFS(v1), State(init, {1, 1, 0, 0})}),
+        ExitAFSData({AFS(v2), State(init, {0, 2, 0, 0})})
       };
 
   test = AFS(v0).reacheable();

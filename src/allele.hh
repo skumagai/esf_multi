@@ -36,7 +36,7 @@ namespace esf {
 // Forward declarations
 
 // Internally used struct for bookkeeping allele and its corresponding state.
-struct ExitAllelePair;
+struct ExitAlleleData;
 
 
 // This class represents an allele, a collection of genes with an
@@ -98,7 +98,7 @@ class Allele {
   // migration event.  One gene is taken from the present location,
   // and the same gene is placed to a new deme.  This function ignores
   // migrations where the source and target demes are the same.
-  ::std::vector<ExitAllelePair> reacheable() const;
+  ::std::vector<ExitAlleleData> reacheable() const;
 
   // Exposes the iterator of underlying container.
   iterator begin();
@@ -129,7 +129,7 @@ class Allele {
 // This struct serves as a temporaly storage holding together Allele object
 // with its corresponding state, which keeps track of origin and
 // current location of genes.
-struct ExitAllelePair {
+struct ExitAlleleData {
 
   Allele allele;
 
@@ -138,7 +138,7 @@ struct ExitAllelePair {
 };
 
 
-bool operator==(ExitAllelePair const&, ExitAllelePair const&);
+bool operator==(ExitAlleleData const&, ExitAlleleData const&);
 
 std::ostream& operator<<(std::ostream&, Allele const&);
 

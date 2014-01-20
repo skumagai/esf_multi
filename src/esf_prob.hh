@@ -59,7 +59,7 @@ class ESFProb {
 
   double compute_without_singleton();
 
-  double compute_coal_probs(ExitAFSPair const&, HitProb const&);
+  double compute_coal_probs(ExitAFSData const&, HitProb const&);
 
  public:
 
