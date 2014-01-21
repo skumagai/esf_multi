@@ -45,24 +45,16 @@ using ::std::size_t;
 using ::std::transform;
 using ::std::vector;
 
-struct AlleleData_ {
-  vector<Index> allele;
-  double factor;
-};
 
+ExitAlleleData synthesize_genes(ExitAlleleData const&, ExitAlleleData const&);
 
-pair<AlleleData_, vector<Index>> synthesize_genes(AlleleData_ const&,
-                                                  vector<Index> const&,
-                                                  AlleleData_ const&);
+vector<vector<ExitAlleleData>> move_genes(Allele const&);
 
-vector<vector<AlleleData_>> move_genes(Allele const&);
+vector<ExitAlleleData> assign_genes(Index, Index, ExitAlleleData const&, size_t);
 
-vector<AlleleData_> assign_genes(Index, AlleleData_ const&, size_t);
-
-vector<ExitAlleleData> combine_allele_parts(AlleleData_ const&,
-                                            vector<Index> const&,
-                                            vector<vector<AlleleData_>>::const_iterator,
-                                            vector<vector<AlleleData_>>::const_iterator);
+vector<ExitAlleleData> combine_allele_parts(ExitAlleleData const&,
+                                            vector<vector<ExitAlleleData>>::const_iterator,
+                                            vector<vector<ExitAlleleData>>::const_iterator);
 
 }
 
@@ -121,9 +113,9 @@ bool Allele::singleton() const {
 
   auto retvals = move_genes(*this);
 
-  AlleleData_ archetype{vector<Index>(unsign(this->deme())), 1.0};
-  vector<Index> state;
-  return combine_allele_parts(archetype, state, retvals.begin(), retvals.end());
+  auto deme = this->deme();
+  ExitAlleleData archetype{vector<Index>(unsign(deme)), vector<Index>(unsign(deme * deme)), 1.0};
+  return combine_allele_parts(archetype, retvals.begin(), retvals.end());
 }
 
 
@@ -211,54 +203,54 @@ bool operator==(ExitAlleleData const& a, ExitAlleleData const& b) {
 namespace {
 
 // generate all assignments of genes within an allelic class.
-vector<vector<AlleleData_>> move_genes(Allele const& orig) {
+vector<vector<ExitAlleleData>> move_genes(Allele const& orig) {
 
-  vector<vector<AlleleData_>> parts;
-  for (auto i: orig) {
-    vector<Index> zeros(unsign(orig.deme()));
-    parts.push_back(assign_genes(i, {zeros, 1.0}, static_cast<size_t>(0)));
+  vector<vector<ExitAlleleData>> parts;
+  auto deme = orig.deme();
+  // for (auto i = 0; i < 1; ++i) {
+  for (auto i = 0; i < deme; ++ i) {
+    vector<Index> zeros(unsign(deme));
+    vector<Index> states(unsign(deme * deme));
+    parts.push_back(assign_genes(i, orig[i], {zeros, states, 1.0}, static_cast<size_t>(0)));
   }
 
   return parts;
 }
 
 
-pair<AlleleData_, vector<Index>> synthesize_genes(AlleleData_ const& archetype,
-                                                  vector<Index> const& state,
-                                                  AlleleData_ const& new_info) {
-  auto begin = new_info.allele.begin();
-  auto end = new_info.allele.end();
+ExitAlleleData synthesize_genes(ExitAlleleData const& archetype,
+                                ExitAlleleData const& new_info) {
+  ExitAlleleData d(archetype);
 
-  AlleleData_ d(archetype);
-  transform(d.allele.begin(), d.allele.end(), begin, d.allele.begin(), plus<Index>());
+  transform(d.allele.begin(),
+            d.allele.end(),
+            new_info.allele.begin(),
+            d.allele.begin(),
+            plus<Index>());
 
-  vector<Index> s(state);
-  s.insert(s.end(), begin, end);
+  transform(d.state.begin(),
+            d.state.end(),
+            new_info.state.begin(),
+            d.state.begin(),
+            plus<Index>());
 
   d.factor *= new_info.factor;
 
-  return make_pair(d, s);
+  return d;
 }
 
 
-vector<ExitAlleleData> combine_allele_parts(AlleleData_ const& archetype,
-                                            vector<Index> const& state,
-                                            vector<vector<AlleleData_>>::const_iterator begin,
-                                            vector<vector<AlleleData_>>::const_iterator end) {
+vector<ExitAlleleData> combine_allele_parts(ExitAlleleData const& archetype,
+                                            vector<vector<ExitAlleleData>>::const_iterator begin,
+                                            vector<vector<ExitAlleleData>>::const_iterator end) {
   if (begin == end) {
-    // for (auto data: *begin) {
-    //   auto ret = synthesize_genes(archetype, state, data);
-    //   retval.push_back({ret.first.allele, ret.second, ret.first.factor});
-    // }
-    // return retval;
-
-    return {{archetype.allele, state, archetype.factor}};
+    return {archetype};
   }
 
   vector<ExitAlleleData> retval;
   for (auto data: *begin) {
-    auto ret = synthesize_genes(archetype, state, data);
-    auto allele_list = combine_allele_parts(ret.first, ret.second, begin + 1, end);
+    auto ret = synthesize_genes(archetype, data);
+    auto allele_list = combine_allele_parts(ret, begin + 1, end);
     retval.insert(retval.end(), allele_list.begin(), allele_list.end());
   }
   return retval;
@@ -267,26 +259,38 @@ vector<ExitAlleleData> combine_allele_parts(AlleleData_ const& archetype,
 
 // generate all assignments of genes from a single deme within an
 // alleleic class.
-vector<AlleleData_> assign_genes(Index count, AlleleData_ const& archetype, size_t deme) {
+vector<ExitAlleleData> assign_genes(Index origin,
+                                    Index count,
+                                    ExitAlleleData const& archetype,
+                                    size_t deme) {
 
-  auto orig_data = archetype.allele;
   auto factor = archetype.factor;
+  auto dim = archetype.allele.deme();
 
   // base case: no degree of freedom left
-  if (deme == orig_data.size() - 1) {
-    decltype(orig_data) base(orig_data);
-    base[deme] = count;
-    return {AlleleData_{base, factor}};
+  if (deme == unsign(dim - 1)) {
+    Allele base(archetype.allele);
+    base[sign(deme)] = count;
+
+    vector<Index> bstate(archetype.state);
+    bstate[unsign(origin * dim) + deme] += count;
+
+    return {ExitAlleleData{base, bstate, factor}};
   }
 
   // regular cases: factor increases by the number of available
   // aassignments.
-  vector<AlleleData_> holder;
+  vector<ExitAlleleData> holder;
   for (Index i = 0; i <= count; ++i) {
-    decltype(orig_data) base(orig_data);
-    base[deme] = i;
-    auto retval = assign_genes(count - i,
-                               {base, factor * binomial(count, i)},
+    Allele base(archetype.allele);
+    base[sign(deme)] = i;
+
+    vector<Index> bstate(archetype.state);
+    bstate[unsign(origin * dim) + deme] += i;
+
+    auto retval = assign_genes(origin,
+                               count - i,
+                               {base, bstate, factor * binomial(count, i)},
                                deme + 1);
     holder.insert(holder.end(), retval.begin(), retval.end());
   }

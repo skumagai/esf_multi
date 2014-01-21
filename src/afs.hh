@@ -74,20 +74,23 @@ class AFS {
 
   data_type m_data;
 
-  ::std::vector<ExitAFSData> build(::std::vector<Allele>,
-                                   ::std::vector<Index>,
+  ::std::vector<ExitAFSData> build(::std::vector<Allele> const&,
+                                   ::std::vector<Index> const&,
                                    double,
                                    data_type::const_iterator,
                                    data_type::const_iterator) const;
 
-  ::std::vector<ExitAFSData> sub_build(::std::vector<Allele>,
-                                       ::std::vector<Index>,
+  ::std::vector<ExitAFSData> sub_build(::std::vector<Allele> const&,
+                                       ::std::vector<Index> const&,
                                        double,
                                        data_type::const_iterator,
                                        data_type::const_iterator,
-                                       Index,
-                                       ::std::vector<ExitAlleleData>::const_iterator,
-                                       ::std::vector<ExitAlleleData>::const_iterator) const;
+                                       Index) const;
+                                       // Index,
+                                       // ::std::vector<ExitAlleleData>::const_iterator,
+                                       // ::std::vector<ExitAlleleData>::const_iterator) const;
+
+  double get_denominator(Init const&, State const&) const;
 
  public:
 

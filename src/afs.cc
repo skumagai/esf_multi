@@ -159,12 +159,11 @@ Index AFS::deme() const {
   vector<Index> state_vec(unsign(deme() * deme()));
 
   return build(alleles, state_vec, 1.0, m_data.begin(), m_data.end());
-
 }
 
 
-::std::vector<ExitAFSData> AFS::build(::std::vector<Allele> alleles,
-                                      ::std::vector<Index> states,
+::std::vector<ExitAFSData> AFS::build(::std::vector<Allele> const& alleles,
+                                      ::std::vector<Index> const& states,
                                       double factor,
                                       data_type::const_iterator begin,
                                       data_type::const_iterator end) const {
@@ -172,41 +171,31 @@ Index AFS::deme() const {
   if (begin == end) {
     Init init{*this};
     State state{init, states};
-    auto deme = this->deme();
-
-    double denom = 1.0;
-    for (auto i = 0; i < deme; ++i) {
-      Index genes = init[i];
-      for (auto j = 0; j < deme; ++j) {
-        auto in_the_deme = state[i * deme + j];
-        denom *= binomial(genes, in_the_deme);
-        genes -= in_the_deme;
-      }
-    }
+    auto denom = get_denominator(init, state);
     return {ExitAFSData({AFS(alleles), state, factor / denom})};
   }
 
-  auto reacheables = begin->first.reacheable();
+  // auto reacheables = begin->first.reacheable();
 
-  auto itr_b = reacheables.begin();
-  auto itr_e = reacheables.end();
+  // auto itr_b = reacheables.begin();
+  // auto itr_e = reacheables.end();
 
-  return sub_build(alleles, states, factor, begin, end, begin->second, itr_b, itr_e);
-
+  // return sub_build(alleles, states, factor, begin, end,
+  //                  begin->second, itr_b, itr_e);
+  return sub_build(alleles, states, factor, begin, end, begin->second);
 }
 
 
 ::std::vector<ExitAFSData>
-AFS::sub_build(::std::vector<Allele> alleles,
-               ::std::vector<Index> states,
+AFS::sub_build(::std::vector<Allele> const& alleles,
+               ::std::vector<Index> const& states,
                double factor,
                data_type::const_iterator begin,
                data_type::const_iterator end,
-               Index count,
-               ::std::vector<ExitAlleleData>::const_iterator allele_begin,
-               ::std::vector<ExitAlleleData>::const_iterator allele_end) const {
+               Index count) const {
 
-  if (count == 0 || allele_begin == allele_end) {
+  // if (count == 0 || allele_begin == allele_end) {
+  if (count == 0) {
 
     auto begin_copy = begin;
 
@@ -220,22 +209,29 @@ AFS::sub_build(::std::vector<Allele> alleles,
 
   vector<ExitAFSData> retval;
 
-  for (auto a_itr = allele_begin; a_itr != allele_end; ++a_itr) {
+  for (auto a: (begin->first).reacheable()) {
 
-    auto a_copy = alleles;
-    auto s_copy = states;
+  // for (auto a_itr = allele_begin; a_itr != allele_end; ++a_itr) {
 
-    a_copy.push_back(a_itr->allele);
+    auto a_copy (alleles);
+    auto s_copy(states);
 
-    auto s = a_itr->state;
+    // a_copy.push_back(a_itr->allele);
+    a_copy.push_back(a.allele);
+
+    // auto s = a_itr->state;
+    auto s = a.state;
     for (decltype(s.size()) i = 0; i != s.size(); ++i) {
 
       s_copy[i] += s[i];
 
     }
 
-    auto p = sub_build(a_copy, s_copy, factor * a_itr->factor,
-                       begin, end, count - 1, a_itr, allele_end);
+    std::cout << "[DEBUG]: " << a.allele << "\t" << s << "\n";
+
+    // auto p = sub_build(a_copy, s_copy, factor * a_itr->factor,
+    //                    begin, end, count - 1, a_itr, allele_end);
+    auto p = sub_build(a_copy, s_copy, factor * a.factor, begin, end, count - 1);
 
     retval.insert(retval.end(), p.begin(), p.end());
 
@@ -243,6 +239,22 @@ AFS::sub_build(::std::vector<Allele> alleles,
 
   return retval;
 
+}
+
+
+double AFS::get_denominator(Init const& init, State const& state) const {
+
+  auto deme = this->deme();
+  double denom = 1.0;
+  for (auto i = 0; i < deme; ++i) {
+    Index genes = init[i];
+    for (auto j = 0; j < deme; ++j) {
+      auto in_the_deme = state[i * deme + j];
+      denom *= binomial(genes, in_the_deme);
+      genes -= in_the_deme;
+    }
+  }
+  return denom;
 }
 
 

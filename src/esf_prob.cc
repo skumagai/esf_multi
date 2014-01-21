@@ -23,6 +23,7 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
+#include <iostream>
 #include <algorithm>
 #include <stdexcept>
 
@@ -169,11 +170,12 @@ Value ESFProb::compute_with_singleton() {
 }
 
 
-double ESFProb::compute_coal_probs(ExitAFSData const& pair, HitProb const& hp) {
+double ESFProb::compute_coal_probs(ExitAFSData const& data, HitProb const& hp) {
 
   double val = 0.0;
-  AFS afs = pair.afs;
-  State state = pair.state;
+  AFS afs = data.afs;
+  State state = data.state;
+  double factor = data.factor;
 
   auto deme = m_init.deme();
 
@@ -189,9 +191,11 @@ double ESFProb::compute_coal_probs(ExitAFSData const& pair, HitProb const& hp) {
 
         Allele na = allele.remove(i);
         AFS other1 = other0.add(na);
-        double tmp = hp.get(state, i) * \
-            ESFProb(other1, m_param, m_esf_prob_cache, m_hit_prob_cache).compute();
-        val += tmp * na[i] * other1[na] / other1.size(i);
+        // double tmp = hp.get(state, i) * \
+        //     ESFProb(other1, m_param, m_esf_prob_cache, m_hit_prob_cache).compute();
+        // val += tmp * factor * na[i] * other1[na] / other1.size(i);
+
+        std::cout << other1 << ": " << state << ": " << (double)na[i] * other1[na] / other1.size(i) << "\n";
 
       }
 
