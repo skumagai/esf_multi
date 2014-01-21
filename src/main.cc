@@ -88,15 +88,26 @@ int main(int argc, char *argv[]) {
 
   AFS afs(alleles);
 
-  ESFProb ep(afs, param);
+  for (auto a: afs.reacheable()) {
+    cout << "factor: " << a.factor << "\n";
+    cout << a.afs << "\n";
+  }
 
-  cout.precision(9);
 
-  cout << ep.compute() << '\n';
+  // ESFProb ep(afs, param);
+
+  // cout.precision(9);
+
+  // cout << ep.compute() << '\n';
 
   // ::esf::Cache<AFS, double> cache(afs);
   // cache.insert(afs, 2.0);
   // cout << cache.at(afs2) << "\n";
+
+  Allele allele({1, 1});
+  for (auto a: allele.reacheable()) {
+    cout << a.factor << ", " << a.allele << "\n";
+  }
 
   return 0;
 }

@@ -158,20 +158,32 @@ Index AFS::deme() const {
   vector<Allele> alleles;
   vector<Index> state_vec(unsign(deme() * deme()));
 
-  return build(alleles, state_vec, m_data.begin(), m_data.end());
+  return build(alleles, state_vec, 1.0, m_data.begin(), m_data.end());
 
 }
 
 
 ::std::vector<ExitAFSData> AFS::build(::std::vector<Allele> alleles,
                                       ::std::vector<Index> states,
+                                      double factor,
                                       data_type::const_iterator begin,
                                       data_type::const_iterator end) const {
 
   if (begin == end) {
+    Init init{*this};
+    State state{init, states};
+    auto deme = this->deme();
 
-    return {ExitAFSData({AFS(alleles), State(Init(*this), states)})};
-
+    double denom = 1.0;
+    for (auto i = 0; i < deme; ++i) {
+      Index genes = init[i];
+      for (auto j = 0; j < deme; ++j) {
+        auto in_the_deme = state[i * deme + j];
+        denom *= binomial(genes, in_the_deme);
+        genes -= in_the_deme;
+      }
+    }
+    return {ExitAFSData({AFS(alleles), state, factor / denom})};
   }
 
   auto reacheables = begin->first.reacheable();
@@ -179,7 +191,7 @@ Index AFS::deme() const {
   auto itr_b = reacheables.begin();
   auto itr_e = reacheables.end();
 
-  return sub_build(alleles, states, begin, end, begin->second, itr_b, itr_e);
+  return sub_build(alleles, states, factor, begin, end, begin->second, itr_b, itr_e);
 
 }
 
@@ -187,6 +199,7 @@ Index AFS::deme() const {
 ::std::vector<ExitAFSData>
 AFS::sub_build(::std::vector<Allele> alleles,
                ::std::vector<Index> states,
+               double factor,
                data_type::const_iterator begin,
                data_type::const_iterator end,
                Index count,
@@ -199,7 +212,7 @@ AFS::sub_build(::std::vector<Allele> alleles,
 
     ++begin_copy;
 
-    return build(alleles, states, begin_copy, end);
+    return build(alleles, states, factor, begin_copy, end);
 
   }
 
@@ -221,7 +234,8 @@ AFS::sub_build(::std::vector<Allele> alleles,
 
     }
 
-    auto p = sub_build(a_copy, s_copy, begin, end, count - 1, a_itr, allele_end);
+    auto p = sub_build(a_copy, s_copy, factor * a_itr->factor,
+                       begin, end, count - 1, a_itr, allele_end);
 
     retval.insert(retval.end(), p.begin(), p.end());
 

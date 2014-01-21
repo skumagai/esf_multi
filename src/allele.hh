@@ -130,11 +130,9 @@ class Allele {
 // with its corresponding state, which keeps track of origin and
 // current location of genes.
 struct ExitAlleleData {
-
   Allele allele;
-
   ::std::vector<Index> state;
-
+  double factor;
 };
 
 

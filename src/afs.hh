@@ -76,11 +76,13 @@ class AFS {
 
   ::std::vector<ExitAFSData> build(::std::vector<Allele>,
                                    ::std::vector<Index>,
+                                   double,
                                    data_type::const_iterator,
                                    data_type::const_iterator) const;
 
   ::std::vector<ExitAFSData> sub_build(::std::vector<Allele>,
                                        ::std::vector<Index>,
+                                       double,
                                        data_type::const_iterator,
                                        data_type::const_iterator,
                                        Index,
@@ -151,11 +153,9 @@ class AFS {
 
 // This struct keeps AFS and its corresponding state together.
 struct ExitAFSData {
-
   AFS afs;
-
   State state;
-
+  double factor;
 };
 
 
