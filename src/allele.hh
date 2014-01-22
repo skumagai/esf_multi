@@ -58,8 +58,6 @@ class Allele {
 
   value_type m_data;
 
-  Index m_total;
-
   Index m_deme;
 
  public:
