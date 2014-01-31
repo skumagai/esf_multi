@@ -37,6 +37,10 @@
 namespace esf {
 
 
+using ::std::find_if;
+using ::std::out_of_range;
+
+
 ESFProb::~ESFProb() {
 
   if (&(m_esf_prob_cache->root()) == &m_afs) {
@@ -69,23 +73,16 @@ double ESFProb::compute() {
 
     return m_esf_prob_cache->at(m_afs);
 
-  } catch (::std::out_of_range&) {
+  } catch (out_of_range&) {
 
     double val;
-
     if (m_afs.singleton()) {
-
       val = compute_with_singleton();
-
-
     } else {
-
       val = compute_without_singleton();
-
     }
 
     (*m_esf_prob_cache)[m_afs] = val;
-
     return val;
 
   }
@@ -95,28 +92,22 @@ double ESFProb::compute() {
 
 double ESFProb::compute_without_singleton() {
 
-  double val = 0.0;
-
   HitProb hp;
-
   try {
 
     hp = m_hit_prob_cache->at(m_init);
 
-  } catch (::std::out_of_range&) {
+  } catch (out_of_range&) {
 
     hp = HitProb(m_init, m_param);
-
     (*m_hit_prob_cache)[m_init] = hp;
 
   }
 
+  double val = 0.0;
   for (auto spec: m_afs.reacheable()) {
-
     val += compute_coal_probs(spec, hp);
-
   }
-
   return val;
 
 }
@@ -127,8 +118,6 @@ Value ESFProb::compute_with_singleton() {
   if (m_afs.size() == 1) {
     return 1.0;
   }
-
-  using ::std::find_if;
 
   auto singleton = find_if(m_afs.begin(), m_afs.end(),
                            [](AFS::value_type p)
@@ -191,12 +180,9 @@ double ESFProb::compute_coal_probs(ExitAFSData const& data, HitProb const& hp) {
 
         Allele na = allele.remove(i);
         AFS other1 = other0.add(na);
-        // double tmp = hp.get(state, i) * \
-        //     ESFProb(other1, m_param, m_esf_prob_cache, m_hit_prob_cache).compute();
-        // val += tmp * factor * na[i] * other1[na] / other1.size(i);
-
-        std::cout << other1 << ": " << state << ": " << (double)na[i] * other1[na] / other1.size(i) << "\n";
-
+        double tmp = hp.get(state, i) * \
+            ESFProb(other1, m_param, m_esf_prob_cache, m_hit_prob_cache).compute();
+        val += tmp * factor * na[i] * other1[na] / other1.size(i);
       }
 
     }

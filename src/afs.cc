@@ -38,13 +38,21 @@
 
 namespace esf {
 
+using ::std::accumulate;
+using ::std::any_of;
+using ::std::copy;
+using ::std::ostream;
+using ::std::ostream_iterator;
+using ::std::out_of_range;
+using ::std::pair;
+using ::std::plus;
+using ::std::transform;
+using ::std::vector;
 
-AFS::AFS(::std::vector<Allele> const& avec) {
+AFS::AFS(vector<Allele> const& avec) {
 
   for (auto allele: avec) {
-
     m_data[allele] += 1;
-
   }
 
 }
@@ -57,13 +65,9 @@ AFS::AFS(AFS::data_type const& data)
 AFS AFS::add(Allele const& allele) const {
 
   auto data = m_data;
-
   if (allele.size() > 0) {
-
     ++data[allele];
-
   }
-
   return AFS(data);
 
 }
@@ -72,21 +76,13 @@ AFS AFS::add(Allele const& allele) const {
 AFS AFS::remove(Allele const& allele) const {
 
   auto data = m_data;
-
   if (allele.size() > 0) {
-
     if (data[allele] > 1) {
-
       --data[allele];
-
     } else {
-
       data.erase(allele);
-
     }
-
   }
-
   return AFS(data);
 
 }
@@ -94,12 +90,10 @@ AFS AFS::remove(Allele const& allele) const {
 
 bool AFS::singleton() const {
 
-  return ::std::any_of(m_data.begin(), m_data.end(),
-                       [](value_type p)
-                       {
-                         return p.first.singleton();
-                       }
-                       );
+  return any_of(m_data.begin(), m_data.end(),
+                [](value_type p) {
+                  return p.first.singleton();
+                });
 
 }
 
@@ -110,7 +104,7 @@ Index AFS::operator[](const Allele& allele) const {
 
     return m_data.at(allele);
 
-  } catch (::std::out_of_range&) {
+  } catch (out_of_range&) {
 
     return 0;
 
@@ -122,12 +116,10 @@ Index AFS::operator[](const Allele& allele) const {
 Index AFS::size(Index deme) const {
 
   Index start = 0;
-  return ::std::accumulate(m_data.begin(), m_data.end(), start,
-                           [deme](Index a, value_type p)
-                           {
-                             return a + (p.first)[deme] * p.second;
-                           }
-                           );
+  return accumulate(m_data.begin(), m_data.end(), start,
+                    [deme](Index a, value_type p) {
+                      return a + (p.first)[deme] * p.second;
+                    });
 
 }
 
@@ -135,12 +127,10 @@ Index AFS::size(Index deme) const {
 Index AFS::size() const {
 
   Index start = 0;
-  return ::std::accumulate(this->begin(), this->end(), start,
-                           [](Index a, value_type p)
-                           {
-                             return a + (p.first).size() * p.second;
-                           }
-                           );
+  return accumulate(this->begin(), this->end(), start,
+                    [](Index a, value_type p) {
+                      return a + (p.first).size() * p.second;
+                    });
 }
 
 
@@ -151,9 +141,7 @@ Index AFS::deme() const {
 }
 
 
-::std::vector<ExitAFSData> AFS::reacheable() const {
-
-  using ::std::vector;
+vector<ExitAFSData> AFS::reacheable() const {
 
   vector<Allele> alleles;
   vector<Index> state_vec(unsign(deme() * deme()));
@@ -162,11 +150,11 @@ Index AFS::deme() const {
 }
 
 
-::std::vector<ExitAFSData> AFS::build(::std::vector<Allele> const& alleles,
-                                      ::std::vector<Index> const& states,
-                                      double factor,
-                                      data_type::const_iterator begin,
-                                      data_type::const_iterator end) const {
+vector<ExitAFSData> AFS::build(vector<Allele> const& alleles,
+                               vector<Index> const& states,
+                               double factor,
+                               data_type::const_iterator begin,
+                               data_type::const_iterator end) const {
 
   if (begin == end) {
     Init init{*this};
@@ -186,9 +174,9 @@ Index AFS::deme() const {
 }
 
 
-::std::vector<ExitAFSData>
-AFS::sub_build(::std::vector<Allele> const& alleles,
-               ::std::vector<Index> const& states,
+vector<ExitAFSData>
+AFS::sub_build(vector<Allele> const& alleles,
+               vector<Index> const& states,
                double factor,
                data_type::const_iterator begin,
                data_type::const_iterator end,
@@ -196,16 +184,11 @@ AFS::sub_build(::std::vector<Allele> const& alleles,
 
   // if (count == 0 || allele_begin == allele_end) {
   if (count == 0) {
-
     auto begin_copy = begin;
-
     ++begin_copy;
-
     return build(alleles, states, factor, begin_copy, end);
-
   }
 
-  using ::std::vector;
 
   vector<ExitAFSData> retval;
 
@@ -310,32 +293,23 @@ bool operator==(ExitAFSData const& a, ExitAFSData const& b) {
 bool operator<(ExitAFSData const& a, ExitAFSData const& b) {
 
   if (a.afs == b.afs) {
-
     return a.state < b.state;
-
+  } else {
+    return a.afs < b.afs;
   }
-
-  return a.afs < b.afs;
 
 }
 
 
-::std::ostream& operator<<(::std::ostream& str, ::std::pair<Allele, Index> const& p) {
-  using ::std::copy;
-  using ::std::ostream_iterator;
+ostream& operator<<(ostream& str, pair<Allele, Index> const& p) {
 
   str << p.first << ": " << p.second;
-
   return str;
 
 }
 
 
-::std::ostream& operator<<(::std::ostream& str, AFS const& afs) {
-
-  using ::std::copy;
-  using ::std::ostream_iterator;
-  using ::std::pair;
+ostream& operator<<(ostream& str, AFS const& afs) {
 
   str << "AFS(";
   copy(afs.begin(), afs.end(), ostream_iterator<pair<Allele, Index>>(str, ", "));
