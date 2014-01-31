@@ -113,8 +113,8 @@ void HitProb::compute() {
     for (decltype(ndeme) deme = 0; deme < ndeme; ++deme) {
 
       Index choice = 2;
-      auto coal = binomial(ii[deme], choice);
-      total += 2.0 * coal * m_param.pop_size(deme) + ii[deme] * m_param.mut_rate(deme);
+      auto coal = 2.0 * binomial(ii[deme], choice) * m_param.pop_size(deme);
+      total += coal + ii[deme] * m_param.mut_rate(deme);
 
       coals.push_back(coal);
 
@@ -147,7 +147,7 @@ void HitProb::compute() {
 
     for (decltype(ndeme) j = 0; j < ndeme; ++j) {
 
-      m_prob.push_back(x(i) * 2.0 * m_param.pop_size(j) * coals[unsign(i * ndeme + j)]);
+      m_prob.push_back(x(i) * coals[unsign(i * ndeme + j)]);
 
     }
 

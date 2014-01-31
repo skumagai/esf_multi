@@ -63,15 +63,13 @@ vector<ExitAlleleData> combine_allele_parts(ExitAlleleData const&,
 }
 
 
-Allele::Allele(vector<Index> const& d)
-    : m_data(d),
-      m_total(accumulate(d.begin(), d.end(), static_cast<Index>(0))) {}
+Allele::Allele(::std::vector<Index> const& d)
+    : m_data(d) {}
 
 
 Index Allele::size() const {
-
-  return m_total;
-
+  using ::std::accumulate;
+  return accumulate(m_data.begin(), m_data.end(), static_cast<Index>(0));
 }
 
 
@@ -106,7 +104,7 @@ Allele Allele::add(Index deme) const {
 
 bool Allele::singleton() const {
 
-  return m_total == 1;
+  return size() == 1;
 
 }
 
