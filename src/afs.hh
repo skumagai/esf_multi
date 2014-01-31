@@ -85,10 +85,9 @@ class AFS {
                                        double,
                                        data_type::const_iterator,
                                        data_type::const_iterator,
-                                       Index) const;
-                                       // Index,
-                                       // ::std::vector<ExitAlleleData>::const_iterator,
-                                       // ::std::vector<ExitAlleleData>::const_iterator) const;
+                                       Index,
+                                       ::std::vector<ExitAlleleData>::const_iterator,
+                                       ::std::vector<ExitAlleleData>::const_iterator) const;
 
   double get_denominator(Init const&, State const&) const;
 

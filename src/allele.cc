@@ -242,7 +242,6 @@ vector<ExitAlleleData> combine_allele_parts(ExitAlleleData const& archetype,
                                             vector<vector<ExitAlleleData>>::const_iterator end) {
   if (begin == end) {
     ExitAlleleData a(archetype);
-    double f = 1.0;
     Allele& allele = a.allele;
     vector<Index>& state = a.state;
     auto deme = allele.deme();
@@ -250,7 +249,7 @@ vector<ExitAlleleData> combine_allele_parts(ExitAlleleData const& archetype,
       auto num = allele[i];
       for (Index j = 0; j < deme; ++j) {
         auto k = state[unsign(deme * j + i)];
-        f *= binomial(num, k);
+        a.factor *= binomial(num, k);
         num -= k;
       }
     }

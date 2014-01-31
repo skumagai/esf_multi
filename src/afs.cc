@@ -159,18 +159,17 @@ vector<ExitAFSData> AFS::build(vector<Allele> const& alleles,
   if (begin == end) {
     Init init{*this};
     State state{init, states};
-    auto denom = get_denominator(init, state);
-    return {ExitAFSData({AFS(alleles), state, factor / denom})};
+    AFS exit{alleles};
+    auto denom = get_denominator(exit, state);
+    return {ExitAFSData({exit, state, factor / denom})};
   }
 
-  // auto reacheables = begin->first.reacheable();
+  auto reacheables = begin->first.reacheable();
 
-  // auto itr_b = reacheables.begin();
-  // auto itr_e = reacheables.end();
+  auto itr_b = reacheables.begin();
+  auto itr_e = reacheables.end();
 
-  // return sub_build(alleles, states, factor, begin, end,
-  //                  begin->second, itr_b, itr_e);
-  return sub_build(alleles, states, factor, begin, end, begin->second);
+  return sub_build(alleles, states, factor, begin, end, begin->second, itr_b, itr_e);
 }
 
 
@@ -180,7 +179,9 @@ AFS::sub_build(vector<Allele> const& alleles,
                double factor,
                data_type::const_iterator begin,
                data_type::const_iterator end,
-               Index count) const {
+               Index count,
+               vector<ExitAlleleData>::const_iterator allele_begin,
+               vector<ExitAlleleData>::const_iterator allele_end) const {
 
   // if (count == 0 || allele_begin == allele_end) {
   if (count == 0) {
@@ -192,29 +193,17 @@ AFS::sub_build(vector<Allele> const& alleles,
 
   vector<ExitAFSData> retval;
 
-  for (auto a: (begin->first).reacheable()) {
-
-  // for (auto a_itr = allele_begin; a_itr != allele_end; ++a_itr) {
+  for (auto a_itr = allele_begin; a_itr != allele_end; ++a_itr) {
 
     auto a_copy (alleles);
+    a_copy.push_back(a_itr->allele);
+
+    auto s = a_itr->state;
     auto s_copy(states);
+    transform(s_copy.begin(), s_copy.end(), s.begin(), s_copy.begin(), plus<Index>());
 
-    // a_copy.push_back(a_itr->allele);
-    a_copy.push_back(a.allele);
-
-    // auto s = a_itr->state;
-    auto s = a.state;
-    for (decltype(s.size()) i = 0; i != s.size(); ++i) {
-
-      s_copy[i] += s[i];
-
-    }
-
-    std::cout << "[DEBUG]: " << a.allele << "\t" << s << "\n";
-
-    // auto p = sub_build(a_copy, s_copy, factor * a_itr->factor,
-    //                    begin, end, count - 1, a_itr, allele_end);
-    auto p = sub_build(a_copy, s_copy, factor * a.factor, begin, end, count - 1);
+    auto p = sub_build(a_copy, s_copy, factor * a_itr->factor,
+                       begin, end, count - 1, a_itr, allele_end);
 
     retval.insert(retval.end(), p.begin(), p.end());
 
@@ -232,7 +221,7 @@ double AFS::get_denominator(Init const& init, State const& state) const {
   for (auto i = 0; i < deme; ++i) {
     Index genes = init[i];
     for (auto j = 0; j < deme; ++j) {
-      auto in_the_deme = state[i * deme + j];
+      auto in_the_deme = state[j * deme + i];
       denom *= binomial(genes, in_the_deme);
       genes -= in_the_deme;
     }
