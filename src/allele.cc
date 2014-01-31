@@ -38,7 +38,11 @@ namespace esf {
 
 namespace {
 
+using ::std::accumulate;
+using ::std::copy;
 using ::std::make_pair;
+using ::std::ostream;
+using ::std::ostream_iterator;
 using ::std::pair;
 using ::std::plus;
 using ::std::size_t;
@@ -59,9 +63,9 @@ vector<ExitAlleleData> combine_allele_parts(ExitAlleleData const&,
 }
 
 
-Allele::Allele(::std::vector<Index> const& d)
+Allele::Allele(vector<Index> const& d)
     : m_data(d),
-      m_total(::std::accumulate(d.begin(), d.end(), static_cast<Index>(0))) {}
+      m_total(accumulate(d.begin(), d.end(), static_cast<Index>(0))) {}
 
 
 Index Allele::size() const {
@@ -107,9 +111,7 @@ bool Allele::singleton() const {
 }
 
 
-::std::vector<ExitAlleleData> Allele::reacheable() const {
-
-  using ::std::vector;
+vector<ExitAlleleData> Allele::reacheable() const {
 
   auto retvals = move_genes(*this);
 
@@ -184,10 +186,7 @@ bool operator==(ExitAlleleData const& a, ExitAlleleData const& b) {
 }
 
 
-::std::ostream& operator<<(::std::ostream& str, Allele const& allele) {
-
-  using ::std::copy;
-  using ::std::ostream_iterator;
+ostream& operator<<(ostream& str, Allele const& allele) {
 
   str << "Allele(";
   copy(allele.begin(), allele.end(), ostream_iterator<Index>(str, ", "));
@@ -244,7 +243,20 @@ vector<ExitAlleleData> combine_allele_parts(ExitAlleleData const& archetype,
                                             vector<vector<ExitAlleleData>>::const_iterator begin,
                                             vector<vector<ExitAlleleData>>::const_iterator end) {
   if (begin == end) {
-    return {archetype};
+    ExitAlleleData a(archetype);
+    double f = 1.0;
+    Allele& allele = a.allele;
+    vector<Index>& state = a.state;
+    auto deme = allele.deme();
+    for (Index i = 0; i < deme; ++i) {
+      auto num = allele[i];
+      for (Index j = 0; j < deme; ++j) {
+        auto k = state[unsign(deme * j + i)];
+        f *= binomial(num, k);
+        num -= k;
+      }
+    }
+    return {a};
   }
 
   vector<ExitAlleleData> retval;
@@ -290,7 +302,7 @@ vector<ExitAlleleData> assign_genes(Index origin,
 
     auto retval = assign_genes(origin,
                                count - i,
-                               {base, bstate, factor * binomial(count, i)},
+                               {base, bstate, factor},
                                deme + 1);
     holder.insert(holder.end(), retval.begin(), retval.end());
   }
