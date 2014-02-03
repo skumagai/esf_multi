@@ -142,75 +142,51 @@ Index AFS::deme() const {
 
 
 vector<ExitAFSData> AFS::reacheable() const {
-
-  vector<Allele> alleles;
-  vector<Index> state_vec(unsign(deme() * deme()));
-
-  return build(alleles, state_vec, 1.0, m_data.begin(), m_data.end());
+  return build(AFS{}, State{}, 1.0, m_data.begin(), m_data.end());
 }
 
 
-vector<ExitAFSData> AFS::build(vector<Allele> const& alleles,
-                               vector<Index> const& states,
+vector<ExitAFSData> AFS::build(AFS const& afs,
+                               State const& state,
                                double factor,
                                data_type::const_iterator begin,
                                data_type::const_iterator end) const {
-
   if (begin == end) {
-    Init init{*this};
-    State state{init, states};
-    AFS exit{alleles};
-    auto denom = get_denominator(exit, state);
-    return {ExitAFSData({exit, state, factor / denom})};
+    auto denom = get_denominator(Init{afs}, state);
+    return {ExitAFSData({afs, state, factor / denom})};
+  } else {
+    auto reacheables = begin->first.reacheable();
+    auto itr_b = reacheables.begin();
+    auto itr_e = reacheables.end();
+
+    return sub_build(afs, state, factor, begin, end, begin->second, itr_b, itr_e);
   }
-
-  auto reacheables = begin->first.reacheable();
-
-  auto itr_b = reacheables.begin();
-  auto itr_e = reacheables.end();
-
-  return sub_build(alleles, states, factor, begin, end, begin->second, itr_b, itr_e);
 }
 
 
 vector<ExitAFSData>
-AFS::sub_build(vector<Allele> const& alleles,
-               vector<Index> const& states,
+AFS::sub_build(AFS const& afs,
+               State const& state,
                double factor,
                data_type::const_iterator begin,
                data_type::const_iterator end,
                Index count,
                vector<ExitAlleleData>::const_iterator allele_begin,
                vector<ExitAlleleData>::const_iterator allele_end) const {
-
-  // if (count == 0 || allele_begin == allele_end) {
   if (count == 0) {
-    auto begin_copy = begin;
-    ++begin_copy;
-    return build(alleles, states, factor, begin_copy, end);
+    ++begin;
+    return build(afs, state, factor, begin, end);
+  } else {
+    vector<ExitAFSData> retval;
+    for (auto a_itr = allele_begin; a_itr != allele_end; ++a_itr) {
+      auto p = sub_build(afs.add(a_itr->allele),
+                         a_itr->state + state,
+                         factor * a_itr->factor,
+                         begin, end, count - 1, a_itr, allele_end);
+      retval.insert(retval.end(), p.begin(), p.end());
+    }
+    return retval;
   }
-
-
-  vector<ExitAFSData> retval;
-
-  for (auto a_itr = allele_begin; a_itr != allele_end; ++a_itr) {
-
-    auto a_copy (alleles);
-    a_copy.push_back(a_itr->allele);
-
-    auto s = a_itr->state;
-    auto s_copy(states);
-    transform(s_copy.begin(), s_copy.end(), s.begin(), s_copy.begin(), plus<Index>());
-
-    auto p = sub_build(a_copy, s_copy, factor * a_itr->factor,
-                       begin, end, count - 1, a_itr, allele_end);
-
-    retval.insert(retval.end(), p.begin(), p.end());
-
-  }
-
-  return retval;
-
 }
 
 

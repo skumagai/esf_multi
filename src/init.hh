@@ -100,6 +100,8 @@ class Init {
 
   friend bool operator==(Init const&, Init const&);
 
+  friend Init const operator+(Init const&, Init const&);
+
   iterator begin();
 
   const_iterator begin() const;

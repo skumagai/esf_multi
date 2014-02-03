@@ -196,6 +196,13 @@ ostream& operator<<(ostream& str, Allele const& allele) {
 }
 
 
+Allele const operator+(Allele const& a, Allele const&b) {
+  vector<Index> data{a.deme};
+  copy(a.begin(), a.end(), data.begin());
+  transform(data.begin(), data.end(), b.begin(), data.begin(), plus<Index>());
+  return Allele{data};
+}
+
 
 namespace {
 
@@ -208,32 +215,18 @@ vector<vector<ExitAlleleData>> move_genes(Allele const& orig) {
   for (auto i = 0; i < deme; ++ i) {
     vector<Index> zeros(unsign(deme));
     vector<Index> states(unsign(deme * deme));
-    parts.push_back(assign_genes(i, orig[i], {zeros, states, 1.0}, static_cast<size_t>(0)));
+    vector<Index> init{unsign(deme)};
+    init[i] = orig[i];
+    parts.push_back(assign_genes(i, orig[i], {zeros, {init, states}, 1.0}, 0));
   }
 
   return parts;
 }
 
 
-ExitAlleleData synthesize_genes(ExitAlleleData const& archetype,
-                                ExitAlleleData const& new_info) {
-  ExitAlleleData d(archetype);
-
-  transform(d.allele.begin(),
-            d.allele.end(),
-            new_info.allele.begin(),
-            d.allele.begin(),
-            plus<Index>());
-
-  transform(d.state.begin(),
-            d.state.end(),
-            new_info.state.begin(),
-            d.state.begin(),
-            plus<Index>());
-
-  d.factor *= new_info.factor;
-
-  return d;
+ExitAlleleData synthesize_genes(ExitAlleleData const& a,
+                                ExitAlleleData const& b) {
+  return {a.allele + b.allele, a.state + b.state, a.factor * b.factor};
 }
 
 

@@ -37,6 +37,12 @@
 
 namespace esf {
 
+using ::std::map;
+using ::std::ostream;
+using ::std::pair;
+using ::std::size_t;
+using ::std::vector;
+
 
 // Forward declarations
 
@@ -56,7 +62,7 @@ class AFS {
 
  private:
 
-  typedef typename ::std::map<Allele, Index> data_type;
+  typedef map<Allele, Index> data_type;
 
  public:
 
@@ -74,20 +80,20 @@ class AFS {
 
   data_type m_data;
 
-  ::std::vector<ExitAFSData> build(::std::vector<Allele> const&,
-                                   ::std::vector<Index> const&,
-                                   double,
-                                   data_type::const_iterator,
-                                   data_type::const_iterator) const;
+  vector<ExitAFSData> build(AFS const&,
+                            State const&,
+                            double,
+                            data_type::const_iterator,
+                            data_type::const_iterator) const;
 
-  ::std::vector<ExitAFSData> sub_build(::std::vector<Allele> const&,
-                                       ::std::vector<Index> const&,
-                                       double,
-                                       data_type::const_iterator,
-                                       data_type::const_iterator,
-                                       Index,
-                                       ::std::vector<ExitAlleleData>::const_iterator,
-                                       ::std::vector<ExitAlleleData>::const_iterator) const;
+  vector<ExitAFSData> sub_build(AFS const&,
+                                State const&,
+                                double,
+                                data_type::const_iterator,
+                                data_type::const_iterator,
+                                Index,
+                                vector<ExitAlleleData>::const_iterator,
+                                vector<ExitAlleleData>::const_iterator) const;
 
   double get_denominator(Init const&, State const&) const;
 
@@ -95,7 +101,7 @@ class AFS {
 
   AFS() = default;
 
-  AFS(::std::vector<Allele> const&);
+  AFS(vector<Allele> const&);
 
   AFS(data_type const&);
 
@@ -134,7 +140,7 @@ class AFS {
   // Because origin and destination of genes need to be tracked,
   // return value is a list of pairs, whose first element is AFS and
   // the second element is its corresponding states.
-  ::std::vector<ExitAFSData> reacheable() const;
+  vector<ExitAFSData> reacheable() const;
 
   iterator begin();
 
@@ -165,8 +171,8 @@ bool operator==(ExitAFSData const&, ExitAFSData const&);
 
 bool operator<(ExitAFSData const&, ExitAFSData const&);
 
-::std::ostream& operator<<(::std::ostream&, ::std::pair<Allele, Index> const&);
-::std::ostream& operator<<(::std::ostream&, AFS const&);
+ostream& operator<<(ostream&, pair<Allele, Index> const&);
+ostream& operator<<(ostream&, AFS const&);
 
 
 }
@@ -180,7 +186,6 @@ struct hash<::esf::AFS> {
 
   ::std::size_t operator()(::esf::AFS const& afs) const {
 
-    using ::std::size_t;
     using ::esf::unsign;
 
     ::std::hash<size_t> hasher;

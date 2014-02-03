@@ -32,6 +32,8 @@
 
 namespace esf {
 
+using ::std::vector;
+
 
 // Forward declarations
 
@@ -46,7 +48,7 @@ class Allele {
 
  private:
 
-  typedef ::std::vector<Index> value_type;
+  typedef vector<Index> value_type;
 
  public:
 
@@ -58,13 +60,11 @@ class Allele {
 
   value_type m_data;
 
-  Index m_deme;
-
  public:
 
   // This constructor is designed to be invoked with data, which is
   // the locations and numbers of genes in present-day samples.
-  Allele(::std::vector<Index> const&);
+  Allele(vector<Index> const&);
 
   Allele(Allele const&) = default;
 
@@ -96,7 +96,7 @@ class Allele {
   // migration event.  One gene is taken from the present location,
   // and the same gene is placed to a new deme.  This function ignores
   // migrations where the source and target demes are the same.
-  ::std::vector<ExitAlleleData> reacheable() const;
+  vector<ExitAlleleData> reacheable() const;
 
   // Exposes the iterator of underlying container.
   iterator begin();
@@ -128,13 +128,15 @@ class Allele {
 // with its corresponding state, which keeps track of origin and
 // current location of genes.
 struct ExitAlleleData {
-  Allele allele;
-  ::std::vector<Index> state;
-  double factor;
+  Allele const allele;
+  State const state;
+  double const factor;
 };
 
 
 bool operator==(ExitAlleleData const&, ExitAlleleData const&);
+
+Allele const& operator+(Allele const&, Allele const&);
 
 std::ostream& operator<<(std::ostream&, Allele const&);
 

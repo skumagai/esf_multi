@@ -27,10 +27,15 @@
 #define ESF_MULTI_STATE_HH
 
 
+#include <vector>
+
 #include "init.hh"
 
 
 namespace esf {
+
+using ::std::ostream;
+using ::std::vector;
 
 
 // This class represents a state. States contain information of inital
@@ -39,7 +44,7 @@ class State {
 
  public:
 
-  typedef typename ::std::vector<Index> value_type;
+  typedef vector<Index> value_type;
 
   typedef typename value_type::iterator iterator;
 
@@ -49,11 +54,9 @@ class State {
 
   Init m_init;
 
-  ::std::vector<Index> m_data;
+  vector<Index> m_data;
 
-  Index m_id;
-
-  value_type compute_state();
+  value_type compute_state(Index);
 
   Index compute_id();
 
@@ -86,11 +89,11 @@ class State {
   // n the number of demes.  Order of elements is {g_00, g_01,...g_10,
   // g_11,..., a_nn} for g_ij number of genes where i the inital
   // location and j the current location.
-  State(Init const&, ::std::vector<Index> const&);
+  State(Init const&, vector<Index> const&);
 
   // Computes a list of states, which are diferent from the current
   // state by one migration event.  This excludes the currentstate itself.
-  ::std::vector<State> neighbors() const;
+  vector<State> neighbors() const;
 
   // Returns an ID associated with the current state. The order of
   // states is stable, but forward and backward comptatibilities are
@@ -118,10 +121,12 @@ class State {
 
   friend bool operator<(State const&, State const&);
 
+  friend State const operator+(State const&, State const&);
+
 };
 
 
-::std::ostream& operator<<(::std::ostream&, State const&);
+ostream& operator<<(ostream&, State const&);
 
 }
 

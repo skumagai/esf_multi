@@ -169,4 +169,11 @@ bool operator==(Init const& a, Init const& b) {
 }
 
 
+Init const operator+(Init const& a, Init const& b) {
+  Init::value_type data{a.m_data};
+  transform(data.begin(), data.end(), b.begin(), data.begin(), plus<Index>());
+  return Init{data};
+}
+
+
 }

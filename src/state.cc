@@ -38,12 +38,16 @@
 
 namespace esf {
 
+using ::std::accumulate;
+using ::std::copy;
+using ::std::ostream;
+using ::std::ostream_iterator;
+using ::std::ptrdiff_t;
+using ::std::size_t;
+using ::std::transform;
+using ::std::vector;
 
 namespace {
-
-
-using ::std::size_t;
-using ::std::vector;
 
 
 vector<Index> state_dim(Init&);
@@ -57,26 +61,22 @@ Index generate_id(vector<Index>&, Index, Index);
 
 
 State::State(Init const& init)
-    : m_init(init), m_data(expand_init()), m_id(compute_id()) {}
+    : m_init(init), m_data(expand_init()) {}
 
 
 State::State(Init const& init, Index id)
-    : m_init(init), m_id(id) {
-
-  m_data = compute_state();
-
+    : m_init(init) {
+  m_data = compute_state(id);
 }
 
 
-State::State(Init const& init, ::std::vector<Index> const& data)
-    : m_init(init), m_data(data), m_id(compute_id()) {}
+State::State(Init const& init, vector<Index> const& data)
+    : m_init(init), m_data(data)) {}
 
 
-::std::vector<State> State::neighbors() const {
+vector<State> State::neighbors() const {
 
   auto deme = m_init.deme();
-
-  using ::std::vector;
 
   vector<State> neighbors;
 
@@ -97,8 +97,6 @@ State::State(Init const& init, ::std::vector<Index> const& data)
           new_state[src] -= 1;
           new_state[tar] += 1;
 
-          new_state.m_id = new_state.compute_id();
-
           neighbors.push_back(new_state);
 
         }
@@ -116,7 +114,7 @@ State::State(Init const& init, ::std::vector<Index> const& data)
 
 Index State::id() const {
 
-  return m_id;
+  return compute_id();
 
 }
 
@@ -142,7 +140,7 @@ Index& State::operator[](Index i) {
 }
 
 
-State::value_type State::compute_state() {
+State::value_type State::compute_state(Index idx) {
 
   auto deme = m_init.deme();
 
@@ -150,7 +148,7 @@ State::value_type State::compute_state() {
 
   data.reserve(unsign(deme * deme));
 
-  auto idx_list = index_1_to_n(state_dim(m_init), m_id);
+  auto idx_list = index_1_to_n(state_dim(m_init), idx);
 
   for (decltype(deme) i = 0; i < deme; ++i) {
 
@@ -168,8 +166,6 @@ State::value_type State::compute_state() {
 Index State::compute_id() {
 
   auto deme = m_init.deme();
-
-  using ::std::vector;
 
   vector<Index> accum(unsign(deme));
 
@@ -233,7 +229,7 @@ State::const_iterator State::end() const {
 
 bool operator==(State const& a, State const& b) {
 
-  return a.m_init == b.m_init && a.m_data == b.m_data && a.m_id == b.m_id;
+  return a.m_init == b.m_init && a.m_data == b.m_data;
 
 }
 
@@ -245,16 +241,21 @@ bool operator<(State const& a, State const& b) {
 }
 
 
+State const operator+(State const& a, State const& b) {
+  vector<Index> data{a.m_data};
+  transform(data.begin(), data.end(), b.m_data.begin(), data.begin(), plus<Index>());
+  return State{a.m_init + b.m_init, data};
+}
+
+
 namespace {
 
 
-::std::vector<Index> state_dim(Init& init) {
+vector<Index> state_dim(Init& init) {
 
   auto deme = init.deme();
 
-  ::std::vector<Index> dim(unsign(deme));
-
-  using ::std::transform;
+  vector<Index> dim(unsign(deme));
 
   transform(init.begin(), init.end(), dim.begin(),
             [deme](Index i)
@@ -266,9 +267,7 @@ namespace {
 
 }
 
-::std::vector<Index> generate_state(Index idx, Index deme, Index gene) {
-
-  using std::vector;
+vector<Index> generate_state(Index idx, Index deme, Index gene) {
 
   Index offset = 0;
 
@@ -300,17 +299,13 @@ namespace {
 }
 
 
-Index generate_id(::std::vector<Index>& state, Index b, Index e) {
+Index generate_id(vector<Index>& state, Index b, Index e) {
 
-  using ::std::size_t;
-  using ::std::ptrdiff_t;
 
   auto deme = e - b;
 
   ptrdiff_t begin = static_cast<ptrdiff_t>(b);
   ptrdiff_t end = static_cast<ptrdiff_t>(e);
-
-  using ::std::accumulate;
 
   auto size = accumulate(state.begin() + begin, state.begin() + end, 0);
 
@@ -340,10 +335,7 @@ Index generate_id(::std::vector<Index>& state, Index b, Index e) {
 }
 
 
-::std::ostream& operator<<(::std::ostream& str, State const& state) {
-
-  using ::std::copy;
-  using ::std::ostream_iterator;
+ostream& operator<<(ostream& str, State const& state) {
 
   str << "State(";
   copy(state.begin(), state.end(), ostream_iterator<Index>(str, ", "));
