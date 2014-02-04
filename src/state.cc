@@ -193,13 +193,6 @@ State operator+(State const& a, State const& b) {
 }
 
 
-State operator+(State const& a, State::value_type const& b) {
-  State::value_type data{a.begin(), a.end()};
-  transform(data.begin(), data.end(), b.begin(), data.begin(), plus<esf_uint_t>());
-  return State{a.m_init, data};
-}
-
-
 namespace {
 
 

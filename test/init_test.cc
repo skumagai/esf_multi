@@ -31,16 +31,21 @@
 
 namespace {
 
+using ::esf::AFS;
+using ::esf::Allele;
+using ::esf::Init;
+using ::esf::State;
+
 
 class InitTest: public ::testing::Test {
 
  protected:
 
   InitTest()
-      : i2({2, 3}), i3({2, 3, 2}) {}
+      : i2({2, 3}), i21({2, 3}), i22({3, 2}), i3({2, 3, 2}) {}
 
-  ::esf::Init i2;  // 2-deme
-  ::esf::Init i3;  // 3-deme
+  Init i2, i21, i22;  // 2-deme
+  Init i3;  // 3-deme
 
 };
 
@@ -109,8 +114,8 @@ TEST_F(InitTest, ThreeDemeNumber) {
 
 TEST_F(InitTest, ConversionFromState) {
 
-  ::esf::State state(::esf::Init({2, 5}), {1, 1, 1, 4});
-  ::esf::Init init(state);
+  State state(Init({2, 5}), {1, 1, 1, 4});
+  Init init(state);
 
   EXPECT_EQ(init[0], 2);
   EXPECT_EQ(init[1], 5);
@@ -120,13 +125,44 @@ TEST_F(InitTest, ConversionFromState) {
 
 TEST_F(InitTest, ConversionFromAFS) {
 
-  ::esf::Allele a0({0,2}), a1({2,1}), a2({0,2});
-  ::esf::AFS afs({a0, a1, a2});
-  ::esf::Init init(afs);
+  Allele a0({0,2}), a1({2,1}), a2({0,2});
+  AFS afs({a0, a1, a2});
+  Init init(afs);
 
   EXPECT_EQ(init[0], 2);
   EXPECT_EQ(init[1], 5);
 
+}
+
+
+TEST_F(InitTest, ConversionFromAllele) {
+  Allele a{{3,2}};
+  Init init{a};
+
+  EXPECT_EQ(init[0], 3);
+  EXPECT_EQ(init[1], 2);
+}
+
+
+TEST_F(InitTest, CompatibleComparison) {
+  EXPECT_TRUE(i2 == i21);
+  EXPECT_FALSE(i2 == i22);
+}
+
+
+TEST_F(InitTest, ImcompatibleComparision) {
+  EXPECT_DEATH({bool cond = (i2 == i3);}, ".*");
+}
+
+
+TEST_F(InitTest, CompatibleAddition) {
+  Init exp{{5, 5}};
+  EXPECT_EQ(exp, i2 + i22);
+}
+
+
+TEST_F(InitTest, IncompatibleAddition) {
+  EXPECT_DEATH({auto cond = i2 + i3;}, ".*");
 }
 
 

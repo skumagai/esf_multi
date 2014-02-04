@@ -48,10 +48,10 @@ add_subdirectory(src)
 ################################################################################
 # Test
 ################################################################################
-# enable_testing()
+enable_testing()
 
-# # google test (gtest) for unit tests
-# set(GTEST ${CMAKE_SOURCE_DIR}/ext/gtest)
-# add_subdirectory(${GTEST})
+# google test (gtest) for unit tests
+set(GTEST ${CMAKE_SOURCE_DIR}/ext/gtest)
+add_subdirectory(${GTEST})
 
-# add_subdirectory(test)
+add_subdirectory(test)

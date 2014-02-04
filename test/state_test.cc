@@ -32,6 +32,13 @@
 
 namespace {
 
+using ::std::sort;
+using ::std::vector;
+
+using ::esf::esf_uint_t;
+using ::esf::Init;
+using ::esf::State;
+
 
 class StateTest: public ::testing::Test {
 
@@ -44,13 +51,13 @@ class StateTest: public ::testing::Test {
 
 TEST_F(StateTest, TwoDemeID) {
 
-  ::esf::Init init({2, 3});
+  Init init({2, 3});
 
   for (auto i = 0; i < init.dim(); ++i) {
 
-    ::esf::State s(init, i);
+    State s(init, i);
 
-    ::std::vector<::esf::Index> v;
+    vector<esf_uint_t> v;
 
     for (auto j: s) {
 
@@ -58,7 +65,7 @@ TEST_F(StateTest, TwoDemeID) {
 
     }
 
-    ::esf::State t(init, v);
+    State t(init, v);
 
     EXPECT_EQ(i, t.id());
 
@@ -69,11 +76,11 @@ TEST_F(StateTest, TwoDemeID) {
 
 TEST_F(StateTest, TwoDemeNeighbors) {
 
-  ::esf::Init init({2, 3});
+  Init init({2, 3});
 
-  ::esf::State s(init, 0);
+  State s(init, 0);
 
-  ::std::vector<::esf::Index> ids;
+  vector<esf_uint_t> ids;
 
   for (auto adj: s.neighbors()) {
 
@@ -81,25 +88,25 @@ TEST_F(StateTest, TwoDemeNeighbors) {
 
   }
 
-  ::std::sort(ids.begin(), ids.end());
+  sort(ids.begin(), ids.end());
 
-  ::std::vector<::std::vector<::esf::Index>> states =
+  vector<vector<esf_uint_t>> states =
       {
         {1, 1, 0 ,2},
         {0, 2, 1, 2}
       };
 
-  ::std::vector<::esf::Index> test_data;
+  vector<esf_uint_t> test_data;
 
   for (auto ss: states) {
 
-    ::esf::State stmp (init, ss);
+    State stmp (init, ss);
 
     test_data.push_back(stmp.id());
 
   }
 
-  ::std::sort(test_data.begin(), test_data.end());
+  sort(test_data.begin(), test_data.end());
 
   EXPECT_EQ(ids.size(), test_data.size());
 
@@ -111,7 +118,7 @@ TEST_F(StateTest, TwoDemeNeighbors) {
 
   ids.clear();
 
-  ::esf::State s3(init,{1, 1, 1, 2});
+  State s3(init,{1, 1, 1, 2});
 
   for (auto adj: s3.neighbors()) {
 
@@ -132,14 +139,14 @@ TEST_F(StateTest, TwoDemeNeighbors) {
 
   for (auto ss: states) {
 
-    ::esf::State stmp(init, ss);
+    State stmp(init, ss);
 
     test_data.push_back(stmp.id());
 
   }
 
-  ::std::sort(ids.begin(), ids.end());
-  ::std::sort(test_data.begin(), test_data.end());
+  sort(ids.begin(), ids.end());
+  sort(test_data.begin(), test_data.end());
 
   EXPECT_EQ(ids.size(), test_data.size());
 
@@ -154,13 +161,13 @@ TEST_F(StateTest, TwoDemeNeighbors) {
 
 TEST_F(StateTest, TwoDemeConversionFromInit) {
 
-  ::esf::Init orig({2, 3});
+  Init orig({2, 3});
 
-  ::esf::State state(orig, {1, 1, 2, 1});
+  State state(orig, {1, 1, 2, 1});
 
-  ::esf::Init test(state);
+  Init test(state);
 
-  ::std::vector<::esf::Index> data = {3, 2};
+  vector<esf_uint_t> data = {3, 2};
 
   for (auto i = 0; i < test.deme(); ++i) {
 
@@ -173,13 +180,13 @@ TEST_F(StateTest, TwoDemeConversionFromInit) {
 
 TEST_F(StateTest, ThreeDemeID) {
 
-  ::esf::Init init({2, 3, 2});
+  Init init({2, 3, 2});
 
   for (auto i = 0; i < init.dim(); ++i) {
 
-    ::esf::State s(init, i);
+    State s(init, i);
 
-    ::std::vector<::esf::Index> v;
+    vector<esf_uint_t> v;
 
     for (auto j: s) {
 
@@ -187,7 +194,7 @@ TEST_F(StateTest, ThreeDemeID) {
 
     }
 
-    ::esf::State t(init, v);
+    State t(init, v);
 
     EXPECT_EQ(i, t.id());
 
@@ -198,11 +205,11 @@ TEST_F(StateTest, ThreeDemeID) {
 
 TEST_F(StateTest, ThreeDemeNeighbors) {
 
-  ::esf::Init init({2, 3, 2});
+  Init init({2, 3, 2});
 
-  ::esf::State s(init, 0);
+  State s(init, 0);
 
-  ::std::vector<::esf::Index> ids;
+  vector<esf_uint_t> ids;
 
   for (auto adj: s.neighbors()) {
 
@@ -210,9 +217,9 @@ TEST_F(StateTest, ThreeDemeNeighbors) {
 
   }
 
-  ::std::sort(ids.begin(), ids.end());
+  sort(ids.begin(), ids.end());
 
-  ::std::vector<::std::vector<::esf::Index>> states =
+  vector<vector<esf_uint_t>> states =
       {
         {0, 1, 1, 0, 0, 3, 0, 0, 2},
         {1, 0 ,1, 0, 0, 3, 0, 0, 2},
@@ -222,17 +229,17 @@ TEST_F(StateTest, ThreeDemeNeighbors) {
         {0, 0, 2, 0, 0, 3, 0, 1, 1}
       };
 
-  ::std::vector<::esf::Index> test_data;
+  vector<esf_uint_t> test_data;
 
   for (auto ss: states) {
 
-    ::esf::State stmp (init, ss);
+    State stmp (init, ss);
 
     test_data.push_back(stmp.id());
 
   }
 
-  ::std::sort(test_data.begin(), test_data.end());
+  sort(test_data.begin(), test_data.end());
 
   EXPECT_EQ(ids.size(), test_data.size());
 
@@ -244,7 +251,7 @@ TEST_F(StateTest, ThreeDemeNeighbors) {
 
   ids.clear();
 
-  ::esf::State s3(init, {1, 1, 0, 1, 1, 1, 1, 0, 1});
+  State s3(init, {1, 1, 0, 1, 1, 1, 1, 0, 1});
 
   for (auto adj: s3.neighbors()) {
 
@@ -276,14 +283,14 @@ TEST_F(StateTest, ThreeDemeNeighbors) {
 
   for (auto ss: states) {
 
-    ::esf::State stmp(init, ss);
+    State stmp(init, ss);
 
     test_data.push_back(stmp.id());
 
   }
 
-  ::std::sort(ids.begin(), ids.end());
-  ::std::sort(test_data.begin(), test_data.end());
+  sort(ids.begin(), ids.end());
+  sort(test_data.begin(), test_data.end());
 
   EXPECT_EQ(ids.size(), test_data.size());
 
@@ -298,13 +305,13 @@ TEST_F(StateTest, ThreeDemeNeighbors) {
 
 TEST_F(StateTest, ThreeDemeConversionFromInit) {
 
-  ::esf::Init orig({2, 3, 2});
+  Init orig({2, 3, 2});
 
-  ::esf::State state(orig, {1, 0, 1, 0, 2, 1, 0, 1, 1});
+  State state(orig, {1, 0, 1, 0, 2, 1, 0, 1, 1});
 
-  ::esf::Init test(state);
+  Init test(state);
 
-  ::std::vector<::esf::Index> data = {1, 3, 3};
+  vector<esf_uint_t> data = {1, 3, 3};
 
   for (auto i = 0; i < test.deme(); ++i) {
 

@@ -34,6 +34,16 @@
 
 namespace {
 
+using ::std::find;
+using ::std::vector;
+
+using ::esf::Allele;
+using ::esf::AFS;
+using ::esf::ExitAFSData;
+using ::esf::Init;
+using ::esf::State;
+
+
 class AFSTest: public ::testing::Test {
 
  protected:
@@ -146,66 +156,58 @@ TEST_F(AFSTest, CheckSingleton) {
 }
 
 
-TEST_F(AFSTest, AllReacheable) {
+// TEST_F(AFSTest, AllReacheable) {
 
-  using ::std::find;
-  using ::std::vector;
-  using ::esf::Allele;
-  using ::esf::AFS;
-  using ::esf::Init;
-  using ::esf::State;
-  using ::esf::ExitAFSData;
+//   vector<Allele> v0 = {Allele({1, 0}), Allele({1, 0})};
+//   vector<Allele> v1 = {Allele({1, 0}), Allele({0, 1})};
+//   vector<Allele> v2 = {Allele({0, 1}), Allele({0, 1})};
 
-  vector<Allele> v0 = {Allele({1, 0}), Allele({1, 0})};
-  vector<Allele> v1 = {Allele({1, 0}), Allele({0, 1})};
-  vector<Allele> v2 = {Allele({0, 1}), Allele({0, 1})};
+//   auto test = AFS(v1).reacheable();
 
-  auto test = AFS(v1).reacheable();
+//   using ::std::vector;
 
-  using ::std::vector;
+//   Init init({1, 1});
 
-  Init init({1, 1});
+//   vector<ExitAFSData> exp =
+//       {
+//         ExitAFSData({AFS(v0), State(init, {1, 0, 1, 0})}),
+//         ExitAFSData({AFS(v1), State(init, {1, 0, 0, 1})}),
+//         ExitAFSData({AFS(v1), State(init, {0, 1, 1, 0})}),
+//         ExitAFSData({AFS(v2), State(init, {0, 1, 0, 1})})
+//       };
 
-  vector<ExitAFSData> exp =
-      {
-        ExitAFSData({AFS(v0), State(init, {1, 0, 1, 0})}),
-        ExitAFSData({AFS(v1), State(init, {1, 0, 0, 1})}),
-        ExitAFSData({AFS(v1), State(init, {0, 1, 1, 0})}),
-        ExitAFSData({AFS(v2), State(init, {0, 1, 0, 1})})
-      };
+//   EXPECT_EQ(exp.size(), test.size());
 
-  EXPECT_EQ(exp.size(), test.size());
+//   auto end = exp.end();
 
-  auto end = exp.end();
+//   for (auto val: test) {
 
-  for (auto val: test) {
+//     EXPECT_NE(end, find(exp.begin(), exp.end(), val));
 
-    EXPECT_NE(end, find(exp.begin(), exp.end(), val));
+//   }
 
-  }
+//   init = Init({2, 0});
 
-  init = Init({2, 0});
+//   exp =
+//       {
+//         ExitAFSData({AFS(v0), State(init, {2, 0, 0, 0})}),
+//         ExitAFSData({AFS(v1), State(init, {1, 1, 0, 0})}),
+//         ExitAFSData({AFS(v2), State(init, {0, 2, 0, 0})})
+//       };
 
-  exp =
-      {
-        ExitAFSData({AFS(v0), State(init, {2, 0, 0, 0})}),
-        ExitAFSData({AFS(v1), State(init, {1, 1, 0, 0})}),
-        ExitAFSData({AFS(v2), State(init, {0, 2, 0, 0})})
-      };
+//   test = AFS(v0).reacheable();
 
-  test = AFS(v0).reacheable();
+//   EXPECT_EQ(exp.size(), test.size());
 
-  EXPECT_EQ(exp.size(), test.size());
+//   end = exp.end();
 
-  end = exp.end();
+//   for (auto val: test) {
 
-  for (auto val: test) {
+//     EXPECT_NE(end, find(exp.begin(), exp.end(), val));
 
-    EXPECT_NE(end, find(exp.begin(), exp.end(), val));
+//   }
 
-  }
-
-}
+// }
 
 
 }  // namespace

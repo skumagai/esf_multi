@@ -24,6 +24,8 @@
 // DEALINGS IN THE SOFTWARE.
 
 #include "allele.hh"
+#include "init.hh"
+#include "state.hh"
 #include "typedef.hh"
 #include "gtest/gtest.h"
 
@@ -32,15 +34,24 @@
 
 namespace {
 
+using ::std::find;
+using ::std::vector;
+
+using ::esf::Allele;
+using ::esf::esf_uint_t;
+using ::esf::ExitAlleleData;
+using ::esf::Init;
+using ::esf::State;
+
 class AlleleTest: public ::testing::Test {
 
  protected:
 
-  AlleleTest(): s(::esf::Allele({1, 0, 0})),
-                ns(::esf::Allele({1, 2, 0})) {}
+  AlleleTest(): s(Allele({1, 0, 0})),
+                ns(Allele({1, 2, 0})) {}
 
-  ::esf::Allele s;  // singleton
-  ::esf::Allele ns; // non-singleton
+  Allele s;  // singleton
+  Allele ns; // non-singleton
 
 };
 
@@ -118,39 +129,34 @@ TEST_F(AlleleTest, AlleleCompare) {
 }
 
 
-TEST_F(AlleleTest, ReacheableAlleles) {
+// TEST_F(AlleleTest, ReacheableAlleles) {
 
-  using ::std::vector;
-  using ::esf::Allele;
-  using ::esf::Index;
-  using ::esf::ExitAlleleData;
-
-  vector<ExitAlleleData> exp =
-      {
-        ExitAlleleData({Allele({3, 0}), vector<Index>({2, 0, 1, 0})}),
-        ExitAlleleData({Allele({2, 1}), vector<Index>({2, 0, 0, 1})}),
-        ExitAlleleData({Allele({2, 1}), vector<Index>({1, 1, 1, 0})}),
-        ExitAlleleData({Allele({1, 2}), vector<Index>({1, 1, 0, 1})}),
-        ExitAlleleData({Allele({1, 2}), vector<Index>({0, 2, 1, 0})}),
-        ExitAlleleData({Allele({0, 3}), vector<Index>({0, 2, 0, 1})})
-      };
+//   vector<ExitAlleleData> exp =
+//       {
+//         ExitAlleleData{Allele{{3, 0}}, State{Init{{2, 1}}, {2, 0, 1, 0}}, 1.0},
+//         ExitAlleleData{Allele{{2, 1}}, State{Init{{2, 1}}, {2, 0, 0, 1}}, 1.0},
+//         ExitAlleleData{Allele{{2, 1}}, State{Init{{2, 1}}, {1, 1, 1, 0}}, 1.0},
+//         ExitAlleleData{Allele{{1, 2}}, State{Init{{2, 1}}, {1, 1, 0, 1}}, 1.0},
+//         ExitAlleleData{Allele{{1, 2}}, State{Init{{2, 1}}, {0, 2, 1, 0}}, 1.0},
+//         ExitAlleleData{Allele{{0, 3}}, State{Init{{2, 1}}, {0, 2, 0, 1}}, 1.0}
+//       };
 
 
-  Allele allele({2, 1});
+//   Allele allele({2, 1});
 
-  auto pairs = allele.reacheable();
+//   auto data = allele.reacheable();
 
-  auto crit = exp.end();
+//   auto crit = exp.end();
 
-  EXPECT_EQ(exp.size(), pairs.size());
+//   EXPECT_EQ(exp.size(), data.size());
 
-  for (auto pair: pairs) {
+//   for (auto datum: data) {
 
-    EXPECT_NE(crit, ::std::find(exp.begin(), exp.end(), pair));
+//     EXPECT_NE(crit, find(exp.begin(), exp.end(), datum));
 
-  }
+//   }
 
-}
+// }
 
 
 }  // namespace

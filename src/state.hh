@@ -118,8 +118,6 @@ class State {
 
   friend State operator+(State const&, State const&);
 
-  friend State operator+(State const&, State::value_type const&);
-
 };
 
 

@@ -33,7 +33,11 @@
 namespace {
 
 using ::std::vector;
-using ::esf::Index;
+
+using ::esf::binomial;
+using ::esf::esf_uint_t;
+using ::esf::index_n_to_1;
+using ::esf::index_1_to_n;
 
 
 class UtilTest: public ::testing::Test {
@@ -47,84 +51,84 @@ class UtilTest: public ::testing::Test {
 
 TEST_F(UtilTest, BinomiaHandleZeroZero) {
 
-  EXPECT_EQ(1, ::esf::binomial(0, 0));
+  EXPECT_EQ(1, binomial(0, 0));
 
 }
 
 
 TEST_F(UtilTest, BinomialHandleNonZeroZero) {
 
-  EXPECT_EQ(1, ::esf::binomial(1, 0));
-  EXPECT_EQ(1, ::esf::binomial(2, 0));
-  EXPECT_EQ(1, ::esf::binomial(3, 0));
+  EXPECT_EQ(1, binomial(1, 0));
+  EXPECT_EQ(1, binomial(2, 0));
+  EXPECT_EQ(1, binomial(3, 0));
 
 }
 
 
 TEST_F(UtilTest, BinomialHandleZeroNonZero) {
 
-  EXPECT_EQ(0, ::esf::binomial(0, 1));
-  EXPECT_EQ(0, ::esf::binomial(0, 2));
-  EXPECT_EQ(0, ::esf::binomial(0, 3));
+  EXPECT_EQ(0, binomial(0, 1));
+  EXPECT_EQ(0, binomial(0, 2));
+  EXPECT_EQ(0, binomial(0, 3));
 
 }
 
 
 TEST_F(UtilTest, BinomialHandleNormalCases) {
 
-  EXPECT_EQ(3, ::esf::binomial(3, 1));
-  EXPECT_EQ(3, ::esf::binomial(3, 2));
-  EXPECT_EQ(1, ::esf::binomial(3, 3));
+  EXPECT_EQ(3, binomial(3, 1));
+  EXPECT_EQ(3, binomial(3, 2));
+  EXPECT_EQ(1, binomial(3, 3));
 
 }
 
 
-TEST_F(UtilTest, ConvertIndexNtoOne) {
+TEST_F(UtilTest, Convertesf_uint_tNtoOne) {
 
-  EXPECT_EQ(0, ::esf::index_n_to_1<Index>({2, 3}, {0, 0}));
-  EXPECT_EQ(1, ::esf::index_n_to_1<Index>({2, 3}, {1, 0}));
-  EXPECT_EQ(2, ::esf::index_n_to_1<Index>({2, 3}, {0, 1}));
-  EXPECT_EQ(3, ::esf::index_n_to_1<Index>({2, 3}, {1, 1}));
-  EXPECT_EQ(4, ::esf::index_n_to_1<Index>({2, 3}, {0, 2}));
-  EXPECT_EQ(5, ::esf::index_n_to_1<Index>({2, 3}, {1, 2}));
+  EXPECT_EQ(0, index_n_to_1<esf_uint_t>({2, 3}, {0, 0}));
+  EXPECT_EQ(1, index_n_to_1<esf_uint_t>({2, 3}, {1, 0}));
+  EXPECT_EQ(2, index_n_to_1<esf_uint_t>({2, 3}, {0, 1}));
+  EXPECT_EQ(3, index_n_to_1<esf_uint_t>({2, 3}, {1, 1}));
+  EXPECT_EQ(4, index_n_to_1<esf_uint_t>({2, 3}, {0, 2}));
+  EXPECT_EQ(5, index_n_to_1<esf_uint_t>({2, 3}, {1, 2}));
 
-  EXPECT_EQ(0, ::esf::index_n_to_1<Index>({2, 3, 2}, {0, 0, 0}));
-  EXPECT_EQ(1, ::esf::index_n_to_1<Index>({2, 3, 2}, {1, 0, 0}));
-  EXPECT_EQ(2, ::esf::index_n_to_1<Index>({2, 3, 2}, {0, 1, 0}));
-  EXPECT_EQ(3, ::esf::index_n_to_1<Index>({2, 3, 2}, {1, 1, 0}));
-  EXPECT_EQ(4, ::esf::index_n_to_1<Index>({2, 3, 2}, {0, 2, 0}));
-  EXPECT_EQ(5, ::esf::index_n_to_1<Index>({2, 3, 2}, {1, 2, 0}));
-  EXPECT_EQ(6, ::esf::index_n_to_1<Index>({2, 3, 2}, {0, 0, 1}));
-  EXPECT_EQ(7, ::esf::index_n_to_1<Index>({2, 3, 2}, {1, 0, 1}));
-  EXPECT_EQ(8, ::esf::index_n_to_1<Index>({2, 3, 2}, {0, 1, 1}));
-  EXPECT_EQ(9, ::esf::index_n_to_1<Index>({2, 3, 2}, {1, 1, 1}));
-  EXPECT_EQ(10, ::esf::index_n_to_1<Index>({2, 3, 2}, {0, 2, 1}));
-  EXPECT_EQ(11, ::esf::index_n_to_1<Index>({2, 3, 2}, {1, 2, 1}));
+  EXPECT_EQ(0, index_n_to_1<esf_uint_t>({2, 3, 2}, {0, 0, 0}));
+  EXPECT_EQ(1, index_n_to_1<esf_uint_t>({2, 3, 2}, {1, 0, 0}));
+  EXPECT_EQ(2, index_n_to_1<esf_uint_t>({2, 3, 2}, {0, 1, 0}));
+  EXPECT_EQ(3, index_n_to_1<esf_uint_t>({2, 3, 2}, {1, 1, 0}));
+  EXPECT_EQ(4, index_n_to_1<esf_uint_t>({2, 3, 2}, {0, 2, 0}));
+  EXPECT_EQ(5, index_n_to_1<esf_uint_t>({2, 3, 2}, {1, 2, 0}));
+  EXPECT_EQ(6, index_n_to_1<esf_uint_t>({2, 3, 2}, {0, 0, 1}));
+  EXPECT_EQ(7, index_n_to_1<esf_uint_t>({2, 3, 2}, {1, 0, 1}));
+  EXPECT_EQ(8, index_n_to_1<esf_uint_t>({2, 3, 2}, {0, 1, 1}));
+  EXPECT_EQ(9, index_n_to_1<esf_uint_t>({2, 3, 2}, {1, 1, 1}));
+  EXPECT_EQ(10, index_n_to_1<esf_uint_t>({2, 3, 2}, {0, 2, 1}));
+  EXPECT_EQ(11, index_n_to_1<esf_uint_t>({2, 3, 2}, {1, 2, 1}));
 
 }
 
 
-TEST_F(UtilTest, ConvertIndexOneToN) {
+TEST_F(UtilTest, Convertesf_uint_tOneToN) {
 
-  EXPECT_EQ(vector<Index>({0, 0}), ::esf::index_1_to_n<Index>({2, 3}, 0));
-  EXPECT_EQ(vector<Index>({1, 0}), ::esf::index_1_to_n<Index>({2, 3}, 1));
-  EXPECT_EQ(vector<Index>({0, 1}), ::esf::index_1_to_n<Index>({2, 3}, 2));
-  EXPECT_EQ(vector<Index>({1, 1}), ::esf::index_1_to_n<Index>({2, 3}, 3));
-  EXPECT_EQ(vector<Index>({0, 2}), ::esf::index_1_to_n<Index>({2, 3}, 4));
-  EXPECT_EQ(vector<Index>({1, 2}), ::esf::index_1_to_n<Index>({2, 3}, 5));
+  EXPECT_EQ(vector<esf_uint_t>({0, 0}), index_1_to_n<esf_uint_t>({2, 3}, 0));
+  EXPECT_EQ(vector<esf_uint_t>({1, 0}), index_1_to_n<esf_uint_t>({2, 3}, 1));
+  EXPECT_EQ(vector<esf_uint_t>({0, 1}), index_1_to_n<esf_uint_t>({2, 3}, 2));
+  EXPECT_EQ(vector<esf_uint_t>({1, 1}), index_1_to_n<esf_uint_t>({2, 3}, 3));
+  EXPECT_EQ(vector<esf_uint_t>({0, 2}), index_1_to_n<esf_uint_t>({2, 3}, 4));
+  EXPECT_EQ(vector<esf_uint_t>({1, 2}), index_1_to_n<esf_uint_t>({2, 3}, 5));
 
-  EXPECT_EQ(vector<Index>({0, 0, 0}), ::esf::index_1_to_n<Index>({2, 3, 2}, 0));
-  EXPECT_EQ(vector<Index>({1, 0, 0}), ::esf::index_1_to_n<Index>({2, 3, 2}, 1));
-  EXPECT_EQ(vector<Index>({0, 1, 0}), ::esf::index_1_to_n<Index>({2, 3, 2}, 2));
-  EXPECT_EQ(vector<Index>({1, 1, 0}), ::esf::index_1_to_n<Index>({2, 3, 2}, 3));
-  EXPECT_EQ(vector<Index>({0, 2, 0}), ::esf::index_1_to_n<Index>({2, 3, 2}, 4));
-  EXPECT_EQ(vector<Index>({1, 2, 0}), ::esf::index_1_to_n<Index>({2, 3, 2}, 5));
-  EXPECT_EQ(vector<Index>({0, 0, 1}), ::esf::index_1_to_n<Index>({2, 3, 2}, 6));
-  EXPECT_EQ(vector<Index>({1, 0, 1}), ::esf::index_1_to_n<Index>({2, 3, 2}, 7));
-  EXPECT_EQ(vector<Index>({0, 1, 1}), ::esf::index_1_to_n<Index>({2, 3, 2}, 8));
-  EXPECT_EQ(vector<Index>({1, 1, 1}), ::esf::index_1_to_n<Index>({2, 3, 2}, 9));
-  EXPECT_EQ(vector<Index>({0, 2, 1}), ::esf::index_1_to_n<Index>({2, 3, 2}, 10));
-  EXPECT_EQ(vector<Index>({1, 2, 1}), ::esf::index_1_to_n<Index>({2, 3, 2}, 11));
+  EXPECT_EQ(vector<esf_uint_t>({0, 0, 0}), index_1_to_n<esf_uint_t>({2, 3, 2}, 0));
+  EXPECT_EQ(vector<esf_uint_t>({1, 0, 0}), index_1_to_n<esf_uint_t>({2, 3, 2}, 1));
+  EXPECT_EQ(vector<esf_uint_t>({0, 1, 0}), index_1_to_n<esf_uint_t>({2, 3, 2}, 2));
+  EXPECT_EQ(vector<esf_uint_t>({1, 1, 0}), index_1_to_n<esf_uint_t>({2, 3, 2}, 3));
+  EXPECT_EQ(vector<esf_uint_t>({0, 2, 0}), index_1_to_n<esf_uint_t>({2, 3, 2}, 4));
+  EXPECT_EQ(vector<esf_uint_t>({1, 2, 0}), index_1_to_n<esf_uint_t>({2, 3, 2}, 5));
+  EXPECT_EQ(vector<esf_uint_t>({0, 0, 1}), index_1_to_n<esf_uint_t>({2, 3, 2}, 6));
+  EXPECT_EQ(vector<esf_uint_t>({1, 0, 1}), index_1_to_n<esf_uint_t>({2, 3, 2}, 7));
+  EXPECT_EQ(vector<esf_uint_t>({0, 1, 1}), index_1_to_n<esf_uint_t>({2, 3, 2}, 8));
+  EXPECT_EQ(vector<esf_uint_t>({1, 1, 1}), index_1_to_n<esf_uint_t>({2, 3, 2}, 9));
+  EXPECT_EQ(vector<esf_uint_t>({0, 2, 1}), index_1_to_n<esf_uint_t>({2, 3, 2}, 10));
+  EXPECT_EQ(vector<esf_uint_t>({1, 2, 1}), index_1_to_n<esf_uint_t>({2, 3, 2}, 11));
 
 }
 

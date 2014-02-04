@@ -25,6 +25,7 @@
 
 
 #include <algorithm>
+#include <cassert>
 #include <functional>
 #include <numeric>
 
@@ -119,11 +120,15 @@ Init::const_iterator Init::end() const {
 
 
 bool operator==(Init const& a, Init const& b) {
+  assert(a.deme() == b.deme());
+
   return a.m_data == b.m_data && a.m_dim == b.m_dim;
 }
 
 
 Init operator+(Init const& a, Init const& b) {
+  assert(a.deme() == b.deme());
+
   Init::value_type data{a.m_data};
   transform(data.begin(), data.end(), b.begin(), data.begin(), plus<esf_uint_t>());
   return Init{data};
