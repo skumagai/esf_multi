@@ -62,7 +62,7 @@ class AFS {
 
  private:
 
-  typedef map<Allele, Index> data_type;
+  typedef map<Allele, esf_uint_t> data_type;
 
  public:
 
@@ -91,7 +91,7 @@ class AFS {
                                 double,
                                 data_type::const_iterator,
                                 data_type::const_iterator,
-                                Index,
+                                esf_uint_t,
                                 vector<ExitAlleleData>::const_iterator,
                                 vector<ExitAlleleData>::const_iterator) const;
 
@@ -125,16 +125,16 @@ class AFS {
   // Returns the multiplicity of the specified allele in AFS.
   // Different allele might have identical placement of genes.  THen
   // the multiplicty of allele is said to be more than one.
-  Index operator[](Allele const&) const;
+  esf_uint_t operator[](Allele const&) const;
 
   // Return the number of genes in the specified deme.
-  Index size(Index) const;
+  esf_uint_t size(esf_uint_t) const;
 
   // Return the total number of genes in AFS.
-  Index size() const;
+  esf_uint_t size() const;
 
   // Returns the number of demes.
-  Index deme() const;
+  esf_uint_t deme() const;
 
   // Returns a list of AFS reacheable by one or more migrations.
   // Because origin and destination of genes need to be tracked,
@@ -142,11 +142,7 @@ class AFS {
   // the second element is its corresponding states.
   vector<ExitAFSData> reacheable() const;
 
-  iterator begin();
-
   const_iterator begin() const;
-
-  iterator end();
 
   const_iterator end() const;
 
@@ -171,7 +167,7 @@ bool operator==(ExitAFSData const&, ExitAFSData const&);
 
 bool operator<(ExitAFSData const&, ExitAFSData const&);
 
-ostream& operator<<(ostream&, pair<Allele, Index> const&);
+ostream& operator<<(ostream&, pair<Allele, esf_uint_t> const&);
 ostream& operator<<(ostream&, AFS const&);
 
 
@@ -186,19 +182,19 @@ struct hash<::esf::AFS> {
 
   ::std::size_t operator()(::esf::AFS const& afs) const {
 
-    using ::esf::unsign;
+    using ::esf::esf_uint_t;
 
-    ::std::hash<size_t> hasher;
+    ::std::hash<esf_uint_t> hasher;
 
-    size_t mult = (1 << 4) - 1, hash = 1;
+    esf_uint_t mult = (1 << 4) - 1, hash = 1;
 
     for (auto elem: afs) {
 
-      size_t deme = 1, i = unsign(elem.second), value = 1;
+      esf_uint_t deme = 1, i = elem.second, value = 1;
 
       for (auto d: elem.first) {
 
-        value += deme * unsign(d) * i;
+        value += deme * d * i;
 
         deme <<= 1;
 

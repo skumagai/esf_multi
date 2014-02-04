@@ -35,9 +35,12 @@
 
 namespace esf {
 
+using ::std::vector;
+
 
 // Forward declarations
 class AFS;
+class Allele;
 class State;
 
 
@@ -48,9 +51,7 @@ class Init {
 
  public:
 
-  typedef typename ::std::vector<Index> value_type;
-
-  typedef typename value_type::iterator iterator;
+  typedef vector<esf_uint_t> value_type;
 
   typedef typename value_type::const_iterator const_iterator;
 
@@ -58,7 +59,7 @@ class Init {
 
   value_type m_data;
 
-  ::std::vector<Index> m_dim;
+  value_type m_dim;
 
   void set_dim();
 
@@ -74,7 +75,7 @@ class Init {
 
   Init& operator=(Init&&) = default;
 
-  Init(::std::vector<Index> const&);
+  Init(value_type const&);
 
   // Construct the current arrangement of genes by disregarding where
   // genes come from.
@@ -84,29 +85,27 @@ class Init {
   // genotype of genes.
   Init(AFS const&);
 
+  Init(Allele const&);
+
   // Returns the number of demes.
-  Index deme() const;
+  esf_uint_t deme() const;
 
   // Returns the number of dimensions of state space with regard to
   // genes in a specified deme.
-  Index dim(Index) const;
+  esf_uint_t dim(esf_uint_t) const;
 
   // Returns the total number dimensions of state space, where all
   // states are reacheable from this inital condition.
-  Index dim() const;
+  esf_uint_t dim() const;
 
   // Returns the number of geens in a specified deme.
-  Index operator[](Index) const;
+  esf_uint_t operator[](esf_uint_t) const;
 
   friend bool operator==(Init const&, Init const&);
 
-  friend Init const operator+(Init const&, Init const&);
-
-  iterator begin();
+  friend Init operator+(Init const&, Init const&);
 
   const_iterator begin() const;
-
-  iterator end();
 
   const_iterator end() const;
 
@@ -122,21 +121,20 @@ namespace std {
 template <>
 struct hash<::esf::Init> {
 
-  ::std::size_t operator()(::esf::Init const& init) const {
+  size_t operator()(::esf::Init const& init) const {
 
-    using ::std::size_t;
-    using ::esf::unsign;
+    using ::esf::esf_uint_t;
 
-    size_t mult = 1, value = 0;
+    esf_uint_t mult = 1, value = 0;
 
     for (auto i: init) {
 
-      value += unsign(i) * mult;
+      value += i * mult;
       mult <<= 4;
 
     }
 
-    ::std::hash<size_t> hasher;
+    hash<esf_uint_t> hasher;
 
     return hasher(value);
 

@@ -28,10 +28,12 @@
 
 #include <vector>
 
+#include "state.hh"
 #include "typedef.hh"
 
 namespace esf {
 
+using ::std::ostream;
 using ::std::vector;
 
 
@@ -46,13 +48,9 @@ struct ExitAlleleData;
 // present in each demes.
 class Allele {
 
- private:
-
-  typedef vector<Index> value_type;
-
  public:
 
-  typedef value_type::iterator iterator;
+  typedef vector<esf_uint_t> value_type;
 
   typedef value_type::const_iterator const_iterator;
 
@@ -64,7 +62,7 @@ class Allele {
 
   // This constructor is designed to be invoked with data, which is
   // the locations and numbers of genes in present-day samples.
-  Allele(vector<Index> const&);
+  Allele(value_type const&);
 
   Allele(Allele const&) = default;
 
@@ -75,18 +73,18 @@ class Allele {
   Allele& operator=(Allele&&) = default;
 
   // This function returns total number of genes in the allele.
-  Index size() const;
+  esf_uint_t size() const;
 
   // Returns numbers of demes.
-  Index deme() const;
+  esf_uint_t deme() const;
 
   // Create a new allele by removing one gene at a specified deme in
   // the current allele.
-  Allele remove(Index) const;
+  Allele remove(esf_uint_t deme, esf_uint_t num = 1) const;
 
   // Create a new allele by adding one gene at a specified deme in the
   // current allele.
-  Allele add(Index) const;
+  Allele add(esf_uint_t deme, esf_uint_t num = 1) const;
 
   // Returns true if this allele is singleton.  Singleton allele
   // contains only one gene.
@@ -99,11 +97,7 @@ class Allele {
   vector<ExitAlleleData> reacheable() const;
 
   // Exposes the iterator of underlying container.
-  iterator begin();
-
   const_iterator begin() const;
-
-  iterator end();
 
   const_iterator end() const;
 
@@ -113,9 +107,7 @@ class Allele {
   bool operator<(Allele const&) const;
 
   // Returns number of genes in a specified deme.
-  Index& operator[](Index);
-
-  Index operator[](Index) const;
+  esf_uint_t operator[](esf_uint_t) const;
 
   // Implements equality test for the same reason as less-than operator.
   friend bool operator==(Allele const&, Allele const&);
@@ -128,17 +120,17 @@ class Allele {
 // with its corresponding state, which keeps track of origin and
 // current location of genes.
 struct ExitAlleleData {
-  Allele const allele;
-  State const state;
-  double const factor;
+  Allele allele;
+  State state;
+  double factor;
 };
 
 
 bool operator==(ExitAlleleData const&, ExitAlleleData const&);
 
-Allele const& operator+(Allele const&, Allele const&);
+Allele operator+(Allele const&, Allele const&);
 
-std::ostream& operator<<(std::ostream&, Allele const&);
+ostream& operator<<(ostream&, Allele const&);
 
 }
 

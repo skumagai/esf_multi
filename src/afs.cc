@@ -50,11 +50,9 @@ using ::std::transform;
 using ::std::vector;
 
 AFS::AFS(vector<Allele> const& avec) {
-
   for (auto allele: avec) {
     m_data[allele] += 1;
   }
-
 }
 
 
@@ -63,18 +61,15 @@ AFS::AFS(AFS::data_type const& data)
 
 
 AFS AFS::add(Allele const& allele) const {
-
   auto data = m_data;
   if (allele.size() > 0) {
     ++data[allele];
   }
   return AFS(data);
-
 }
 
 
 AFS AFS::remove(Allele const& allele) const {
-
   auto data = m_data;
   if (allele.size() > 0) {
     if (data[allele] > 1) {
@@ -84,60 +79,49 @@ AFS AFS::remove(Allele const& allele) const {
     }
   }
   return AFS(data);
-
 }
 
 
 bool AFS::singleton() const {
-
   return any_of(m_data.begin(), m_data.end(),
                 [](value_type p) {
                   return p.first.singleton();
                 });
-
 }
 
 
-Index AFS::operator[](const Allele& allele) const {
-
+esf_uint_t AFS::operator[](const Allele& allele) const {
   try {
 
     return m_data.at(allele);
 
   } catch (out_of_range&) {
 
-    return 0;
+    return 0U;
 
   }
-
 }
 
 
-Index AFS::size(Index deme) const {
-
-  Index start = 0;
-  return accumulate(m_data.begin(), m_data.end(), start,
-                    [deme](Index a, value_type p) {
+esf_uint_t AFS::size(esf_uint_t deme) const {
+  return accumulate(m_data.begin(), m_data.end(), 0U,
+                    [deme](esf_uint_t a, value_type p) {
                       return a + (p.first)[deme] * p.second;
                     });
 
 }
 
 
-Index AFS::size() const {
-
-  Index start = 0;
-  return accumulate(this->begin(), this->end(), start,
-                    [](Index a, value_type p) {
+esf_uint_t AFS::size() const {
+  return accumulate(this->begin(), this->end(), 0U,
+                    [](esf_uint_t a, value_type p) {
                       return a + (p.first).size() * p.second;
                     });
 }
 
 
-Index AFS::deme() const {
-
+esf_uint_t AFS::deme() const {
   return m_data.begin()->first.deme();
-
 }
 
 
@@ -170,7 +154,7 @@ AFS::sub_build(AFS const& afs,
                double factor,
                data_type::const_iterator begin,
                data_type::const_iterator end,
-               Index count,
+               esf_uint_t count,
                vector<ExitAlleleData>::const_iterator allele_begin,
                vector<ExitAlleleData>::const_iterator allele_end) const {
   if (count == 0) {
@@ -194,10 +178,10 @@ double AFS::get_denominator(Init const& init, State const& state) const {
 
   auto deme = this->deme();
   double denom = 1.0;
-  for (auto i = 0; i < deme; ++i) {
-    Index genes = init[i];
-    for (auto j = 0; j < deme; ++j) {
-      auto in_the_deme = state[j * deme + i];
+  for (esf_uint_t i = 0; i < deme; ++i) {
+    esf_uint_t genes = init[i];
+    for (esf_uint_t j = 0; j < deme; ++j) {
+      esf_uint_t in_the_deme = state[j * deme + i];
       denom *= binomial(genes, in_the_deme);
       genes -= in_the_deme;
     }
@@ -206,31 +190,13 @@ double AFS::get_denominator(Init const& init, State const& state) const {
 }
 
 
-AFS::iterator AFS::begin() {
-
-  return m_data.begin();
-
-}
-
-
 AFS::const_iterator AFS::begin() const {
-
   return m_data.begin();
-
-}
-
-
-AFS::iterator AFS::end() {
-
-  return m_data.end();
-
 }
 
 
 AFS::const_iterator AFS::end() const {
-
   return m_data.end();
-
 }
 
 
@@ -256,33 +222,27 @@ bool operator==(ExitAFSData const& a, ExitAFSData const& b) {
 
 
 bool operator<(ExitAFSData const& a, ExitAFSData const& b) {
-
   if (a.afs == b.afs) {
     return a.state < b.state;
   } else {
     return a.afs < b.afs;
   }
-
 }
 
 
-ostream& operator<<(ostream& str, pair<Allele, Index> const& p) {
-
+ostream& operator<<(ostream& str, pair<Allele, esf_uint_t> const& p) {
   str << p.first << ": " << p.second;
   return str;
-
 }
 
 
 ostream& operator<<(ostream& str, AFS const& afs) {
-
   str << "AFS(";
-  copy(afs.begin(), afs.end(), ostream_iterator<pair<Allele, Index>>(str, ", "));
+  copy(afs.begin(), afs.end(), ostream_iterator<pair<Allele, esf_uint_t>>(str, ", "));
   str << "\b\b";
   str << ")";
 
   return str;
-
 }
 
 }

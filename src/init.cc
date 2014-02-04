@@ -27,7 +27,6 @@
 #include <algorithm>
 #include <functional>
 #include <numeric>
-#include <vector>
 
 #include "afs.hh"
 #include "init.hh"
@@ -37,141 +36,96 @@
 
 namespace esf {
 
+using ::std::accumulate;
+using ::std::plus;
+using ::std::transform;
 
-Init::Init(::std::vector<Index> const& data)
-    : m_data(data) {
 
+Init::Init(value_type const& data)
+    : m_data(data), m_dim(data.size()) {
   set_dim();
-
 }
 
 
-Init::Init(State const& state) {
-
+Init::Init(State const& state)
+    : m_data(state.deme()), m_dim(state.deme()) {
   auto deme = state.deme();
-
-  m_data.resize(unsign(deme));
-
   for (decltype(deme) d = 0; d < deme; ++d) {
-
     for (decltype(deme) a = 0; a < deme; ++a) {
-
       m_data[unsign(d)] += state[d + a * deme];
-
     }
-
   }
 
   set_dim();
-
 }
 
 
-Init::Init(AFS const& afs) {
-
+Init::Init(AFS const& afs)
+    : m_data(afs.deme()), m_dim(afs.deme()) {
   auto deme = afs.deme();
-
-  m_data.resize(unsign(deme));
-
   for (auto allele: afs) {
-
     for (decltype(deme) i = 0; i < deme; ++i) {
-
       m_data[unsign(i)] += (allele.first)[i] * allele.second;
-
     }
-
   }
 
   set_dim();
-
 }
 
 
-Index Init::deme() const {
-
-  return sign(m_data.size());
-
+Init::Init(Allele const& allele)
+    : m_data(allele.begin(), allele.end()), m_dim(allele.deme()) {
+  set_dim();
 }
 
 
-Index Init::operator[](Index id) const {
-
-  return m_data[unsign(id)];
-
+esf_uint_t Init::deme() const {
+  return m_data.size();
 }
 
 
-Index Init::dim(Index deme) const {
-
-  return m_dim[unsign(deme)];
-
+esf_uint_t Init::operator[](esf_uint_t id) const {
+  return m_data[id];
 }
 
 
-Index Init::dim() const {
+esf_uint_t Init::dim(esf_uint_t deme) const {
+  return m_dim[deme];
+}
 
-  using ::std::accumulate;
 
-  return accumulate(m_dim.begin(), m_dim.end(), 1, multiplies<Index>());
-
+esf_uint_t Init::dim() const {
+  return accumulate(m_dim.begin(), m_dim.end(), 1U, multiplies<esf_uint_t>());
 }
 
 
 void Init::set_dim() {
-
-  auto deme = sign(m_data.size());
-
-  m_dim.resize(unsign(deme));
-
-  ::std::transform(m_data.begin(), m_data.end(), m_dim.begin(),
-                   [deme](Index i)
-                   {
-                     return binomial<Index>(i + deme - 1, i);
-                   }
-                   );
-
-}
-
-
-Init::iterator Init::begin() {
-
-  return m_data.begin();
-
+  auto deme = m_data.size();
+  transform(m_data.begin(), m_data.end(), m_dim.begin(),
+            [deme](esf_uint_t i) {
+              return binomial(i + deme - 1, i);
+            });
 }
 
 
 Init::const_iterator Init::begin() const {
-
   return m_data.begin();
-
-}
-
-
-Init::iterator Init::end() {
-
-  return m_data.end();
-
 }
 
 
 Init::const_iterator Init::end() const {
-
   return m_data.end();
-
 }
 
 
 bool operator==(Init const& a, Init const& b) {
-
   return a.m_data == b.m_data && a.m_dim == b.m_dim;
-
 }
 
 
-Init const operator+(Init const& a, Init const& b) {
+Init operator+(Init const& a, Init const& b) {
   Init::value_type data{a.m_data};
-  transform(data.begin(), data.end(), b.begin(), data.begin(), plus<Index>());
+  transform(data.begin(), data.end(), b.begin(), data.begin(), plus<esf_uint_t>());
   return Init{data};
 }
 

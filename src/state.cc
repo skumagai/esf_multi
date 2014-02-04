@@ -42,6 +42,7 @@ using ::std::accumulate;
 using ::std::copy;
 using ::std::ostream;
 using ::std::ostream_iterator;
+using ::std::plus;
 using ::std::ptrdiff_t;
 using ::std::size_t;
 using ::std::transform;
@@ -50,11 +51,11 @@ using ::std::vector;
 namespace {
 
 
-vector<Index> state_dim(Init&);
+State::value_type state_dim(Init const&);
 
-vector<Index> generate_state(Index, Index, Index);
+State::value_type generate_state(esf_uint_t, esf_uint_t, esf_uint_t);
 
-Index generate_id(vector<Index>&, Index, Index);
+esf_uint_t generate_id(State::value_type const&, esf_uint_t, esf_uint_t);
 
 
 }
@@ -64,14 +65,24 @@ State::State(Init const& init)
     : m_init(init), m_data(expand_init()) {}
 
 
-State::State(Init const& init, Index id)
-    : m_init(init) {
+State::State(Init const& init, esf_uint_t id)
+    : m_init(init), m_data(init.deme() * init.deme()) {
   m_data = compute_state(id);
 }
 
 
-State::State(Init const& init, vector<Index> const& data)
-    : m_init(init), m_data(data)) {}
+State::State(Init const& init, value_type const& data)
+    : m_init(init), m_data(data) {}
+
+
+State State::move(esf_uint_t src, esf_uint_t tar) const {
+  value_type data{m_data};
+  if (data[src] > 0) {
+    --data[src];
+  }
+  ++data[tar];
+  return State{m_init, data};
+}
 
 
 vector<State> State::neighbors() const {
@@ -80,29 +91,18 @@ vector<State> State::neighbors() const {
 
   vector<State> neighbors;
 
-  auto size = sign(m_data.size());
+  auto size = m_data.size();
 
-  for (Index src = 0; src < size; ++src) {
-
-    if (m_data[unsign(src)] != 0) {
+  for (esf_uint_t src = 0; src < size; ++src) {
+    if (m_data[src] != 0) {
 
       auto d = src / deme;
 
       for (auto tar = deme * d; tar < deme * (d + 1); ++tar) {
-
         if (src != tar) {
-
-          State new_state(*this);
-
-          new_state[src] -= 1;
-          new_state[tar] += 1;
-
-          neighbors.push_back(new_state);
-
+          neighbors.push_back(this->move(src, tar));
         }
-
       }
-
     }
 
   }
@@ -112,223 +112,151 @@ vector<State> State::neighbors() const {
 }
 
 
-Index State::id() const {
-
+esf_uint_t State::id() const {
   return compute_id();
-
 }
 
 
-Index State::deme() const {
-
+esf_uint_t State::deme() const {
   return m_init.deme();
-
 }
 
 
-Index State::operator[](Index i) const {
-
-  return m_data[unsign(i)];
-
+esf_uint_t State::operator[](esf_uint_t i) const {
+  return m_data[i];
 }
 
 
-Index& State::operator[](Index i) {
-
-  return m_data[unsign(i)];
-
-}
-
-
-State::value_type State::compute_state(Index idx) {
-
+State::value_type State::compute_state(esf_uint_t idx) {
   auto deme = m_init.deme();
-
-  value_type data;
-
-  data.reserve(unsign(deme * deme));
 
   auto idx_list = index_1_to_n(state_dim(m_init), idx);
 
-  for (decltype(deme) i = 0; i < deme; ++i) {
+  value_type data;
+  data.reserve(deme * deme);
+  for (esf_uint_t i = 0; i < deme; ++i) {
 
-    auto substate = generate_state(idx_list[unsign(i)], deme, m_init[i]);
-
+    auto substate = generate_state(idx_list[i], deme, m_init[i]);
     data.insert(data.end(), substate.begin(), substate.end());
 
   }
 
   return data;
-
 }
 
 
-Index State::compute_id() {
-
+esf_uint_t State::compute_id() const {
   auto deme = m_init.deme();
-
-  vector<Index> accum(unsign(deme));
-
-  for (decltype(deme) i = 0; i < deme; ++i) {
-
-    accum[unsign(i)] = generate_id(m_data, deme * i, deme * i + deme);
-
+  value_type accum{deme};
+  for (esf_uint_t i = 0; i < deme; ++i) {
+    accum[i] = generate_id(m_data, deme * i, deme * i + deme);
   }
-
   return index_n_to_1(state_dim(m_init), accum);
-
 }
 
 
-State::value_type State::expand_init() {
-
+State::value_type State::expand_init() const {
   auto deme = m_init.deme();
-
-  value_type data;
-
-  data.resize(unsign(deme * deme));
-
+  value_type data{deme * deme};
   for (decltype(deme) i = 0; i < deme; ++i) {
-
-    data[unsign(i + i * deme)] = m_init[i];
-
+    data[i + i * deme] = m_init[i];
   }
 
   return data;
-
-}
-
-
-State::iterator State::begin() {
-
-  return m_data.begin();
-
 }
 
 
 State::const_iterator State::begin() const {
-
   return m_data.begin();
-
-}
-
-
-State::iterator State::end() {
-
-  return m_data.end();
-
 }
 
 
 State::const_iterator State::end() const {
-
   return m_data.end();
-
 }
 
 
 bool operator==(State const& a, State const& b) {
-
   return a.m_init == b.m_init && a.m_data == b.m_data;
-
 }
 
 
 bool operator<(State const& a, State const& b) {
-
   return a.m_data < b.m_data;
-
 }
 
 
-State const operator+(State const& a, State const& b) {
-  vector<Index> data{a.m_data};
-  transform(data.begin(), data.end(), b.m_data.begin(), data.begin(), plus<Index>());
+State operator+(State const& a, State const& b) {
+  State::value_type data{a.begin(), a.end()};
+  transform(data.begin(), data.end(), b.begin(), data.begin(), plus<esf_uint_t>());
   return State{a.m_init + b.m_init, data};
+}
+
+
+State operator+(State const& a, State::value_type const& b) {
+  State::value_type data{a.begin(), a.end()};
+  transform(data.begin(), data.end(), b.begin(), data.begin(), plus<esf_uint_t>());
+  return State{a.m_init, data};
 }
 
 
 namespace {
 
 
-vector<Index> state_dim(Init& init) {
-
-  auto deme = init.deme();
-
-  vector<Index> dim(unsign(deme));
-
+State::value_type state_dim(Init const& init) {
+  esf_uint_t deme = init.deme();
+  State::value_type dim(deme);
   transform(init.begin(), init.end(), dim.begin(),
-            [deme](Index i)
-            {
+            [deme](esf_uint_t i) {
               return binomial(i + deme - 1, i);
             });
 
   return dim;
-
 }
 
-vector<Index> generate_state(Index idx, Index deme, Index gene) {
+State::value_type generate_state(esf_uint_t idx, esf_uint_t deme, esf_uint_t gene) {
 
-  Index offset = 0;
+  esf_uint_t offset = 0;
 
-  vector<Index> state(unsign(deme));
+  State::value_type state(deme);
 
-  for (decltype(deme) i = 0; i < deme - 1; ++i) {
-
-    Index j = 0;
-
-    while (idx > 0 &&
+  for (esf_uint_t i = 0; i < deme - 1; ++i) {
+    esf_uint_t j = 0, idx_old = idx;
+    while (idx <= idx_old &&
            (offset = binomial(gene - j + deme - i - 2, gene - j)) <= idx) {
-
+      idx_old = idx;
       idx -= offset;
-
       ++j;
-
     }
-
     gene -= j;
-
-    state[unsign(i)] = j;
-
+    state[i] = j;
   }
 
-  state[unsign(deme - 1)] = gene;
-
+  state[deme - 1] = gene;
   return state;
 
 }
 
 
-Index generate_id(vector<Index>& state, Index b, Index e) {
-
-
+esf_uint_t generate_id(State::value_type const& state, esf_uint_t b, esf_uint_t e) {
   auto deme = e - b;
 
   ptrdiff_t begin = static_cast<ptrdiff_t>(b);
   ptrdiff_t end = static_cast<ptrdiff_t>(e);
 
-  auto size = accumulate(state.begin() + begin, state.begin() + end, 0);
+  auto size = accumulate(state.begin() + begin, state.begin() + end, 0U);
 
-  Index idx = 0;
-
-  for (decltype(deme) i = 0; i < deme - 1; ++i) {
-
-    auto curr = state[unsign(b)];
-
+  esf_uint_t idx = 0;
+  for (esf_uint_t i = 0; i < deme - 1; ++i) {
+    auto curr = state[b];
     ++b;
-
-    for (decltype(curr) j = 0; j < curr; ++j) {
-
+    for (esf_uint_t j = 0; j < curr; ++j) {
       idx += binomial(size - j + deme - i - 2, size - j);
-
     }
-
     size -= curr;
-
   }
 
   return idx;
-
 }
 
 
@@ -336,13 +264,11 @@ Index generate_id(vector<Index>& state, Index b, Index e) {
 
 
 ostream& operator<<(ostream& str, State const& state) {
-
   str << "State(";
-  copy(state.begin(), state.end(), ostream_iterator<Index>(str, ", "));
+  copy(state.begin(), state.end(), ostream_iterator<esf_uint_t>(str, ", "));
   str << "\b\b)";
 
   return str;
-
 }
 
 

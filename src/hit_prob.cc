@@ -40,42 +40,32 @@ namespace esf {
 
 using ::std::accumulate;
 
-using Matrix = Eigen::SparseMatrix<double, Eigen::ColMajor, Index>;
-using Vector = Eigen::SparseVector<double, Eigen::ColMajor, Index>;
+using Matrix = Eigen::SparseMatrix<double, Eigen::ColMajor, esf_int_t>;
+using Vector = Eigen::SparseVector<double, Eigen::ColMajor, esf_int_t>;
 using Solver = Eigen::SparseLU<Matrix>;
-using VectorXi = Eigen::Matrix<Index, Eigen::Dynamic, 1>;
+using VectorXi = Eigen::Matrix<esf_int_t, Eigen::Dynamic, 1>;
 using VectorXd = Eigen::Matrix<double, Eigen::Dynamic, 1>;
 
 
 HitProb::HitProb(Init const& i, Param const& p)
     : m_init(i), m_param(p) {
-
   m_prob.reserve(unsign(m_init.dim() * m_init.deme()));
-
   compute();
-
 }
 
 
-double HitProb::get(Index idx,
-                    Index deme) const {
-
-  return m_prob[unsign(m_init.deme() * idx + deme)];
-
+double HitProb::get(esf_uint_t idx, esf_uint_t deme) const {
+  return m_prob[m_init.deme() * idx + deme];
 }
 
 
-double HitProb::get(State const& state, Index deme) const {
-
+double HitProb::get(State const& state, esf_uint_t deme) const {
   return get(state.id(), deme);
-
 }
 
 
 HitProb HitProb::update(Param const& p) const {
-
   return HitProb(m_init, p);
-
 }
 
 
@@ -84,16 +74,16 @@ void HitProb::compute() {
 
   auto dim = m_init.dim();
 
-  Matrix u(dim, dim);
+  Matrix u(sign(dim), sign(dim));
 
   auto ndeme = m_init.deme();
 
-  u.reserve(VectorXi::Constant(dim, (2 * ndeme * (ndeme - 1) + 1) * dim));
+  u.reserve(VectorXi::Constant(sign(dim), sign((2 * ndeme * (ndeme - 1) + 1) * dim)));
 
   vector<double> coals;
-  coals.reserve(unsign(ndeme * dim));
+  coals.reserve(ndeme * dim);
 
-  for (decltype(dim) i = 0; i < dim; ++i) {
+  for (esf_uint_t i = 0; i < dim; ++i) {
 
     State s(m_init, i);
 
@@ -104,15 +94,15 @@ void HitProb::compute() {
     for (auto adj: s.neighbors()) {
 
       double u_val = compute_u(s, adj);
-      u.insert(adj.id(), i) = u_val;
+      u.insert(sign(adj.id()), sign(i)) = u_val;
 
       total += u_val;
 
     }
 
-    for (decltype(ndeme) deme = 0; deme < ndeme; ++deme) {
+    for (esf_uint_t deme = 0; deme < ndeme; ++deme) {
 
-      Index choice = 2;
+      esf_uint_t choice = 2;
       auto coal = 2.0 * binomial(ii[deme], choice) * m_param.pop_size(deme);
       total += coal + ii[deme] * m_param.mut_rate(deme);
 
@@ -120,52 +110,42 @@ void HitProb::compute() {
 
     }
 
-    u.insert(i, i) = -total;
+    u.insert(sign(i), sign(i)) = -total;
 
   }
 
   u.makeCompressed();
 
-  Vector a(dim);
-  a.insert(State(m_init).id()) = 1.0;
+  Vector a(sign(dim));
+  a.insert(sign(State(m_init).id())) = 1.0;
 
   Solver solver(u);
   if (solver.info() != Eigen::Success) {
-
     return;
-
   }
 
   VectorXd x = -solver.solve(a);
   if (solver.info() != Eigen::Success) {
-
     return;
-
   }
 
-  for (decltype(dim) i = 0; i < dim; ++i) {
-
-    for (decltype(ndeme) j = 0; j < ndeme; ++j) {
-
-      m_prob.push_back(x(i) * coals[unsign(i * ndeme + j)]);
-
+  for (esf_uint_t i = 0; i < dim; ++i) {
+    for (esf_uint_t j = 0; j < ndeme; ++j) {
+      m_prob.push_back(x(sign(i)) * coals[i * ndeme + j]);
     }
-
   }
-
 }
 
 
 double HitProb::compute_u(State const& from, State const& to) const {
+  auto size = m_init.deme();
 
-  Index size = m_init.deme();
-
-  Index i = 0;
+  esf_uint_t i = 0;
   while (from[i] != to[i] + 1) {
     ++i;
   }
 
-  Index j = i / size * size;
+  esf_uint_t j = i / size * size;
   while (from[j] != to[j] - 1) {
     ++j;
   }

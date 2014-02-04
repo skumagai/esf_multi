@@ -113,15 +113,14 @@ double ESFProb::compute_without_singleton() {
 }
 
 
-Value ESFProb::compute_with_singleton() {
+double ESFProb::compute_with_singleton() {
 
   if (m_afs.size() == 1) {
     return 1.0;
   }
 
   auto singleton = find_if(m_afs.begin(), m_afs.end(),
-                           [](AFS::value_type p)
-                           {
+                           [](AFS::value_type p) {
                              return p.first.singleton();
                            });
 
@@ -174,7 +173,7 @@ double ESFProb::compute_coal_probs(ExitAFSData const& data, HitProb const& hp) {
 
     AFS other0 = afs.remove(allele);
 
-    for (Index i = 0; i < deme; ++i) {
+    for (esf_uint_t i = 0; i < deme; ++i) {
 
       if (allele[i] > 1) {
 

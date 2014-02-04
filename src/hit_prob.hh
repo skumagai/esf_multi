@@ -59,7 +59,7 @@ class HitProb {
 
   Param m_param;
 
-  vector<double> m_prob;
+  value_type m_prob;
 
   void compute();
 
@@ -87,10 +87,10 @@ class HitProb {
   // j-th deme. States contain information of initial and current
   // placement of genes, but they do not contain information on
   // coalescence.
-  double get(Index, Index) const;
+  double get(esf_uint_t, esf_uint_t) const;
 
   // Returns the hitting probability of specified state and deme.
-  double get(State const&, Index) const;
+  double get(State const&, esf_uint_t) const;
 
   HitProb update(Param const&) const;
 

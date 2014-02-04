@@ -26,19 +26,10 @@
 #ifndef ESF_MULTI_TYPEDEF_HH
 #define ESF_MULTI_TYPEDEF_HH
 
-#include <cstddef>
-#include <vector>
-#include <set>
-
 namespace esf {
 
-using ::std::multiset;
-using ::std::set;
-using ::std::size_t;
-using ::std::vector;
-
-typedef long Index;
-typedef double Value;
+typedef int64_t esf_int_t;
+typedef size_t esf_uint_t;
 
 }
 

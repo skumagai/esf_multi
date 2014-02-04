@@ -79,19 +79,19 @@ class Param {
   // target demes, and it returns the corresponding migration rate.
   // Note that direction of migration is defined in backward in
   // time.  Deme index starts from zero.
-  double mig_rate(Index, Index) const;
+  double mig_rate(esf_uint_t, esf_uint_t) const;
 
-  double& mig_rate(Index, Index);
+  double& mig_rate(esf_uint_t, esf_uint_t);
 
   // This function returns a mutation rate in a deme.
-  double mut_rate(Index) const;
+  double mut_rate(esf_uint_t) const;
 
-  double& mut_rate(Index);
+  double& mut_rate(esf_uint_t);
 
   // This function returns a relative population size of a deme.
-  double pop_size(Index) const;
+  double pop_size(esf_uint_t) const;
 
-  double& pop_size(Index);
+  double& pop_size(esf_uint_t);
 
 };
 

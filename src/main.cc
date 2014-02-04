@@ -79,11 +79,11 @@ int main(int argc, char *argv[]) {
   vector<Allele> alleles;
 
   for (auto i = 5; i < argc; i += ndeme) {
-    vector<long> avec;
+    vector<::esf::esf_uint_t> avec;
     for (auto j = 0; j < demes; ++j) {
-      avec.push_back(strtol(argv[i + j], nullptr, 10));
+      avec.push_back(strtoul(argv[i + j], nullptr, 10));
     }
-    alleles.push_back(Allele(avec));
+    alleles.push_back(Allele{avec});
   }
 
   AFS afs(alleles);

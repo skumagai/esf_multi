@@ -29,6 +29,7 @@
 
 #include <vector>
 
+#include "typedef.hh"
 #include "init.hh"
 
 
@@ -44,9 +45,7 @@ class State {
 
  public:
 
-  typedef vector<Index> value_type;
-
-  typedef typename value_type::iterator iterator;
+  typedef vector<esf_uint_t> value_type;
 
   typedef typename value_type::const_iterator const_iterator;
 
@@ -54,13 +53,13 @@ class State {
 
   Init m_init;
 
-  vector<Index> m_data;
+  value_type m_data;
 
-  value_type compute_state(Index);
+  value_type compute_state(esf_uint_t);
 
-  Index compute_id();
+  esf_uint_t compute_id() const;
 
-  value_type expand_init();
+  value_type expand_init() const;
 
  public:
 
@@ -81,7 +80,7 @@ class State {
   State(Init const&);
 
   // Createa i-th state associated with an initial condition.
-  State(Init const&, Index);
+  State(Init const&, esf_uint_t);
 
   // Create a state associated with an initial condition. The state is
   // specified as a list of number of genes in each deme grouped by
@@ -89,7 +88,9 @@ class State {
   // n the number of demes.  Order of elements is {g_00, g_01,...g_10,
   // g_11,..., a_nn} for g_ij number of genes where i the inital
   // location and j the current location.
-  State(Init const&, vector<Index> const&);
+  State(Init const&, value_type const&);
+
+  State move(esf_uint_t, esf_uint_t) const;
 
   // Computes a list of states, which are diferent from the current
   // state by one migration event.  This excludes the currentstate itself.
@@ -98,20 +99,14 @@ class State {
   // Returns an ID associated with the current state. The order of
   // states is stable, but forward and backward comptatibilities are
   // not guaranteed.
-  Index id() const;
+  esf_uint_t id() const;
 
   // Returns the number of demes.
-  Index deme() const;
+  esf_uint_t deme() const;
 
-  Index operator[](Index) const;
-
-  Index& operator[](Index);
-
-  iterator begin();
+  esf_uint_t operator[](esf_uint_t) const;
 
   const_iterator begin() const;
-
-  iterator end();
 
   const_iterator end() const;
 
@@ -121,7 +116,9 @@ class State {
 
   friend bool operator<(State const&, State const&);
 
-  friend State const operator+(State const&, State const&);
+  friend State operator+(State const&, State const&);
+
+  friend State operator+(State const&, State::value_type const&);
 
 };
 

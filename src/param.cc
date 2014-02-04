@@ -24,50 +24,37 @@
 // DEALINGS IN THE SOFTWARE.
 
 #include "param.hh"
-#include "util.hh"
 
 namespace esf {
 
 
-double Param::mig_rate(Index i, Index j) const {
-
-  return m_mig[unsign(i) + unsign(j) * m_pop.size()];
-
+double Param::mig_rate(esf_uint_t i, esf_uint_t j) const {
+  return m_mig[i + j * m_pop.size()];
 }
 
 
-double& Param::mig_rate(Index i, Index j) {
-
-  return m_mig[unsign(i) + unsign(j) * m_pop.size()];
-
+double& Param::mig_rate(esf_uint_t i, esf_uint_t j) {
+  return m_mig[i + j * m_pop.size()];
 }
 
 
-double Param::mut_rate(Index i) const {
-
-  return m_mut[unsign(i)];
-
+double Param::mut_rate(esf_uint_t i) const {
+  return m_mut[i];
 }
 
 
-double& Param::mut_rate(Index i) {
-
-  return m_mut[unsign(i)];
-
+double& Param::mut_rate(esf_uint_t i) {
+  return m_mut[i];
 }
 
 
-double Param::pop_size(Index i) const {
-
-  return m_pop[unsign(i)];
-
+double Param::pop_size(esf_uint_t i) const {
+  return m_pop[i];
 }
 
 
-double& Param::pop_size(Index i) {
-
-  return m_pop[unsign(i)];
-
+double& Param::pop_size(esf_uint_t i) {
+  return m_pop[i];
 }
 
 

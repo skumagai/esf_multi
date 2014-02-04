@@ -47,14 +47,16 @@ using ::std::pair;
 using ::std::plus;
 using ::std::size_t;
 using ::std::transform;
-using ::std::vector;
 
 
 ExitAlleleData synthesize_genes(ExitAlleleData const&, ExitAlleleData const&);
 
 vector<vector<ExitAlleleData>> move_genes(Allele const&);
 
-vector<ExitAlleleData> assign_genes(Index, Index, ExitAlleleData const&, size_t);
+vector<ExitAlleleData> assign_genes(esf_uint_t,
+                                    esf_uint_t,
+                                    ExitAlleleData const&,
+                                    esf_uint_t);
 
 vector<ExitAlleleData> combine_allele_parts(ExitAlleleData const&,
                                             vector<vector<ExitAlleleData>>::const_iterator,
@@ -63,131 +65,85 @@ vector<ExitAlleleData> combine_allele_parts(ExitAlleleData const&,
 }
 
 
-Allele::Allele(::std::vector<Index> const& d)
+Allele::Allele(value_type const& d)
     : m_data(d) {}
 
 
-Index Allele::size() const {
-  using ::std::accumulate;
-  return accumulate(m_data.begin(), m_data.end(), static_cast<Index>(0));
+esf_uint_t Allele::size() const {
+  return accumulate(m_data.begin(), m_data.end(), 0U);
 }
 
 
-Index Allele::deme() const {
-
-  return sign(m_data.size());
-
+esf_uint_t Allele::deme() const {
+  return m_data.size();
 }
 
-
-Allele Allele::remove(Index deme) const {
-
+Allele Allele::remove(esf_uint_t deme, esf_uint_t num) const {
   value_type data = m_data;
-
-  --data[unsign(deme)];
-
-  return Allele(data);
-
+  if (data[deme] >= num) {
+    data[deme] -= num;
+  } else {
+    data[deme] = 0U;
+  }
+  return Allele{data};
 }
 
 
-Allele Allele::add(Index deme) const {
-
+Allele Allele::add(esf_uint_t deme, esf_uint_t num) const {
   value_type data = m_data;
-
-  ++data[unsign(deme)];
-
+  data[deme] += num;
   return Allele(data);
-
 }
 
 
 bool Allele::singleton() const {
-
   return size() == 1;
-
 }
 
 
 vector<ExitAlleleData> Allele::reacheable() const {
-
   auto retvals = move_genes(*this);
 
   auto deme = this->deme();
-  ExitAlleleData archetype{vector<Index>(unsign(deme)), vector<Index>(unsign(deme * deme)), 1.0};
+  ExitAlleleData archetype{value_type(deme), {Init{*this}, vector<esf_uint_t>(deme * deme)}, 1.0};
   return combine_allele_parts(archetype, retvals.begin(), retvals.end());
 }
 
 
-Allele::iterator Allele::begin() {
-
-  return m_data.begin();
-
-}
-
-
 Allele::const_iterator Allele::begin() const {
-
   return m_data.begin();
-
-}
-
-
-Allele::iterator Allele::end() {
-
-  return m_data.end();
-
 }
 
 
 Allele::const_iterator Allele::end() const {
-
   return m_data.end();
-
 }
 
 
 bool Allele::operator<(Allele const& allele) const {
-
   return m_data < allele.m_data;
-
 }
 
 
-Index& Allele::operator[](Index deme) {
-
-  return m_data[unsign(deme)];
-
+esf_uint_t Allele::operator[](esf_uint_t deme) const {
+  return m_data[deme];
 }
-
-
-Index Allele::operator[](Index deme) const {
-
-  return m_data[unsign(deme)];
-
-}
-
-
 
 
 bool operator==(Allele const& a, Allele const& b) {
-
   return a.m_data == b.m_data;
-
 }
 
 
 bool operator==(ExitAlleleData const& a, ExitAlleleData const& b) {
-
   return a.allele == b.allele && a.state == b.state;
-
 }
 
 
 ostream& operator<<(ostream& str, Allele const& allele) {
 
   str << "Allele(";
-  copy(allele.begin(), allele.end(), ostream_iterator<Index>(str, ", "));
+  copy(allele.begin(), allele.end(), ostream_iterator<esf_uint_t>(str, ", "));
   str << "\b\b";
   str << ")";
 
@@ -196,10 +152,9 @@ ostream& operator<<(ostream& str, Allele const& allele) {
 }
 
 
-Allele const operator+(Allele const& a, Allele const&b) {
-  vector<Index> data{a.deme};
-  copy(a.begin(), a.end(), data.begin());
-  transform(data.begin(), data.end(), b.begin(), data.begin(), plus<Index>());
+Allele operator+(Allele const& a, Allele const&b) {
+  Allele::value_type data{a.begin(), a.end()};
+  transform(data.begin(), data.end(), b.begin(), data.begin(), plus<esf_uint_t>());
   return Allele{data};
 }
 
@@ -212,12 +167,12 @@ vector<vector<ExitAlleleData>> move_genes(Allele const& orig) {
   vector<vector<ExitAlleleData>> parts;
   auto deme = orig.deme();
   // for (auto i = 0; i < 1; ++i) {
-  for (auto i = 0; i < deme; ++ i) {
-    vector<Index> zeros(unsign(deme));
-    vector<Index> states(unsign(deme * deme));
-    vector<Index> init{unsign(deme)};
-    init[i] = orig[i];
-    parts.push_back(assign_genes(i, orig[i], {zeros, {init, states}, 1.0}, 0));
+  for (esf_uint_t d = 0; d < deme; ++d) {
+    Allele::value_type zeros{deme};
+    State::value_type states{deme * deme};
+    Init::value_type init{deme};
+    init[d] = orig[d];
+    parts.push_back(assign_genes(d, orig[d], {zeros, {init, states}, 1.0}, 0U));
   }
 
   return parts;
@@ -235,13 +190,13 @@ vector<ExitAlleleData> combine_allele_parts(ExitAlleleData const& archetype,
                                             vector<vector<ExitAlleleData>>::const_iterator end) {
   if (begin == end) {
     ExitAlleleData a(archetype);
-    Allele& allele = a.allele;
-    vector<Index>& state = a.state;
+    Allele const& allele = a.allele;
+    State const& state = a.state;
     auto deme = allele.deme();
-    for (Index i = 0; i < deme; ++i) {
+    for (esf_uint_t i = 0; i < deme; ++i) {
       auto num = allele[i];
-      for (Index j = 0; j < deme; ++j) {
-        auto k = state[unsign(deme * j + i)];
+      for (esf_uint_t j = 0; j < deme; ++j) {
+        auto k = state[deme * j + i];
         a.factor *= binomial(num, k);
         num -= k;
       }
@@ -261,39 +216,35 @@ vector<ExitAlleleData> combine_allele_parts(ExitAlleleData const& archetype,
 
 // generate all assignments of genes from a single deme within an
 // alleleic class.
-vector<ExitAlleleData> assign_genes(Index origin,
-                                    Index count,
-                                    ExitAlleleData const& archetype,
-                                    size_t deme) {
+vector<ExitAlleleData> assign_genes(esf_uint_t origin,
+                                    esf_uint_t count,
+                                    ExitAlleleData const& a,
+                                    esf_uint_t deme) {
 
-  auto factor = archetype.factor;
-  auto dim = archetype.allele.deme();
+  auto dim = a.allele.deme();
 
   // base case: no degree of freedom left
-  if (deme == unsign(dim - 1)) {
-    Allele base(archetype.allele);
-    base[sign(deme)] = count;
+  if (deme == dim - 1) {
+    Allele base = a.allele.add(deme, count);
 
-    vector<Index> bstate(archetype.state);
-    bstate[unsign(origin * dim) + deme] += count;
+    State::value_type bstate{a.state.begin(), a.state.end()};
+    bstate[origin * dim + deme] += count;
+    State s = a.state + bstate;
 
-    return {ExitAlleleData{base, bstate, factor}};
+    return {ExitAlleleData{base, s, 1.0}};
   }
 
   // regular cases: factor increases by the number of available
   // aassignments.
   vector<ExitAlleleData> holder;
-  for (Index i = 0; i <= count; ++i) {
-    Allele base(archetype.allele);
-    base[sign(deme)] = i;
+  for (esf_uint_t i = 0; i <= count; ++i) {
+    Allele base = a.allele.add(deme, i);
 
-    vector<Index> bstate(archetype.state);
-    bstate[unsign(origin * dim) + deme] += i;
+    vector<esf_uint_t> bstate{a.state.begin(), a.state.end()};
+    bstate[origin * dim + deme] += i;
+    State s = a.state + bstate;
 
-    auto retval = assign_genes(origin,
-                               count - i,
-                               {base, bstate, factor},
-                               deme + 1);
+    auto retval = assign_genes(origin, count - i, {base, s, 1.0}, deme + 1);
     holder.insert(holder.end(), retval.begin(), retval.end());
   }
 
