@@ -65,6 +65,7 @@ TEST_F(AlleleTest, SingletonAdd) {
 
   auto a = s.add(1);
   auto b = s.add(0).add(0);
+  auto c = s.add(0, 2);
 
   EXPECT_EQ(1, a[0]);
   EXPECT_EQ(1, a[1]);
@@ -72,9 +73,13 @@ TEST_F(AlleleTest, SingletonAdd) {
   EXPECT_EQ(3, b[0]);
   EXPECT_EQ(0, b[1]);
   EXPECT_EQ(0, b[2]);
+  EXPECT_EQ(3, c[0]);
+  EXPECT_EQ(0, c[1]);
+  EXPECT_EQ(0, c[2]);
 
   EXPECT_EQ(2, a.size());
   EXPECT_EQ(3, b.size());
+  EXPECT_EQ(3, c.size());
 
 }
 
@@ -102,11 +107,14 @@ TEST_F(AlleleTest, NonSingleton) {
 TEST_F(AlleleTest, NonSingletonADD) {
 
   auto a = ns.add(2);
+  auto b = ns.add(2, 2);
 
   EXPECT_EQ(1, a[0]);
   EXPECT_EQ(2, a[1]);
   EXPECT_EQ(1, a[2]);
-
+  EXPECT_EQ(1, b[0]);
+  EXPECT_EQ(2, b[1]);
+  EXPECT_EQ(2, b[2]);
 
 }
 
@@ -123,40 +131,54 @@ TEST_F(AlleleTest, AlleleCompare) {
 
   bool less = s < ns;
 
-  EXPECT_EQ(true, less);
-  // == and > are not implemented.
+  EXPECT_TRUE(s < ns);
+  EXPECT_TRUE(s <= ns);
+  EXPECT_FALSE(s > ns);
+  EXPECT_FALSE(s >= ns);
+
+  EXPECT_FALSE(s == ns);
+  EXPECT_TRUE((s == Allele{{1, 0, 0}}));
+}
+
+TEST_F(AlleleTest, ValidAddition) {
+
+  Allele a{{2, 1, 3}}, exp{{3, 1, 3}};
+  EXPECT_EQ(exp, s + a);
+
+  exp = Allele{{3, 3, 3}};
+  EXPECT_EQ(exp, ns + a);
 
 }
 
 
-// TEST_F(AlleleTest, ReacheableAlleles) {
+TEST_F(AlleleTest, ReacheableAlleles) {
 
-//   vector<ExitAlleleData> exp =
-//       {
-//         ExitAlleleData{Allele{{3, 0}}, State{Init{{2, 1}}, {2, 0, 1, 0}}, 1.0},
-//         ExitAlleleData{Allele{{2, 1}}, State{Init{{2, 1}}, {2, 0, 0, 1}}, 1.0},
-//         ExitAlleleData{Allele{{2, 1}}, State{Init{{2, 1}}, {1, 1, 1, 0}}, 1.0},
-//         ExitAlleleData{Allele{{1, 2}}, State{Init{{2, 1}}, {1, 1, 0, 1}}, 1.0},
-//         ExitAlleleData{Allele{{1, 2}}, State{Init{{2, 1}}, {0, 2, 1, 0}}, 1.0},
-//         ExitAlleleData{Allele{{0, 3}}, State{Init{{2, 1}}, {0, 2, 0, 1}}, 1.0}
-//       };
+  vector<ExitAlleleData> exp =
+      {
+        ExitAlleleData{Allele{{3, 0}}, State{Init{{2, 1}}, {2, 0, 1, 0}}, 3.0},
+        ExitAlleleData{Allele{{2, 1}}, State{Init{{2, 1}}, {2, 0, 0, 1}}, 1.0},
+        ExitAlleleData{Allele{{2, 1}}, State{Init{{2, 1}}, {1, 1, 1, 0}}, 2.0},
+        ExitAlleleData{Allele{{1, 2}}, State{Init{{2, 1}}, {1, 1, 0, 1}}, 2.0},
+        ExitAlleleData{Allele{{1, 2}}, State{Init{{2, 1}}, {0, 2, 1, 0}}, 1.0},
+        ExitAlleleData{Allele{{0, 3}}, State{Init{{2, 1}}, {0, 2, 0, 1}}, 3.0}
+      };
 
 
-//   Allele allele({2, 1});
+  Allele allele{{2, 1}};
 
-//   auto data = allele.reacheable();
+  auto data = allele.reacheable();
 
-//   auto crit = exp.end();
+  auto crit = exp.end();
 
-//   EXPECT_EQ(exp.size(), data.size());
+  EXPECT_EQ(exp.size(), data.size());
 
-//   for (auto datum: data) {
+  for (auto datum: data) {
 
-//     EXPECT_NE(crit, find(exp.begin(), exp.end(), datum));
+    EXPECT_NE(crit, find(exp.begin(), exp.end(), datum));
 
-//   }
+  }
 
-// }
+}
 
 
 }  // namespace

@@ -105,6 +105,9 @@ class Allele {
   // ordering.  This is required for storing objects of Allele in some
   // types of STL containers.
   bool operator<(Allele const&) const;
+  bool operator>(Allele const&) const;
+  bool operator>=(Allele const&) const;
+  bool operator<=(Allele const&) const;
 
   // Returns number of genes in a specified deme.
   esf_uint_t operator[](esf_uint_t) const;

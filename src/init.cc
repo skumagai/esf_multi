@@ -23,7 +23,6 @@
 // FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 
-
 #include <algorithm>
 #include <cassert>
 #include <functional>
@@ -59,7 +58,6 @@ Init::Init(State const& state)
 
   set_dim();
 }
-
 
 Init::Init(AFS const& afs)
     : m_data(afs.deme()), m_dim(afs.deme()) {

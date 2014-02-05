@@ -147,7 +147,7 @@ State::value_type State::compute_state(esf_uint_t idx) {
 
 esf_uint_t State::compute_id() const {
   auto deme = m_init.deme();
-  value_type accum{deme};
+  value_type accum(deme);
   for (esf_uint_t i = 0; i < deme; ++i) {
     accum[i] = generate_id(m_data, deme * i, deme * i + deme);
   }
@@ -157,7 +157,7 @@ esf_uint_t State::compute_id() const {
 
 State::value_type State::expand_init() const {
   auto deme = m_init.deme();
-  value_type data{deme * deme};
+  value_type data(deme * deme);
   for (decltype(deme) i = 0; i < deme; ++i) {
     data[i + i * deme] = m_init[i];
   }

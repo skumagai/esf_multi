@@ -126,7 +126,12 @@ esf_uint_t AFS::deme() const {
 
 
 vector<ExitAFSData> AFS::reacheable() const {
-  return build(AFS{}, State{}, 1.0, m_data.begin(), m_data.end());
+  auto deme = this->deme();
+  AFS afs{};
+  Init::value_type i(deme);
+  State::value_type s(deme * deme);
+  State state{i, s};
+  return build(afs, state, 1.0, m_data.begin(), m_data.end());
 }
 
 
@@ -142,7 +147,6 @@ vector<ExitAFSData> AFS::build(AFS const& afs,
     auto reacheables = begin->first.reacheable();
     auto itr_b = reacheables.begin();
     auto itr_e = reacheables.end();
-
     return sub_build(afs, state, factor, begin, end, begin->second, itr_b, itr_e);
   }
 }

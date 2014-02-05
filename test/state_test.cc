@@ -44,7 +44,11 @@ class StateTest: public ::testing::Test {
 
  protected:
 
-  StateTest() {}
+  StateTest()
+      : orig({2, 3, 2}), state(orig, {1, 0, 1, 0, 2, 1, 0, 1, 1}) {}
+
+  Init orig;
+  State state;
 
 };
 
@@ -305,10 +309,6 @@ TEST_F(StateTest, ThreeDemeNeighbors) {
 
 TEST_F(StateTest, ThreeDemeConversionFromInit) {
 
-  Init orig({2, 3, 2});
-
-  State state(orig, {1, 0, 1, 0, 2, 1, 0, 1, 1});
-
   Init test(state);
 
   vector<esf_uint_t> data = {1, 3, 3};
@@ -319,6 +319,30 @@ TEST_F(StateTest, ThreeDemeConversionFromInit) {
 
   }
 
+}
+
+
+TEST_F(StateTest, ValidComparison) {
+  State exp{state};
+  EXPECT_EQ(exp, state);
+
+  // Only init is different.
+  exp = State{Init{{1, 2, 3}}, {1, 0, 1, 0, 2, 1, 0, 1, 1}};
+  EXPECT_FALSE(exp == state);
+
+  // Only state vector is different.
+  exp = State{Init{{2, 3, 2}}, {0, 1, 0, 3, 0, 0, 0, 1, 1}};
+  EXPECT_FALSE(exp == state);
+
+  // Both init and state vector are different.
+  exp = State{Init{{1, 2, 3}}, {1, 0, 0, 2, 0, 0, 3, 0, 0}};
+  EXPECT_FALSE(exp == state);
+}
+
+
+TEST_F(StateTest, ValidAddition) {
+  State exp{Init{{4, 6, 4}}, {2, 0, 2, 0, 4, 2, 0, 2, 2}};
+  EXPECT_EQ(exp, state + state);
 }
 
 

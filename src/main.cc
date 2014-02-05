@@ -86,6 +86,10 @@ int main(int argc, char *argv[]) {
     alleles.push_back(Allele{avec});
   }
 
+  // for (auto a: alleles[0].reacheable()) {
+  //   std::cout << a.allele << '\t' << a.state << '\t' << a.factor << '\n';
+  // }
+
   AFS afs(alleles);
 
   ESFProb ep(afs, param);
@@ -94,16 +98,10 @@ int main(int argc, char *argv[]) {
 
   cout << ep.compute() << '\n';
 
-  // Allele allele({1, 1});
-  // for (auto a: allele.reacheable()) {
-  //   cout << a.factor << ", " << a.allele << "\n";
-  // }
-
   // for (auto a: afs.reacheable()) {
   //   cout << "factor: " << a.factor << "\t";
   //   cout << a.state << "\t";
   //   cout << a.afs << "\n";
-
   // }
 
 
