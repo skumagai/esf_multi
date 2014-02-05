@@ -91,9 +91,7 @@ class AFS {
                                 double,
                                 data_type::const_iterator,
                                 data_type::const_iterator,
-                                esf_uint_t,
-                                vector<ExitAlleleData>::const_iterator,
-                                vector<ExitAlleleData>::const_iterator) const;
+                                esf_uint_t) const;
 
   double get_denominator(Init const&, State const&) const;
 

@@ -144,10 +144,7 @@ vector<ExitAFSData> AFS::build(AFS const& afs,
     auto denom = get_denominator(Init{afs}, state);
     return {ExitAFSData({afs, state, factor / denom})};
   } else {
-    auto reacheables = begin->first.reacheable();
-    auto itr_b = reacheables.begin();
-    auto itr_e = reacheables.end();
-    return sub_build(afs, state, factor, begin, end, begin->second, itr_b, itr_e);
+    return sub_build(afs, state, factor, begin, end, begin->second);
   }
 }
 
@@ -158,19 +155,17 @@ AFS::sub_build(AFS const& afs,
                double factor,
                data_type::const_iterator begin,
                data_type::const_iterator end,
-               esf_uint_t count,
-               vector<ExitAlleleData>::const_iterator allele_begin,
-               vector<ExitAlleleData>::const_iterator allele_end) const {
+               esf_uint_t count) const {
   if (count == 0) {
     ++begin;
     return build(afs, state, factor, begin, end);
   } else {
     vector<ExitAFSData> retval;
-    for (auto a_itr = allele_begin; a_itr != allele_end; ++a_itr) {
-      auto p = sub_build(afs.add(a_itr->allele),
-                         a_itr->state + state,
-                         factor * a_itr->factor,
-                         begin, end, count - 1, a_itr, allele_end);
+    for (auto a: begin->first.reacheable()) {
+      auto p = sub_build(afs.add(a.allele),
+                         a.state + state,
+                         factor * a.factor,
+                         begin, end, count - 1);
       retval.insert(retval.end(), p.begin(), p.end());
     }
     return retval;
