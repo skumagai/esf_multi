@@ -257,9 +257,12 @@ esf_uint_t generate_id(State::value_type const& state, esf_uint_t b, esf_uint_t 
 
 
 ostream& operator<<(ostream& str, State const& state) {
+  auto end = state.end();
+  --end;
+
   str << "State(";
-  copy(state.begin(), state.end(), ostream_iterator<esf_uint_t>(str, ", "));
-  str << "\b\b)";
+  copy(state.begin(), end, ostream_iterator<esf_uint_t>(str, ", "));
+  str << *end << ')';
 
   return str;
 }

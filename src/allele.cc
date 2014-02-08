@@ -159,10 +159,12 @@ bool operator==(ExitAlleleData const& a, ExitAlleleData const& b) {
 
 
 ostream& operator<<(ostream& str, Allele const& allele) {
+  auto end = allele.end();
+  --end;
 
   str << "Allele(";
-  copy(allele.begin(), allele.end(), ostream_iterator<esf_uint_t>(str, ", "));
-  str << "\b\b";
+  copy(allele.begin(), end, ostream_iterator<esf_uint_t>(str, ", "));
+  str << *end;
   str << ")";
 
   return str;

@@ -241,9 +241,11 @@ ostream& operator<<(ostream& str, pair<Allele, esf_uint_t> const& p) {
 
 
 ostream& operator<<(ostream& str, AFS const& afs) {
+  auto end = afs.end();
+  --end;
   str << "AFS(";
-  copy(afs.begin(), afs.end(), ostream_iterator<pair<Allele, esf_uint_t>>(str, ", "));
-  str << "\b\b";
+  copy(afs.begin(), end, ostream_iterator<pair<Allele, esf_uint_t>>(str, ", "));
+  str << *end;
   str << ")";
 
   return str;
