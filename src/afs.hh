@@ -82,12 +82,14 @@ class AFS {
 
   vector<ExitAFSData> build(AFS const&,
                             State const&,
+                            vector<pair<Allele, Allele>> const&,
                             double,
                             data_type::const_iterator,
                             data_type::const_iterator) const;
 
   vector<ExitAFSData> sub_build(AFS const&,
                                 State const&,
+                                vector<pair<Allele, Allele>> const&,
                                 double,
                                 data_type::const_iterator,
                                 data_type::const_iterator,
@@ -96,6 +98,7 @@ class AFS {
                                 vector<ExitAlleleData>::const_iterator) const;
 
   double get_denominator(Init const&, State const&) const;
+  double get_duplicity(AFS const&, vector<pair<Allele, Allele>> const&) const;
 
  public:
 

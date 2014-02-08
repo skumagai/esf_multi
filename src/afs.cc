@@ -26,6 +26,7 @@
 #include <algorithm>
 #include <iostream>
 #include <iterator>
+#include <map>
 #include <numeric>
 #include <stdexcept>
 #include <utility>
@@ -41,6 +42,8 @@ namespace esf {
 using ::std::accumulate;
 using ::std::any_of;
 using ::std::copy;
+using ::std::make_pair;
+using ::std::map;
 using ::std::ostream;
 using ::std::ostream_iterator;
 using ::std::out_of_range;
@@ -131,23 +134,26 @@ vector<ExitAFSData> AFS::reacheable() const {
   Init::value_type i(deme);
   State::value_type s(deme * deme);
   State state{i, s};
-  return build(afs, state, 1.0, m_data.begin(), m_data.end());
+  vector<pair<Allele,Allele>> match;
+  return build(afs, state, match, 1.0, m_data.begin(), m_data.end());
 }
 
 
 vector<ExitAFSData> AFS::build(AFS const& afs,
                                State const& state,
+                               vector<pair<Allele, Allele>> const& match,
                                double factor,
                                data_type::const_iterator begin,
                                data_type::const_iterator end) const {
   if (begin == end) {
     auto denom = get_denominator(Init{afs}, state);
-    return {ExitAFSData({afs, state, factor / denom})};
+    auto duplicity = get_duplicity(afs, match);
+    return {ExitAFSData({afs, state, duplicity * factor / denom})};
   } else {
     auto reacheables = begin->first.reacheable();
     auto itr_b = reacheables.begin();
     auto itr_e = reacheables.end();
-    return sub_build(afs, state, factor, begin, end, begin->second, itr_b, itr_e);
+    return sub_build(afs, state, match, factor, begin, end, begin->second, itr_b, itr_e);
   }
 }
 
@@ -155,6 +161,7 @@ vector<ExitAFSData> AFS::build(AFS const& afs,
 vector<ExitAFSData>
 AFS::sub_build(AFS const& afs,
                State const& state,
+               vector<pair<Allele, Allele>> const& match,
                double factor,
                data_type::const_iterator begin,
                data_type::const_iterator end,
@@ -163,12 +170,15 @@ AFS::sub_build(AFS const& afs,
                vector<ExitAlleleData>::const_iterator allele_end) const {
   if (count == 0) {
     ++begin;
-    return build(afs, state, factor, begin, end);
+    return build(afs, state, match, factor, begin, end);
   } else {
     vector<ExitAFSData> retval;
     for (auto a_itr = allele_begin; a_itr != allele_end; ++a_itr) {
+      auto m(match);
+      m.push_back(make_pair(begin->first, a_itr->allele));
       auto p = sub_build(afs.add(a_itr->allele),
                          a_itr->state + state,
+                         m,
                          factor * a_itr->factor,
                          begin, end, count - 1, a_itr, allele_end);
       retval.insert(retval.end(), p.begin(), p.end());
@@ -191,6 +201,59 @@ double AFS::get_denominator(Init const& init, State const& state) const {
     }
   }
   return denom;
+}
+
+
+double AFS::get_duplicity(AFS const& past, vector<pair<Allele, Allele>> const& a) const {
+
+  double val = 1.0;
+
+  map<Allele, esf_uint_t> count_now;
+  for (auto& allele: m_data) {
+    count_now[allele.first] = allele.second;
+  }
+
+  map<Allele, esf_uint_t> count_prev;
+  for (auto& allele: past) {
+    count_prev[allele.first] = allele.second;
+  }
+
+  AFS tmp{{Allele{{0, 2}}, Allele{{1, 1}}, Allele{{1,1}}, Allele{{2, 0}}}};
+
+  if (past == tmp) {
+    std::cout << "ENTER\n";
+  }
+
+  for (auto& p: a) {
+    // The first element is an allele in the current state, and the
+    // second element is an allele immediately before an event.
+    auto& now = p.first;
+    auto& prev = p.second;
+
+    esf_uint_t choice = count_now[now];
+    if (choice > count_prev[prev]) {
+      choice = count_prev[prev];
+    }
+
+    auto v = static_cast<double>(binomial(count_prev[prev], choice));
+    if (v == 0.0) {
+      std::cout << count_prev[prev] << " " << choice << "\n";
+    }
+
+    val *= static_cast<double>(binomial(count_prev[prev], choice));
+
+    if (past == tmp) {
+      std::cout << now << " " << prev << " " << count_prev[prev] << " " << choice << " " << val << "\n";
+    }
+    count_prev[prev] -= choice;
+    count_prev[now] -= 1;
+  }
+
+  if (past == tmp) {
+    std::cout << "EXIT\n\n";
+  }
+
+  return val;
 }
 
 

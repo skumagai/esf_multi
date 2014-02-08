@@ -83,6 +83,10 @@ double ESFProb::compute() {
     }
 
     (*m_esf_prob_cache)[m_afs] = val;
+
+    // if (val < 0) {
+    //   std::cout << m_afs << "\n";
+    // }
     return val;
 
   }
@@ -108,6 +112,7 @@ double ESFProb::compute_without_singleton() {
   for (auto spec: m_afs.reacheable()) {
     val += compute_coal_probs(spec, hp);
   }
+
   return val;
 
 }
@@ -147,11 +152,20 @@ double ESFProb::compute_with_singleton() {
 
     val -= ESFProb(other, m_param, m_esf_prob_cache, m_hit_prob_cache).compute() * \
         other[na] * na[deme] / dsize;
-
+        // na[deme] / dsize;
+    // if (val < 0) {
+    //   // std::cout << "At: " << m_afs << " get negative value with ";
+    //   std::cout << "(-) ";
+    // } else {
+    //   std::cout << "(+) ";
+    // }
+    // std::cout << m_afs << "  " << other << " and " << na << "\n";
 
   }
 
   val *= dsize / m_afs[allele];
+
+  // if (val < 0) std::cout << "NEGATIVE w/o Singleton: " << m_afs << "\n";
 
   return val;
 
@@ -164,6 +178,8 @@ double ESFProb::compute_coal_probs(ExitAFSData const& data, HitProb const& hp) {
   AFS afs = data.afs;
   State state = data.state;
   double factor = data.factor;
+  std::cout << afs << " " << state << " " << factor << "\n";
+  factor = 1.0;
 
   auto deme = m_init.deme();
 
@@ -179,9 +195,10 @@ double ESFProb::compute_coal_probs(ExitAFSData const& data, HitProb const& hp) {
 
         Allele na = allele.remove(i);
         AFS other1 = other0.add(na);
-        double tmp = hp.get(state, i) * \
-            ESFProb(other1, m_param, m_esf_prob_cache, m_hit_prob_cache).compute();
-        val += tmp * factor * na[i] * other1[na] / other1.size(i);
+        // double tmp = hp.get(state, i) * \
+        //     ESFProb(other1, m_param, m_esf_prob_cache, m_hit_prob_cache).compute();
+        // // val += tmp * factor * na[i] / other1.size(i);
+        // val += tmp * factor * na[i] * other1[na] / other1.size(i);
       }
 
     }
