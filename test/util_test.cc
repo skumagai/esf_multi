@@ -85,51 +85,71 @@ TEST_F(UtilTest, BinomialHandleNormalCases) {
 
 TEST_F(UtilTest, Convertesf_uint_tNtoOne) {
 
-  EXPECT_EQ(0, index_n_to_1<esf_uint_t>({2, 3}, {0, 0}));
-  EXPECT_EQ(1, index_n_to_1<esf_uint_t>({2, 3}, {1, 0}));
-  EXPECT_EQ(2, index_n_to_1<esf_uint_t>({2, 3}, {0, 1}));
-  EXPECT_EQ(3, index_n_to_1<esf_uint_t>({2, 3}, {1, 1}));
-  EXPECT_EQ(4, index_n_to_1<esf_uint_t>({2, 3}, {0, 2}));
-  EXPECT_EQ(5, index_n_to_1<esf_uint_t>({2, 3}, {1, 2}));
+  vector<esf_uint_t> i{2, 3};
+  vector<vector<esf_uint_t>> o = {{0, 0},
+                                  {1, 0},
+                                  {0, 1},
+                                  {1, 1},
+                                  {0, 2},
+                                  {1, 2}};
 
-  EXPECT_EQ(0, index_n_to_1<esf_uint_t>({2, 3, 2}, {0, 0, 0}));
-  EXPECT_EQ(1, index_n_to_1<esf_uint_t>({2, 3, 2}, {1, 0, 0}));
-  EXPECT_EQ(2, index_n_to_1<esf_uint_t>({2, 3, 2}, {0, 1, 0}));
-  EXPECT_EQ(3, index_n_to_1<esf_uint_t>({2, 3, 2}, {1, 1, 0}));
-  EXPECT_EQ(4, index_n_to_1<esf_uint_t>({2, 3, 2}, {0, 2, 0}));
-  EXPECT_EQ(5, index_n_to_1<esf_uint_t>({2, 3, 2}, {1, 2, 0}));
-  EXPECT_EQ(6, index_n_to_1<esf_uint_t>({2, 3, 2}, {0, 0, 1}));
-  EXPECT_EQ(7, index_n_to_1<esf_uint_t>({2, 3, 2}, {1, 0, 1}));
-  EXPECT_EQ(8, index_n_to_1<esf_uint_t>({2, 3, 2}, {0, 1, 1}));
-  EXPECT_EQ(9, index_n_to_1<esf_uint_t>({2, 3, 2}, {1, 1, 1}));
-  EXPECT_EQ(10, index_n_to_1<esf_uint_t>({2, 3, 2}, {0, 2, 1}));
-  EXPECT_EQ(11, index_n_to_1<esf_uint_t>({2, 3, 2}, {1, 2, 1}));
+  for (esf_uint_t j = 0; j < 6; ++j) {
+    EXPECT_EQ(j, index_n_to_1(i.begin(), i.end(), o[j].begin()));
+  }
 
+  i = {2, 3, 2};
+  o = {{0, 0, 0},
+       {1, 0, 0},
+       {0, 1, 0},
+       {1, 1, 0},
+       {0, 2, 0},
+       {1, 2, 0},
+       {0, 0, 1},
+       {1, 0, 1},
+       {0, 1, 1},
+       {1, 1, 1},
+       {0, 2, 1},
+       {1, 2, 1}};
+  for (esf_uint_t j = 0; j < 12; ++j) {
+    EXPECT_EQ(j, index_n_to_1(i.begin(), i.end(), o[j].begin()));
+  }
 }
 
 
 TEST_F(UtilTest, Convertesf_uint_tOneToN) {
 
-  EXPECT_EQ(vector<esf_uint_t>({0, 0}), index_1_to_n<esf_uint_t>({2, 3}, 0));
-  EXPECT_EQ(vector<esf_uint_t>({1, 0}), index_1_to_n<esf_uint_t>({2, 3}, 1));
-  EXPECT_EQ(vector<esf_uint_t>({0, 1}), index_1_to_n<esf_uint_t>({2, 3}, 2));
-  EXPECT_EQ(vector<esf_uint_t>({1, 1}), index_1_to_n<esf_uint_t>({2, 3}, 3));
-  EXPECT_EQ(vector<esf_uint_t>({0, 2}), index_1_to_n<esf_uint_t>({2, 3}, 4));
-  EXPECT_EQ(vector<esf_uint_t>({1, 2}), index_1_to_n<esf_uint_t>({2, 3}, 5));
+  vector<esf_uint_t> i1 = {2, 3};
+  vector<vector<esf_uint_t>> o = {{0, 0},
+                                  {1, 0},
+                                  {0, 1},
+                                  {1, 1},
+                                  {0, 2},
+                                  {1, 2}};
+  vector<esf_uint_t> i2(2);
+  for (esf_uint_t j = 0; j < 6; ++j) {
+    index_1_to_n(i1.begin(), i1.end(), i2.begin(), j);
+    EXPECT_EQ(o[j], i2);
+  }
 
-  EXPECT_EQ(vector<esf_uint_t>({0, 0, 0}), index_1_to_n<esf_uint_t>({2, 3, 2}, 0));
-  EXPECT_EQ(vector<esf_uint_t>({1, 0, 0}), index_1_to_n<esf_uint_t>({2, 3, 2}, 1));
-  EXPECT_EQ(vector<esf_uint_t>({0, 1, 0}), index_1_to_n<esf_uint_t>({2, 3, 2}, 2));
-  EXPECT_EQ(vector<esf_uint_t>({1, 1, 0}), index_1_to_n<esf_uint_t>({2, 3, 2}, 3));
-  EXPECT_EQ(vector<esf_uint_t>({0, 2, 0}), index_1_to_n<esf_uint_t>({2, 3, 2}, 4));
-  EXPECT_EQ(vector<esf_uint_t>({1, 2, 0}), index_1_to_n<esf_uint_t>({2, 3, 2}, 5));
-  EXPECT_EQ(vector<esf_uint_t>({0, 0, 1}), index_1_to_n<esf_uint_t>({2, 3, 2}, 6));
-  EXPECT_EQ(vector<esf_uint_t>({1, 0, 1}), index_1_to_n<esf_uint_t>({2, 3, 2}, 7));
-  EXPECT_EQ(vector<esf_uint_t>({0, 1, 1}), index_1_to_n<esf_uint_t>({2, 3, 2}, 8));
-  EXPECT_EQ(vector<esf_uint_t>({1, 1, 1}), index_1_to_n<esf_uint_t>({2, 3, 2}, 9));
-  EXPECT_EQ(vector<esf_uint_t>({0, 2, 1}), index_1_to_n<esf_uint_t>({2, 3, 2}, 10));
-  EXPECT_EQ(vector<esf_uint_t>({1, 2, 1}), index_1_to_n<esf_uint_t>({2, 3, 2}, 11));
+  i1 = {2, 3, 2};
+  i2.resize(3);
+  o = {{0, 0, 0},
+       {1, 0, 0},
+       {0, 1, 0},
+       {1, 1, 0},
+       {0, 2, 0},
+       {1, 2, 0},
+       {0, 0, 1},
+       {1, 0, 1},
+       {0, 1, 1},
+       {1, 1, 1},
+       {0, 2, 1},
+       {1, 2, 1}};
 
+  for (esf_uint_t j = 0; j < 6; ++j) {
+    index_1_to_n(i1.begin(), i1.end(), i2.begin(), j);
+    EXPECT_EQ(o[j], i2);
+  }
 }
 
 

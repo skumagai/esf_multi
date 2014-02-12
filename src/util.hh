@@ -65,20 +65,19 @@ T binomial(T n, T k);
 // Converts multidimensional index to 1 dimensional index. The most
 // rapidly chaning element is the first element, and the most slowly
 // chaning element is the last element.
-template <typename T,
-          class = typename enable_if<is_integral<T>::value>::type>
-T index_n_to_1(vector<T> const& dim, vector<T> const& idx);
-
+template <typename InputIterator1,
+          typename InputIterator2,
+          class = typename enable_if<
+            is_integral<typename InputIterator1::value_type>::value>::type>
+auto index_n_to_1(InputIterator1 b1, InputIterator1 e1, InputIterator2 b2)
+    -> typename InputIterator1::value_type;
 
 // Convert one dimensional index to multidimensional index.
 template <typename T,
+          typename InputIterator,
+          typename OutputIterator,
           class = typename enable_if<is_integral<T>::value>::type>
-vector<T> index_1_to_n(vector<T> const& dim, T idx);
-
-
-template <typename T,
-          class = typename enable_if<is_integral<T>::value>::type>
-vector<T> mult_factors(vector<T> const& dim);
+void index_1_to_n(InputIterator b, InputIterator e, OutputIterator o, T idx);
 
 template <typename InputIterator, typename OutputIterator>
 void offsets(InputIterator b, InputIterator e, OutputIterator o);
@@ -119,20 +118,6 @@ typename make_unsigned<T>::type unsign(T val) {
 }
 
 
-template <typename T, class>
-vector<T> mult_factors(vector<T> const& dim) {
-
-  vector<T> accum(dim.size());
-
-  accum[0] = 1;
-
-  partial_sum(dim.begin(), dim.end() - 1, accum.begin() + 1, multiplies<T>());
-
-  return accum;
-
-}
-
-
 template <typename InputIterator, typename OutputIterator>
 void offsets(InputIterator b, InputIterator e, OutputIterator o) {
   *o = 1;
@@ -164,47 +149,29 @@ T binomial(T n, T k) {
 }
 
 
-// Converts multidimensional index to 1 dimensional index. The most
-// rapidly chaning element is the first element, and the most slowly
-// chaning element is the last element.
-template <typename T, class>
-T index_n_to_1(vector<T> const& dim, vector<T> const& idx) {
-
-  typename vector<T>::size_type size = dim.size();
-
-  auto accum = mult_factors(dim);
-
+template <typename InputIterator1, typename InputIterator2, class>
+auto index_n_to_1(InputIterator1 b1, InputIterator1 e1, InputIterator2 b2)
+    -> typename InputIterator1::value_type {
+  typedef typename InputIterator1::value_type T;
+  T len = unsign(distance(b1, e1));
+  vector<T> accum(len);
+  offsets(b1, e1, accum.begin());
   T value = 0;
-
-  for (decltype(size) i = 0; i < size; ++i) {
-
-    value += idx[i] * accum[i];
-
+  for (T i = 0; i < len; ++i, ++b2) {
+    value += *b2 * accum[i];
   }
-
   return value;
-
 }
 
 
-// Convert one dimensional index to multidimensional index.
-template <typename T, class>
-vector<T> index_1_to_n(vector<T> const& dim, T idx) {
-
-  typename vector<T>::size_type size = dim.size();
-
-  auto accum = mult_factors(dim);
-
-  vector<T> values(size);
-
-  for (decltype(size) i = 0; i < size; ++i) {
-
-    values[i] = (idx / accum[i]) % dim[i];
-
+template <typename T, typename InputIterator, typename OutputIterator, class>
+void index_1_to_n(InputIterator b, InputIterator e, OutputIterator o, T idx) {
+  T len = unsign(distance(b, e));
+  vector<T> accum(len);
+  offsets(b, e, accum.begin());
+  for (T i = 0; i < len; ++i, ++b, ++o) {
+    *o = (idx / accum[i]) % *b;
   }
-
-  return values;
-
 }
 
 

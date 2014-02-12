@@ -121,7 +121,8 @@ State::value_type State::compute_state(esf_uint_t idx) {
 
   vector<esf_uint_t> tmp(deme);
   dimensions(m_init.begin(), m_init.end(), tmp.begin());
-  auto idx_list = index_1_to_n(tmp, idx);
+  vector<esf_uint_t> idx_list(deme);
+  index_1_to_n(tmp.begin(), tmp.end(), idx_list.begin(), idx);
 
 
   value_type data;
@@ -148,7 +149,7 @@ esf_uint_t State::compute_id() const {
   }
   vector<esf_uint_t> tmp(deme);
   dimensions(m_init.begin(), m_init.end(), tmp.begin());
-  return index_n_to_1(tmp, accum);
+  return index_n_to_1(tmp.begin(), tmp.end(), accum.begin());
 }
 
 
