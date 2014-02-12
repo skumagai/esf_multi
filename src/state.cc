@@ -39,6 +39,7 @@
 namespace esf {
 
 using ::std::accumulate;
+using ::std::advance;
 using ::std::copy;
 using ::std::ostream;
 using ::std::ostream_iterator;
@@ -47,18 +48,6 @@ using ::std::ptrdiff_t;
 using ::std::size_t;
 using ::std::transform;
 using ::std::vector;
-
-namespace {
-
-
-State::value_type state_dim(Init const&);
-
-State::value_type generate_state(esf_uint_t, esf_uint_t, esf_uint_t);
-
-esf_uint_t generate_id(State::value_type const&, esf_uint_t, esf_uint_t);
-
-
-}
 
 
 State::State(Init const& init)
@@ -130,15 +119,17 @@ esf_uint_t State::operator[](esf_uint_t i) const {
 State::value_type State::compute_state(esf_uint_t idx) {
   auto deme = m_init.deme();
 
-  auto idx_list = index_1_to_n(state_dim(m_init), idx);
+  vector<esf_uint_t> tmp(deme);
+  dimensions(m_init.begin(), m_init.end(), tmp.begin());
+  auto idx_list = index_1_to_n(tmp, idx);
+
 
   value_type data;
   data.reserve(deme * deme);
+  vector<esf_uint_t> substate(deme);
   for (esf_uint_t i = 0; i < deme; ++i) {
-
-    auto substate = generate_state(idx_list[i], deme, m_init[i]);
+    distribute_n(substate.begin(), substate.end(), idx_list[i], m_init[i]);
     data.insert(data.end(), substate.begin(), substate.end());
-
   }
 
   return data;
@@ -147,11 +138,17 @@ State::value_type State::compute_state(esf_uint_t idx) {
 
 esf_uint_t State::compute_id() const {
   auto deme = m_init.deme();
+  auto step = sign(deme);
   value_type accum(deme);
-  for (esf_uint_t i = 0; i < deme; ++i) {
-    accum[i] = generate_id(m_data, deme * i, deme * i + deme);
+  decltype(m_data)::const_iterator iterb = m_data.begin();
+  decltype(m_data)::const_iterator itere = m_data.begin();
+  advance(itere, step);
+  for (esf_uint_t i = 0; i < deme; ++i, advance(iterb, step), advance(itere, step)) {
+    accum[i] = convert_id<esf_uint_t>(iterb, itere);
   }
-  return index_n_to_1(state_dim(m_init), accum);
+  vector<esf_uint_t> tmp(deme);
+  dimensions(m_init.begin(), m_init.end(), tmp.begin());
+  return index_n_to_1(tmp, accum);
 }
 
 
@@ -190,69 +187,6 @@ State operator+(State const& a, State const& b) {
   State::value_type data{a.begin(), a.end()};
   transform(data.begin(), data.end(), b.begin(), data.begin(), plus<esf_uint_t>());
   return State{a.m_init + b.m_init, data};
-}
-
-
-namespace {
-
-
-State::value_type state_dim(Init const& init) {
-  esf_uint_t deme = init.deme();
-  State::value_type dim(deme);
-  transform(init.begin(), init.end(), dim.begin(),
-            [deme](esf_uint_t i) {
-              return binomial(i + deme - 1, i);
-            });
-
-  return dim;
-}
-
-State::value_type generate_state(esf_uint_t idx, esf_uint_t deme, esf_uint_t gene) {
-
-  esf_uint_t offset = 0;
-
-  State::value_type state(deme);
-
-  for (esf_uint_t i = 0; i < deme - 1; ++i) {
-    esf_uint_t j = 0, idx_old = idx;
-    while (idx <= idx_old &&
-           (offset = binomial(gene - j + deme - i - 2, gene - j)) <= idx) {
-      idx_old = idx;
-      idx -= offset;
-      ++j;
-    }
-    gene -= j;
-    state[i] = j;
-  }
-
-  state[deme - 1] = gene;
-  return state;
-
-}
-
-
-esf_uint_t generate_id(State::value_type const& state, esf_uint_t b, esf_uint_t e) {
-  auto deme = e - b;
-
-  ptrdiff_t begin = static_cast<ptrdiff_t>(b);
-  ptrdiff_t end = static_cast<ptrdiff_t>(e);
-
-  auto size = accumulate(state.begin() + begin, state.begin() + end, 0U);
-
-  esf_uint_t idx = 0;
-  for (esf_uint_t i = 0; i < deme - 1; ++i) {
-    auto curr = state[b];
-    ++b;
-    for (esf_uint_t j = 0; j < curr; ++j) {
-      idx += binomial(size - j + deme - i - 2, size - j);
-    }
-    size -= curr;
-  }
-
-  return idx;
-}
-
-
 }
 
 

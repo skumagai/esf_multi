@@ -35,6 +35,7 @@
 namespace esf {
 
 
+using ::std::distance;
 using ::std::enable_if;
 using ::std::is_integral;
 using ::std::is_unsigned;
@@ -79,6 +80,22 @@ template <typename T,
           class = typename enable_if<is_integral<T>::value>::type>
 vector<T> mult_factors(vector<T> const& dim);
 
+template <typename InputIterator, typename OutputIterator>
+void offsets(InputIterator b, InputIterator e, OutputIterator o);
+
+template <typename T,
+          typename OutputIterator,
+          class = typename enable_if<is_integral<T>::value>::type>
+void distribute_n(OutputIterator b, OutputIterator e, T idx, T k);
+
+template <typename InputIterator, typename OutputIterator>
+void dimensions(InputIterator b, InputIterator e, OutputIterator o);
+
+template <typename T, typename InputIterator>
+T convert_id(InputIterator b, InputIterator e);
+
+
+
 
 // template function definitions
 
@@ -113,6 +130,14 @@ vector<T> mult_factors(vector<T> const& dim) {
 
   return accum;
 
+}
+
+
+template <typename InputIterator, typename OutputIterator>
+void offsets(InputIterator b, InputIterator e, OutputIterator o) {
+  *o = 1;
+  auto o0 = *o;
+  partial_sum(b, e - 1, o + 1, multiplies<decltype(o0)>());
 }
 
 
@@ -180,6 +205,51 @@ vector<T> index_1_to_n(vector<T> const& dim, T idx) {
 
   return values;
 
+}
+
+
+template <typename T, typename OutputIterator, class>
+void distribute_n(OutputIterator b, OutputIterator e, T idx, T k) {
+  auto len = unsign(distance(b, e));
+  T offset = 0;
+  for (T i = 0; i < len - 1; ++i) {
+    T j = 0, idx_old = idx;
+    while (idx <= idx_old &&
+           (offset = binomial(k - j + len - i - 2, k - j)) <= idx) {
+      idx_old = idx;
+      idx -= offset;
+      ++j;
+    }
+    k -= j;
+    *b = j;
+    ++b;
+  }
+  *b = k;
+}
+
+
+template <typename InputIterator, typename OutputIterator>
+void dimensions(InputIterator b, InputIterator e, OutputIterator o) {
+  auto o0 = *o;
+  auto n = unsign(distance(b, e));
+  transform(b, e, o, [n](decltype(o0) k) { return binomial(k + n - 1U, k); });
+}
+
+
+template <typename T, typename InputIterator>
+T convert_id(InputIterator b, InputIterator e) {
+  auto deme = unsign(distance(b, e));
+  auto size = accumulate(b, e, 0U);
+
+  T idx = 0;
+  for (T i = 0; i < deme - 1; ++i, ++b) {
+    for (T j = 0; j < *b; ++j) {
+      idx += binomial(size - j + deme - i - 2, size - j);
+    }
+    size -= *b;
+  }
+
+  return idx;
 }
 
 
