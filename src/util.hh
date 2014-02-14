@@ -62,6 +62,12 @@ template <typename T,
           class = typename enable_if<is_integral<T>::value>::type>
 T binomial(T n, T k);
 
+template <typename InputIterator,
+          class = typename enable_if<
+            is_integral<typename InputIterator::value_type>::value>::type>
+auto multinomial(InputIterator b, InputIterator e)
+    -> typename InputIterator::value_type;
+
 // Converts multidimensional index to 1 dimensional index. The most
 // rapidly chaning element is the first element, and the most slowly
 // chaning element is the last element.
@@ -92,6 +98,22 @@ void dimensions(InputIterator b, InputIterator e, OutputIterator o);
 
 template <typename T, typename InputIterator>
 T convert_id(InputIterator b, InputIterator e);
+
+template <typename InputIterator1, typename InputIterator2>
+bool next_k_selection(InputIterator1 b1, InputIterator1 e1,
+                      InputIterator2 b2, InputIterator2 e2);
+
+template <typename T,
+          class = typename enable_if<is_integral<T>::value>::type>
+class range {
+ private:
+  T m_data;
+  T m_step;
+ public:
+  range(T init = 0, T step = 1) : m_data(init), m_step(step) {}
+  T operator()() { T retval = m_data; m_data += m_step; return retval; }
+};
+
 
 
 
@@ -128,24 +150,31 @@ void offsets(InputIterator b, InputIterator e, OutputIterator o) {
 
 template <typename T, class>
 T binomial(T n, T k) {
-
   T value = 1;
 
   if (k > n - k && n >= k) {
-
     k = n - k;
-
   }
 
   for (T i = 0; i < k; ++i) {
-
     value *= (n - i);
     value /= (i + 1);
-
   }
 
   return value;
+}
 
+template <typename InputIterator, class>
+auto multinomial(InputIterator b, InputIterator e)
+    -> typename InputIterator::value_type {
+  typedef typename InputIterator::value_type T;
+  T total = accumulate(b, e, static_cast<T>(0));
+  T retval = 1;
+  for (; b != e; ++b) {
+    retval *= binomial(total, *b);
+    total -= *b;
+  }
+  return retval;
 }
 
 
@@ -217,6 +246,33 @@ T convert_id(InputIterator b, InputIterator e) {
   }
 
   return idx;
+}
+
+
+template <typename InputIterator1, typename InputIterator2>
+bool next_k_selection(InputIterator1 b1, InputIterator1 e1,
+                      InputIterator2 b2, InputIterator2 e2) {
+
+  InputIterator2 pos = e2 - 1;
+  while (true) {
+    auto iterr = find(b1, e1, *pos);
+    auto iterl = find(b1, e1, *(pos - 1));
+    if (pos == b2 and iterr == e1 - 1) {
+      return false;
+    }
+
+    if (pos == b2 or iterr < iterl) {
+      *pos = *(iterr + 1);
+      for (auto b = pos + 1; b != e2; ++b) {
+        *b = *b1;
+      }
+      return true;
+    }
+
+    if (iterr == iterl) {
+      --pos;
+    }
+  }
 }
 
 
