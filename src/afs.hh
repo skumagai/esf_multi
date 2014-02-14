@@ -80,19 +80,6 @@ class AFS {
 
   data_type m_data;
 
-  vector<ExitAFSData> build(AFS const&,
-                            State const&,
-                            double,
-                            data_type::const_iterator,
-                            data_type::const_iterator) const;
-
-  vector<ExitAFSData> sub_build(AFS const&,
-                                State const&,
-                                double,
-                                data_type::const_iterator,
-                                data_type::const_iterator,
-                                esf_uint_t) const;
-
   double get_denominator(Init const&, State const&) const;
 
  public:

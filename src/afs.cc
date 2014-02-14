@@ -41,6 +41,7 @@ namespace esf {
 using ::std::accumulate;
 using ::std::any_of;
 using ::std::copy;
+using ::std::make_pair;
 using ::std::ostream;
 using ::std::ostream_iterator;
 using ::std::out_of_range;
@@ -84,9 +85,7 @@ AFS AFS::remove(Allele const& allele) const {
 
 bool AFS::singleton() const {
   return any_of(m_data.begin(), m_data.end(),
-                [](value_type p) {
-                  return p.first.singleton();
-                });
+                [](value_type p) { return p.first.singleton(); });
 }
 
 
@@ -114,9 +113,7 @@ esf_uint_t AFS::size(esf_uint_t deme) const {
 
 esf_uint_t AFS::size() const {
   return accumulate(this->begin(), this->end(), 0U,
-                    [](esf_uint_t a, value_type p) {
-                      return a + (p.first).size() * p.second;
-                    });
+                    [](esf_uint_t a, value_type p) { return a + (p.first).size() * p.second; });
 }
 
 
@@ -126,50 +123,84 @@ esf_uint_t AFS::deme() const {
 
 
 vector<ExitAFSData> AFS::reacheable() const {
-  auto deme = this->deme();
-  AFS afs{};
-  Init::value_type i(deme);
-  State::value_type s(deme * deme);
-  State state{i, s};
-  return build(afs, state, 1.0, m_data.begin(), m_data.end());
-}
+  esf_uint_t deme = this->deme();
+  esf_uint_t size = m_data.size();
 
+  vector<esf_uint_t> count;
+  count.reserve(size);
 
-vector<ExitAFSData> AFS::build(AFS const& afs,
-                               State const& state,
-                               double factor,
-                               data_type::const_iterator begin,
-                               data_type::const_iterator end) const {
-  if (begin == end) {
-    auto denom = get_denominator(Init{afs}, state);
-    return {ExitAFSData({afs, state, factor / denom})};
-  } else {
-    return sub_build(afs, state, factor, begin, end, begin->second);
+  vector<vector<ExitAlleleData>> a_store;
+  a_store.reserve(size);
+
+  vector<esf_uint_t> dim;
+  dim.reserve(size);
+
+  vector<Allele> orig;
+  orig.reserve(size);
+
+  for (auto& p: m_data) {
+    count.push_back(p.second);
+    orig.push_back(p.first);
+
+    a_store.push_back(p.first.reacheable());
+
+    esf_uint_t k = a_store.back().size();
+    dim.push_back(binomial(count.back() + k - 1, count.back()));
   }
-}
 
-
-vector<ExitAFSData>
-AFS::sub_build(AFS const& afs,
-               State const& state,
-               double factor,
-               data_type::const_iterator begin,
-               data_type::const_iterator end,
-               esf_uint_t count) const {
-  if (count == 0) {
-    ++begin;
-    return build(afs, state, factor, begin, end);
-  } else {
-    vector<ExitAFSData> retval;
-    for (auto a: begin->first.reacheable()) {
-      auto p = sub_build(afs.add(a.allele),
-                         a.state + state,
-                         factor * a.factor,
-                         begin, end, count - 1);
-      retval.insert(retval.end(), p.begin(), p.end());
+  vector<vector<vector<esf_uint_t>>> indecies(size);
+  for (esf_uint_t i = 0; i < size; ++i) {
+    indecies[i].reserve(dim[i]);
+    vector<esf_uint_t> tmp(count[i]);
+    vector<esf_uint_t> r(a_store[i].size());
+    indecies[i].push_back(tmp);
+    generate_n(r.begin(), r.size(), range<esf_uint_t>());
+    while (next_k_selection(r.begin(), r.end(), tmp.begin(), tmp.end())) {
+      indecies[i].push_back(tmp);
     }
-    return retval;
   }
+
+  esf_uint_t total_dim = accumulate(dim.begin(), dim.end(), 1UL, multiplies<esf_uint_t>());
+
+  map<pair<AFS, State>, double> retmap;
+
+  vector<esf_uint_t> jndex(size);
+  for (esf_uint_t i = 0; i < total_dim; ++i) {
+    index_1_to_n(dim.begin(), dim.end(), jndex.begin(), i);
+
+    AFS afs;
+    State state{Init{vector<esf_uint_t>(deme)}, vector<esf_uint_t>(deme * deme)};
+
+    double factor = 1.0;
+    map<Allele, map<pair<Allele, State>, esf_uint_t>> repmap;
+    for (esf_uint_t j = 0; j < size; ++j) {
+      auto& index = indecies[j][jndex[j]];
+      for (auto k: index) {
+        auto& a = a_store[j][k];
+        afs = afs.add(a.allele);
+        state = state + a.state;
+        factor *= a.factor;
+        ++repmap[a.allele][make_pair(orig[j], a.state)];
+      }
+    }
+    for (auto& p: repmap) {
+      auto m = p.second;
+      vector<esf_uint_t> repvec(m.size());
+      transform(m.begin(), m.end(), repvec.begin(),
+                [](decltype(m)::value_type& q) { return q.second; });
+      factor *= multinomial(repvec.begin(), repvec.end());
+    }
+    factor /= get_denominator(Init{afs}, state);
+    retmap[make_pair(afs, state)] += factor;
+  }
+
+  vector<ExitAFSData> retvec(retmap.size());
+  transform(retmap.begin(), retmap.end(), retvec.begin(),
+            [](decltype(retmap)::value_type& p) {
+              return ExitAFSData{p.first.first, p.first.second, p.second};
+            });
+
+  return retvec;
 }
 
 
